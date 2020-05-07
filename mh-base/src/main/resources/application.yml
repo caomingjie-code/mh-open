@@ -1,0 +1,74 @@
+
+server:
+  port: 8080
+
+#配置日志
+logging:
+  level:
+    com.mh.**: DEBUG
+spring:
+  #配置应用名称
+  application:
+    name: mhbase
+  #配置jpa  
+  jpa:
+    hibernate:
+      ddl-auto: update 
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  #配置数据库http://localhost/BaseDB/testDataSourceRoute
+  datasource_master: 
+      url: jdbc:mysql://localhost:3306/base?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+      username: root
+      password: zqbxcmj
+  #从数据库    
+  datasource_slaves:
+      slavename: slaveDS
+      url: jdbc:mysql://localhost:3306/fit?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+      username: root
+      password: zqbxcmj
+      driver: com.mysql.jdbc.Driver
+
+  main:
+     allow-bean-definition-overriding: true
+  #定义freemarker   
+  freemarker:
+    prefix: page/
+    suffix: .html
+    cache: false
+  #静态文件  
+  mvc:
+    static-path-pattern: /**
+  resources:
+    static-locations : classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/static/page/
+  #Redis
+  redis:
+    host: localhost
+    port: 6379
+    password: 123
+    timeout: 1000
+
+#配置mybatis 
+mybatis:
+  #扫描mapper 文件路径
+  mapper-locations : classpath*:/mybatis/**/*.xml
+  configuration:
+    #sql打印
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+ 
+#配置eureka 
+#eureka:
+#  instance:
+#    prefer-ip-address: true  
+#  client:
+#    service-url:
+#      defaultZone : http://root:123@localhost:8761/eureka/
+
+      
+
+      
+      
+      
+      
+      
+      

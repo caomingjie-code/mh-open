@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+    <script src="/js/jquery.min.js"></script>
+</head>
+<body>
+ <form>
+  <tr>
+    <td>用户名:</td>
+    <td>
+         <input type="text" size="20" name="username" id="username">
+    </td>
+  </tr>
+  <tr>
+     <td>密码 :</td>
+     <td>
+     <input type="password" size="20" name="password" id="password">
+     </td>
+  </tr>
+      <!--这个必须加上，否则不会执行UserDetailsService-->
+      <input id="csrf" type="hidden"
+             name="${_csrf.parameterName}"
+             value="${_csrf.token}"/>
+  <input type="button" name="submit" id="submit">
+  </form>
+</body>
+<script>
+    $(function(){
+        //点击提交
+      $("#submit").click(function () {
+          var username = $("#username").val()
+          var password = $("#password").val()
+          var csrfName = $("#csrf").attr("name")
+          var csrfValue = $("#csrf").attr("value")
+          var data={}
+          var url="/security/login?username="+username+"&password="+password+"&"+csrfName+"="+csrfValue;
+          //alert(url)
+          $.post(url,data,function (resData) {
+              var msg = resData['msg']+"";
+              if(msg=="500"){
+                  alert("账号或密码错误")
+              }
+              if(msg=="200"){
+                  window.location.href="/security/main" //跳转到系统的主页面
+              }
+
+          },"json")
+      })
+    })
+
+</script>
+</html>

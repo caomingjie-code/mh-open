@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="BASE">
+    <!-- 存放BASE的公共sql -->
+    <sql id="page_start">
+    drop view if exists ${view};
+     create view ${view} as (
+    </sql>
+    <sql id="page_end">
+     );SELECT a.tatol, b.* FROM ( SELECT count(0) AS tatol FROM ${view}) a LEFT JOIN ${view} b ON 1 = 1 limit 
+     <if test="#{begeinIndex} == null">
+     0
+     </if>
+     <if test="#{begeinIndex} != null">
+     ${begeinIndex}
+     </if>
+     ,
+     ${pageSize}
+     ;
+     drop view if exists ${view};
+    </sql>
+    
+	 
+	 
+	 
+  
+</mapper>

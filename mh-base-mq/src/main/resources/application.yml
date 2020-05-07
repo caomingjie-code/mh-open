@@ -1,0 +1,60 @@
+server:
+  port: 6077
+#spring.jpa.hibernate.ddl-auto=create
+#spring.datasource.url=jdbc:mysql://localhost:3306/db_example
+#spring.datasource.username=springuser
+#spring.datasource.password=ThePassword  
+spring:
+  #配置应用名称
+  application:
+    name: baseMQ
+  #配置jpa  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  #配置数据库
+  datasource_master: 
+      url: jdbc:mysql://localhost:3306/base?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+      username: root
+      password: zqbxcmj
+  main:
+     allow-bean-definition-overriding: true
+  #定义freemarker   
+  freemarker:
+    prefix: page/
+    suffix: .htm
+    cache: false
+  #静态文件  
+  mvc:
+    static-path-pattern: /**
+  resources:
+    static-locations : classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/static/page/,classpath:/
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+       
+mybatis:
+  mapper-locations : classpath*:mybatis/**/*.xml
+  
+  
+#配置eureka 
+#eureka:
+#  instance:
+#    prefer-ip-address: true  
+#  client:
+#    service-url:
+#      defaultZone : http://root:123@localhost:8761/eureka/
+
+
+      
+
+      
+      
+      
+      
+      
+      

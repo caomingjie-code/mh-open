@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="BASE">
+	 <select id="queryDataFor2" resultType="map">
+	    select * from test_data
+	 </select>
+     <select id="testSql2" resultType="map">
+	     <include refid="page_start"/>
+	     select * from test_data
+	     <include refid="page_end"/>
+	 </select>
+  
+     <insert id="saveTestData">
+      insert into test_data (data1, data2, data3, data4) 
+      values (#{PM.data1}, #{PM.data2}, #{PM.data3}, #{PM.data4})
+     </insert>
+     
+      <select id="selectAllTestData" resultType="map">
+	 	select * from test_data;
+	 </select>
+
+	<select id="queryDataFor3" resultType="map">
+		select * from test_data a where a.data_id = #{PM.id}
+	</select>
+
+	<insert id="insertSql">
+		insert into test_data (data1) values(#{PM.data})
+	</insert>
+
+</mapper>

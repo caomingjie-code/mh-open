@@ -1,6 +1,7 @@
 package com.mh.base.mq.init;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import javax.annotation.Resource;
 import javax.sql.rowset.spi.SyncResolver;
 
+import com.mh.base.mq.annotation.ListenerQueue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -106,7 +108,17 @@ public class QueueInit implements ApplicationContextAware{
 					for(;keys.hasMoreElements();) {
 						String queueListenerName = keys.nextElement();//类名+"_"+方法
 						QueueBeanDefinition qbd = queuesListener.get(queueListenerName);
-						
+						Method listenerMehod = qbd.getListenerMehod();
+						ListenerQueue declaredAnnotation = listenerMehod.getDeclaredAnnotation(ListenerQueue.class);
+						boolean batch = false;
+						int batchCount = 1;
+						if(declaredAnnotation!=null){
+							batch = declaredAnnotation.isBatch();
+							batchCount = declaredAnnotation.batchCount()<1?1:declaredAnnotation.batchCount();
+						}
+
+
+
 						System.out.println("监听队列： "+qbd.getListenerQueueName());
 						if(StringUtils.isNotBlank(qbd.getListenerQueueName())) {
 							Connection connection = getMQConnect(amqpTemplate);
@@ -117,7 +129,7 @@ public class QueueInit implements ApplicationContextAware{
 							} catch (NoSuchBeanDefinitionException e) {
 								springSingleBean = null;
 							}
-							MHConsumer mhConsumer = new MHConsumer(channel, qbd.getBeanClazz().newInstance(), qbd.getListenerQueueName(), qbd.getListenerMehod(),springSingleBean);
+							MHConsumer mhConsumer = new MHConsumer(channel, qbd.getBeanClazz().newInstance(), qbd.getListenerQueueName(), qbd.getListenerMehod(),springSingleBean,batch,batchCount);
 							mhConsumer.start();
 						}
 					}

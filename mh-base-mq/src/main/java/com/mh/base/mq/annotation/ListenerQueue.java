@@ -16,4 +16,6 @@ import org.springframework.core.annotation.AliasFor;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ListenerQueue  {
 	String[] queues() default {};
+	boolean  isBatch() default false; //是否是批处理
+	int batchCount()   default 1; //批处理数量,默认为1
 }

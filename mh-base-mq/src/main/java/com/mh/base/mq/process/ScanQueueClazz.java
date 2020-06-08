@@ -56,7 +56,7 @@ public class ScanQueueClazz {
     	          		        	 Class<?> beanClazz = Class.forName(className);
     	          		        	 Class<?> methodParamClazz = Class.forName(nn);
     	          		        	 String key = className+"_"+methodName;
-    	          		        	 Method listenerMethod = beanClazz.getMethod(methodName, methodParamClazz); //监听的方法
+    	          		        	 Method listenerMethod = beanClazz.getDeclaredMethod(methodName, methodParamClazz); //监听的方法
     	          		        	 /**
     	          		        	  * private Class beanClazz;
 										private String listenerQueueName;

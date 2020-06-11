@@ -8,7 +8,7 @@ import com.mh.Base;
 public class MHBaseMQApp extends Base {
 
 	public static void main(String[] args) {
-		new MHBaseMQApp().run(args);
+		new MHBaseMQApp().run(args);//
 	}
 
 }

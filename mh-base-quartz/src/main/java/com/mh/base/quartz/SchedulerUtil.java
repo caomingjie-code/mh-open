@@ -122,11 +122,11 @@ public class SchedulerUtil {
      * @date 2018-6-25 <br>
      * @param jobName 任务名字
      * @param jobGroupName 任务组名字
-     * @param triggerName触发器名字
-     * @param triggerGroupName触发器组名字
-     * @param jobClass任务类
-     * @param intevalTime时间间隔
-     * @param count执行几次 负数为永远<br> 
+     * @param triggerName 触发器名字
+     * @param triggerGroupName 触发器组名字
+     * @param jobClass 任务类
+     * @param intevalTime 时间间隔
+     * @param count 执行几次 负数为永远<br>
      */
     public static void handleSimpleTrigger(
     		String jobName, String jobGroupName,
@@ -180,35 +180,6 @@ public class SchedulerUtil {
 		JobBuilder withIdentity = JobBuilder.newJob(jobClass)
 		        .withIdentity(jobName, jobGroupName);
 		JobDetailImpl job = (JobDetailImpl) withIdentity.build();
-		
-		
-//		BaseJobDetailImpl bdJob = new BaseJobDetailImpl();
-//		bdJob.setBmt(bmt);
-//		bdJob.setBst(bst);
-//		
-//		bdJob.setJobClass(jobClass);
-//		
-//		Field declaredField = withIdentity.getClass().getDeclaredField("description");
-//		declaredField.setAccessible(true);
-//		String object = (String)declaredField.get(withIdentity);
-//		bdJob.setDescription(object);
-//		
-//		Field declaredField2 = withIdentity.getClass().getDeclaredField("key");
-//		declaredField2.setAccessible(true);
-//		JobKey key = (JobKey)declaredField2.get(withIdentity);
-//        bdJob.setKey(key); 
-//        
-//        Field declaredField3 = withIdentity.getClass().getDeclaredField("durability");
-//        declaredField3.setAccessible(true);
-//        boolean durability = (boolean) declaredField3.get(withIdentity);
-//        bdJob.setDurability(durability);
-//        
-//        Field declaredField4 = withIdentity.getClass().getDeclaredField("shouldRecover");
-//        declaredField4.setAccessible(true);
-//        boolean shouldRecover = (boolean) declaredField4.get(withIdentity);
-//        bdJob.setRequestsRecovery(shouldRecover);
-//		
-//		SimpleJobFactory.addNewJobs(job.getKey().toString(), bdJob);
 		if(bmt!=null&&bst!=null) {
 			throw new Exception("BaseSimpleTask 和  BaseStateTask 对象必须存在其中一个为null,不允许在调用getJob 方法时，这两个对象都同时存在");
 		}

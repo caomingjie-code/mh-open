@@ -19,6 +19,7 @@
     <module>mh-base-quartz</module>
     <module>mh-base-mq</module>
     <module>mh-base-security</module>
+      <module>mh-web-manager</module>
   </modules>
 
   <name>mh-open</name>

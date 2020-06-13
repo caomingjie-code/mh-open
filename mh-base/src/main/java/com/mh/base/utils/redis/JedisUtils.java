@@ -63,22 +63,22 @@ public class JedisUtils implements InitializingBean {
 	@Resource
 	private RedisProperties redisProperties;
 
-	//@Value("${spring.redis.host}")
+	@Value("${spring.redis.host}")
 	private void setUrl(String url) {
 		reduesUrl = url;
 	}
 
-	//@Value("${spring.redis.password}")
+	@Value("${spring.redis.password}")
 	private void setPw(String pw) {
 		jedisPW = pw;
 	}
 
-	//@Value("${spring.redis.port}")
+	@Value("${spring.redis.port}")
 	private void setPw(Integer jp) {
 		jedisPort = jp;
 	}
 
-	//@Value("${spring.redis.timeout}")
+	@Value("${spring.redis.timeout}")
 	private void setjedisTimeOut(String jedisTimeOutStr) {
 		int timeout_ = 1;
 		String[] split = jedisTimeOutStr.split("[*]");

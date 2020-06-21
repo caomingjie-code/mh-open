@@ -17,7 +17,20 @@ public class ClassDefinition implements Definition {
 	private String targetClazz;//目标类
 	private  Map<String,AnnotationNode> targetClazzAnotations;//目标类的注解,K 为注解名称
 	private  List<MethodDefinition> methodDefinition;  //类中方法的定义
+	private List<FieldDefinition> fieldDefinitions;//属性定义
 	private ClassNode classNode;
+
+
+	public List<FieldDefinition> getFieldDefinitions() {
+		return fieldDefinitions;
+	}
+
+	public void setFieldDefinitions(List<FieldDefinition> fieldDefinitions) {
+		if(this.fieldDefinitions!=null){
+			return ;
+		}
+		this.fieldDefinitions = fieldDefinitions;
+	}
 
 	public ClassNode getClassNode() {
 		return classNode;
@@ -29,7 +42,7 @@ public class ClassDefinition implements Definition {
 		}
 		this.classNode = classNode;
 	}
-	
+
 	public String getTargetClazz() {
 		return targetClazz;
 	}
@@ -57,11 +70,10 @@ public class ClassDefinition implements Definition {
 		}
 		this.methodDefinition = methodDefinition;
 	}
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 }

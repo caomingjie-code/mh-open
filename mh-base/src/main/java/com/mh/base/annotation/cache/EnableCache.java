@@ -22,5 +22,12 @@ public @interface EnableCache {
 	   *      然后全部删除
 	 * @return
 	 */
-	String value() default "";
+	String value() ;
+
+	boolean session() default true; //会话级别缓存
+
+	boolean methodArgs() default false;//根据 controller中的方法参数进行缓存,可以防止可以攻击,免疫根据url随机参数
+
+	boolean requestParams() default true; //根据 request.getParams
+
 }

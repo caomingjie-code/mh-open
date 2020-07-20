@@ -46,7 +46,6 @@ public class HttpClientUtils {
 	 * name)等方法可获取服务器的响应头；调用HttpResponse的getEntity()方法可获取HttpEntity对象，该对象包装了服务器的响应内容
 	 * 。程序可通过该对象获取服务器的响应内容。 6. 释放连接。无论执行方法是否成功，都必须释放连接
 	 */
-
 	public static JSONObject postData(String targetUrl, List<NameValuePair> formparams) {
 		JSONObject jsonResult = null;
 		HttpPost httppost = new HttpPost(targetUrl);

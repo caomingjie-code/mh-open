@@ -1,5 +1,8 @@
 package com.mh.base.annotation.cache;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,4 +33,5 @@ public @interface EnableCache {
 
 	boolean requestParams() default true; //根据 request.getParams
 
+	Class[] excludeArgs() default {}; //排除方法上参数,根据类型.默认排除ServletRequest.class, ServletResponse.class,通常排除自引用的参数
 }

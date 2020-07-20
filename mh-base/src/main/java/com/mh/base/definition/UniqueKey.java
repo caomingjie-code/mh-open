@@ -1,10 +1,14 @@
 package com.mh.base.definition;
 
-import java.util.Map;
+import java.util.*;
 
 import org.apache.xerces.impl.dv.util.Base64;
 
 import com.mh.base.utils.protostuff.ProtostuffUtils;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 
@@ -12,15 +16,45 @@ import com.mh.base.utils.protostuff.ProtostuffUtils;
  *
  */
 public class UniqueKey {
+
+	static List<Class> excludes = new ArrayList<>();
+	static {
+		excludes.add(ServletRequest.class);
+		excludes.add(ServletResponse.class);
+	}
+
 	String id;
 	String requestURI;
 	Map<String, String[]> parameterMap;
-	public UniqueKey(String id, String requestURI, Map<String, String[]> parameterMap) {
+	Set methodArgs = new TreeSet();
+	public UniqueKey(Set methodArgs,String id, String requestURI, Map<String, String[]> parameterMap,Object[] args) {
 		super();
 		this.id = id;
 		this.requestURI = requestURI;
 		this.parameterMap = parameterMap;
+		this.methodArgs = methodArgs;
+		if(args!=null&&args.length>0){
+			for(Object oj : args){
+				if(!isExcludes(oj)){
+					methodArgs.add(oj);
+				}
+			}
+		}
+
 	}
+	public boolean isExcludes(Object obj){
+		boolean isExclude = false;
+		if(obj != null){
+			for(Class clazz : excludes){
+				if(clazz.isAssignableFrom(obj.getClass())){
+					isExclude = true;
+					break;
+				}
+			}
+		}
+		return isExclude;
+	}
+
 	/**
 	 * 返回unique Key
 	 * @return

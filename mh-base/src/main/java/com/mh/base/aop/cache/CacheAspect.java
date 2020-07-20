@@ -2,13 +2,11 @@ package com.mh.base.aop.cache;
 
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -62,7 +60,7 @@ import jdk.internal.org.objectweb.asm.tree.AnnotationNode;
 public class CacheAspect implements InitializingBean{
 
 	// sessionId + key 进行关联多个 uniquekey 用于删除缓存时使用
-	private static final ConcurrentHashMap<String, SoftReference<ConcurrentHashSet<String>>> SESSION_KEY_UNIQUE_KEY = new ConcurrentHashMap<String, SoftReference<ConcurrentHashSet<String>>>();
+	private static final SoftHashMap<String, SoftReference<ConcurrentHashSet<String>>> SESSION_KEY_UNIQUE_KEY = new SoftHashMap<String, SoftReference<ConcurrentHashSet<String>>>();
 	
 	private static final String  ENABLE_CACHE = "com.mh.base.cache.annotation.EnableCache";
 	private static final String  UNABLE_CACHE = "com.mh.base.cache.annotation.UnableCache";
@@ -89,14 +87,16 @@ public class CacheAspect implements InitializingBean{
 	@Around("pointCutEnableCache()")
 	public Object doAroundEnableCache(final ProceedingJoinPoint joinPoint) throws Throwable {
 		Signature signature = joinPoint.getSignature();
+		Object[] args = joinPoint.getArgs();//方法参数值
 		EnableCache declaredAnnotation = baseChecked(signature);//基础信息校验
-		String uniqueKeyStr = getUniqueKey(); //redis key
+		String uniqueKeyStr = getUniqueKey(declaredAnnotation,args); //redis key
 		String sessionIdKey = getSessionIdKey(declaredAnnotation);//获取sessionIDKey
 		/**从redis中查询数据**/
 		Object cacheData = queryCacheData(uniqueKeyStr);
 		if(cacheData != null) {
 			return cacheData;
 		}
+
 		Object proceed = joinPoint.proceed();
 		//做缓存
 		saveCacheData(uniqueKeyStr, sessionIdKey, proceed);
@@ -136,17 +136,36 @@ public class CacheAspect implements InitializingBean{
 	 * 获取uniqueKey
 	 * @return
 	 */
-	public String getUniqueKey() {
+	public String getUniqueKey(EnableCache enableCache,Object[] args) {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
 				.getRequest();
-		HttpSession session = request.getSession();
-		String id = session.getId();// sessionId 表示同一个session
+
 		String requestURI = request.getRequestURI();// 表示请求接口
-		Map<String, String[]> parameterMap = request.getParameterMap();
-		
-		UniqueKey uniqueKey = new UniqueKey(id, requestURI, parameterMap);
+		String sessionId = null;                    //session id
+		Map<String, String[]> parameterMap = null;  // paramsKV
+		Object[] as = null;                         //方法参数值
+
+		HashSet<Class> excludeClass = new HashSet<>();
+		excludeClass.add(ServletRequest.class);
+		excludeClass.add(ServletResponse.class);
+
+		if(enableCache.session()){
+			sessionId = request.getSession().getId();// sessionId 表示同一个session
+		}
+		if(enableCache.requestParams()){
+			parameterMap = request.getParameterMap();
+		}
+		if(enableCache.methodArgs()){
+			as = args;
+		}if(enableCache.excludeArgs()!=null&&enableCache.excludeArgs().length>0){
+			for(Class clazz : enableCache.excludeArgs()){
+				excludeClass.add(clazz);
+			}
+		}
+
+		UniqueKey uniqueKey = new UniqueKey(excludeClass,sessionId, requestURI, parameterMap, as);
 		String uniqueKeyStr = uniqueKey.getUniqueKeyStr(); //redis key
-		return uniqueKeyStr;	
+		return uniqueKeyStr;
 	}
 
 	/**

@@ -13,6 +13,7 @@ import javax.transaction.Transactional;
 import com.mh.base.db.test.mapping.StudyMapperProxy;
 import org.junit.Before;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.WebApplicationContext;
@@ -41,10 +42,10 @@ public class BaseTest<E> {
 	@Resource
 	StudyMapperProxy studyMapperProxy;
 	
-	@RequestMapping("getSpringBeans")
+	@RequestMapping("getSpringBeans/{id}")
 	@ResponseBody
-	@EnableCache("getSpringBeans")
-	public List<String> getSpringBeans(HttpServletRequest req) {
+	@EnableCache(value = "getSpringBeans",methodArgs = true)
+	public List<String> getSpringBeans(@PathVariable("id") String id, HttpServletRequest req) {
 		ServletContext sc = req.getServletContext();
 		ArrayList<String> list = new ArrayList<String>();
 		WebApplicationContext spring = WebApplicationContextUtils.getWebApplicationContext(sc);

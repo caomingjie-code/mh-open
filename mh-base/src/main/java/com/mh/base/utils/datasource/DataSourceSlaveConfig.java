@@ -1,14 +1,15 @@
 package com.mh.base.utils.datasource;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.mh.base.annotation.conditional.ConditionalOnPropertyMustExists;
 import com.mh.base.exception.BaseDataSourceException;
 import com.mh.base.properties.DataSourceMaster;
 import com.mh.base.properties.DataSourceSlave;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
@@ -21,9 +22,11 @@ import java.sql.SQLException;
 @ConditionalOnSingleCandidate(DataSourceMaster.class)
 @EnableConfigurationProperties({DataSourceMaster.class,DataSourceSlave.class})
 @Configuration
+@ConditionalOnPropertyMustExists("spring.datasource_master.url")
 public class DataSourceSlaveConfig {
 
     @Bean("dataSourceMater")
+    @ConditionalOnPropertyMustExists("spring.datasource_master.url")
     public DataSource createDataSourceSlave(DataSourceMaster dataSourceMaster,DataSourceSlave dataSourceSlave) throws Exception {
     	BaseComboPooledDataSource dataSourceOfC3p0 = getDataSourceOfC3p0(dataSourceMaster);//Master
     	//初始化slave
@@ -89,8 +92,8 @@ public class DataSourceSlaveConfig {
         cpds.setJdbcUrl( url );
         cpds.setUser(username);
         cpds.setPassword(password);
-        cpds.setMaxPoolSize(100);
-        cpds.setMinPoolSize(10);
+        cpds.setMaxPoolSize(500);
+        cpds.setMinPoolSize(100);
         cpds.setSlavename(slavename);
         return cpds;
     }

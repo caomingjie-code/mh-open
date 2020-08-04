@@ -9,12 +9,12 @@ import com.mh.base.mq.annotation.ListenerQueue;
 @CreateQueue(name="testQueue")
 public class TestQueue { 
 	
-	@ListenerQueue(queues="testQueue")
+	//@ListenerQueue(queues="testQueue")
 	public void pricive(Object msg) {
 		System.out.println("TestQueue: "+msg);
 	}
 	
-	@ListenerQueue(queues="testQueue")
+	//@ListenerQueue(queues="testQueue")
 	public void pricive2(Object msg) {
 		System.out.println("TestQueue2 String: : "+msg);
 	}

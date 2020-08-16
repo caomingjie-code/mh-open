@@ -1,0 +1,31 @@
+{
+  "properties": [
+    {
+      "sourceType":"com.mh.base.kafka.conf.KafkaProperties",
+      "name": "kafka.zk.nodes",
+      "type": "java.lang.String",
+      "description": " zk nodes of kafka",
+      "defaultValue": "localhost"
+    }
+  ],
+
+  "hints": [
+    {
+      "name": "kafka.zk.nodes",
+      "values": [{
+            "value": "localhost"
+      }]
+    }
+  ],
+
+  "groups": [
+    {
+      "name": "kafka.zk.nodes",
+      "type": "java.lang.String",
+      "sourceType": "com.mh.base.kafka.conf.KafkaProperties"
+    }
+
+  ]
+
+}
+

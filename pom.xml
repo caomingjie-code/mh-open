@@ -20,9 +20,10 @@
       <module>mh-base-quartz</module>
       <module>mh-base-mq</module>
       <module>mh-base-security</module>
-      <module>mh-web-manager</module>
+      <module>mh-base-test</module>
       <module>mh-base-kafka</module>
-  </modules>
+      <module>mh-base-common</module>
+    </modules>
 
   <name>mh-open</name>
   <!-- FIXME change it to the project's website -->

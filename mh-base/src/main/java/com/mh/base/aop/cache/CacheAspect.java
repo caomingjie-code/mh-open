@@ -3,15 +3,16 @@ package com.mh.base.aop.cache;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.mh.base.utils.model.ModelUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -20,6 +21,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -31,14 +33,13 @@ import com.mh.base.exception.CacheException;
 import com.mh.base.annotation.cache.EnableCache;
 import com.mh.base.annotation.cache.UnableCache;
 import com.mh.base.definition.CacheData;
-import com.mh.base.definition.ClassDefinition;
-import com.mh.base.definition.MethodDefinition;
+import com.mh.base.common.definition.ClassDefinition;
+import com.mh.base.common.definition.MethodDefinition;
 import com.mh.base.definition.UniqueKey;
-import com.mh.base.utils.clazz.ClassUtils;
-import com.mh.base.utils.concurrent.ConcurrentHashSet;
-import com.mh.base.utils.log.LogUtils;
+import com.mh.base.common.clazz.ClassUtils;
+import com.mh.base.common.concurrent.ConcurrentHashSet;
+import com.mh.base.common.log.LogUtils;
 import com.mh.base.utils.redis.JedisUtils;
-
 import jdk.internal.org.objectweb.asm.tree.AnnotationNode;
 
 /**
@@ -61,7 +62,7 @@ public class CacheAspect implements InitializingBean{
 
 	// sessionId + key 进行关联多个 uniquekey 用于删除缓存时使用
 	private static final SoftHashMap<String, SoftReference<ConcurrentHashSet<String>>> SESSION_KEY_UNIQUE_KEY = new SoftHashMap<String, SoftReference<ConcurrentHashSet<String>>>();
-	
+	private static Logger logger = LoggerFactory.getLogger(ModelUtils.class);// log4j记录日志
 	private static final String  ENABLE_CACHE = "com.mh.base.cache.annotation.EnableCache";
 	private static final String  UNABLE_CACHE = "com.mh.base.cache.annotation.UnableCache";
 	    
@@ -288,13 +289,13 @@ public class CacheAspect implements InitializingBean{
 					if(concurrentHashSet!=null&&concurrentHashSet.size()>0) {
 						for(String cacheId : concurrentHashSet ) {
 							JedisUtils.deleteDataValue(cacheId);
-							//System.out.println("CacheAspect_UNABLE_CACHE CACHE_ID:"+cacheId+"  SESSIONIDKEY:"+sessionIdKey);
+							//logger.info("CacheAspect_UNABLE_CACHE CACHE_ID:"+cacheId+"  SESSIONIDKEY:"+sessionIdKey);
 							LogUtils.printLog("CacheAspect_UNABLE_CACHE CACHE_ID:"+cacheId+"  SESSIONIDKEY:"+sessionIdKey);
 						}
 						concurrentHashSet.clear(); 
 					}
 				}catch (NullPointerException e) {
-					   System.out.println(e.getMessage());
+					   logger.info(e.getMessage());
 				}catch (Exception e) {
 						throw e;
 				} 

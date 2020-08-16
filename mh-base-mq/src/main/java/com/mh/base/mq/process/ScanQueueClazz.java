@@ -10,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.mh.base.mq.exception.MHMQException;
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.tree.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  *  扫描queue 注解
  *  
@@ -18,6 +21,8 @@ import jdk.internal.org.objectweb.asm.tree.*;
  */
 @SuppressWarnings({ "restriction", "unused" })
 public class ScanQueueClazz {
+	private static final Log logger = LogFactory.getLog(ScanQueueClazz.class);
+
 	//存放所有队列名称
 	private static final ConcurrentHashMap<String, Class> queues = new ConcurrentHashMap<String, Class>();
 	private static final ConcurrentHashMap<String, Class> listenerQueues = new ConcurrentHashMap<String, Class>();
@@ -48,8 +53,8 @@ public class ScanQueueClazz {
     	                 			 String className = cn.name.replaceAll("/", ".");
     	                  			//获取注解的属性名对应的值，（values是一个集合，它将注解的属性和属性值都放在了values中，通常奇数为值偶数为属性名）
     	          		        	 String valu = mt.values.get(1).toString();
-    	          		        	 System.out.println(className);
-    	          		        	 System.out.println(valu);
+									 logger.info(className);
+									 logger.info(valu);
     	          		        	 //判断是否已经存在
     	          		        	 String methodName = method.name;
     	          		        	 String nn = method.desc.substring(2, method.desc.length()-3).replaceAll("/", ".");
@@ -81,8 +86,8 @@ public class ScanQueueClazz {
                 			 String className = cn.name.replaceAll("/", ".");
                 			//获取注解的属性名对应的值，（values是一个集合，它将注解的属性和属性值都放在了values中，通常奇数为值偶数为属性名）
         		        	 String valu = an.values.get(1).toString();
-        		        	 System.out.println(className);
-        		        	 System.out.println(valu);
+        		        	 logger.info(className);
+        		        	 logger.info(valu);
         		        	 //判断是否已经存在
         		        	 Class class1 = queues.get(valu);
         		        	 if(class1!=null) {
@@ -109,7 +114,6 @@ public class ScanQueueClazz {
 	public static String preparBuild(String valu) {
 		String a = valu;
 		if(a.contains("[")||a.contains("]")) {
-			System.out.println(true);
 			a = a.replace("[", "");
 			a = a.replace("]", "");
 			return a;

@@ -1,6 +1,6 @@
 package com.mh.security.authentication;
 
-import com.mh.base.utils.json.JsonUtils;
+import com.mh.base.common.json.JsonUtils;
 import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,7 +40,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         //支持ajax响应
         HashMap<String, String> map = new HashMap<>();
         map.put("msg","200");
-        String s = JsonUtils.makeJSON(map).toString();
+        String s = JsonUtils.toJSONString(map).toString();
         writer.println(s);
     }
 }

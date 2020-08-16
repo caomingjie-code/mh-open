@@ -4,22 +4,19 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 
 import javax.annotation.Resource;
-import javax.sql.DataSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.stereotype.Component;
 import com.mh.base.annotation.datasource.DataSourceRoute;
 import com.mh.base.exception.BaseDataSourceException;
-import com.mh.base.utils.clone.Clone;
+import com.mh.base.common.clone.Clone;
 import com.mh.base.utils.datasource.BaseComboPooledDataSource;
 
 /**

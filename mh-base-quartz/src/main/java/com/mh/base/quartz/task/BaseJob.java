@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.impl.JobDetailImpl;
@@ -14,6 +14,7 @@ import org.quartz.JobBuilder;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,7 @@ import com.mh.base.quartz.task.service.BaseQuartzService;
  */
 @Component
 public class BaseJob  implements StatefulJob,BeanPostProcessor{
-	private static Logger _logger = Logger.getLogger(SchedulerUtil.class);// log4j记录日志
+	private static Logger _logger = LoggerFactory.getLogger(SchedulerUtil.class);// log4j记录日志
 	
 	static Boolean isStart = false;
 	static BaseQuartzService bqs = null; 
@@ -161,7 +162,7 @@ public class BaseJob  implements StatefulJob,BeanPostProcessor{
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		synchronized (isStart) {
 			if(!isStart) {
-				System.out.println("===================================定时系统开始===========================================");
+				_logger.info("===================================定时系统开始===========================================");
 				SchedulerUtil.handleSimpleTrigger("BaseQuartzJob", "BaseQuartzJob", "BaseQuartzJob", "BaseQuartzJob", BaseJob.class, null,null, 1, -1);
 				isStart = true;
 				}

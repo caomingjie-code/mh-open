@@ -1,9 +1,11 @@
 package test.controller;
 
-import com.mh.base.utils.json.JsonUtils;
-import com.mh.base.utils.log.LogUtils;
+import com.mh.base.common.json.JsonUtils;
+import com.mh.base.common.log.LogUtils;
 import com.mh.security.MHUser;
 import com.mh.security.utils.SecurityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -16,6 +18,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/security/")
 public class LoginController {
+	private static Logger logger = LoggerFactory.getLogger(LoginController.class);// log4j记录日志
 
 	/**
 	 * 登录页面
@@ -42,7 +45,7 @@ public class LoginController {
 
 		//获取用户对象
 		MHUser mhUser = SecurityUtils.getMHUser();
-		LogUtils.printLog(JsonUtils.makeJSON(mhUser).toString());
+		LogUtils.printLog(JsonUtils.toJSONString(mhUser).toString());
 
 		//打印授予的权限
 		List<String> roles = SecurityUtils.getRoles();
@@ -55,7 +58,7 @@ public class LoginController {
 
 	public LoginController() {
 		super();
-		System.out.println("  LoginController  ");
+		logger.info("  LoginController  ");
 		// TODO Auto-generated constructor stub
 	}
 	

@@ -1,23 +1,17 @@
 package com.mh.base.mq.consumer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
-import com.mh.base.utils.log.LogUtils;
+import com.mh.base.common.log.LogUtils;
+import com.mh.base.mq.config.MQProperties;
 import com.rabbitmq.client.*;
-import org.springframework.amqp.utils.SerializationUtils;
-
-import com.mh.base.mq.client.MHMQClient;
 import com.mh.base.mq.msgdata.MQMsgImpl;
-import com.mh.base.mq.msgdata.MqMsg;
-import com.mh.base.utils.concurrent.ConcurrentHashSet;
-import com.mh.base.utils.protostuff.ProtostuffUtils;
+import com.mh.base.common.protostuff.ProtostuffUtils;
 import com.rabbitmq.client.AMQP.BasicProperties;
 
 /**
@@ -26,7 +20,7 @@ import com.rabbitmq.client.AMQP.BasicProperties;
  *
  */
 public class MHConsumer extends Thread implements Consumer,Runnable{
-	
+	private MQProperties mqProperties;//mq的配置文件
 	private Channel channel = null;
 	private Object bean = null;  //实例(非spring容器中的bean)
     private String queueName = null;
@@ -35,7 +29,7 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 	private boolean isBatch = false; //是否是批处理消费
 	private int batchCount = 1;//默认批处理数量
 
-	public MHConsumer(Channel channel, Object bean, String queueName, Method beanMethod,Object springSingleBean,boolean isBatch,int batchCount) {
+	public MHConsumer(MQProperties mqProperties,Channel channel, Object bean, String queueName, Method beanMethod,Object springSingleBean,boolean isBatch,int batchCount) {
 		super();
 		this.channel = channel;
 		this.bean = bean;
@@ -44,17 +38,18 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 		this.springSingleBean = springSingleBean;
 		this.isBatch = isBatch;
 		this.batchCount = batchCount;
+		this.mqProperties = mqProperties;
 	}
 
 	@Override
 	public void handleShutdownSignal(String consumerTag,
 			ShutdownSignalException sig) {
-		//System.out.println("关闭连接后处理");
+		//logger.info("关闭连接后处理");
 	}
 	
 	@Override
 	public void handleRecoverOk(String consumerTag) {
-		//System.out.println("当信息在ack之前恢复成功后处理");
+		//logger.info("当信息在ack之前恢复成功后处理");
 	}
 	 
 
@@ -63,30 +58,39 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 	@Override
 	public void handleDelivery(String arg0, Envelope env,
 			BasicProperties bp, byte[] body) throws IOException {
+		Set<Long> deliverTag = new  HashSet();
 		try {
 			//获取消费数据
 			Object deliveryData = getMsgObject(body);
+
 			//判断是否是批处理
 			if(this.isBatch){
 				//声明 批处理的数据和 消息的tag 的集合
 				ArrayList<Object> batchDatas = new ArrayList<>();
 				//构建patch Data
-				buildPatchDeliveryDatas(deliveryData,env, batchDatas);
+				deliverTag = buildPatchDeliveryDatas(deliveryData,env, batchDatas);
 				//优先执行springSingleBean
 				invokeMethod(batchDatas);
 			}else{
 				//打印当前的 delivery tag
-				LogUtils.printLog("channel id : "+System.identityHashCode(channel)+", delivery tag data:  "+env.getDeliveryTag());
+				if(mqProperties.isPrintDeliveryTag()){
+					LogUtils.printLog("channel id : "+System.identityHashCode(channel)+", delivery tag data:  "+env.getDeliveryTag());
+				}
 				//优先执行springSingleBean
 				invokeMethod(deliveryData);
+
+				deliverTag.add(env.getDeliveryTag());
 			}
 		} catch (Exception e) {
 			//channel.basicAck(0, true);//手动认证
 			e.printStackTrace();
 			return;
 		}
-		channel.basicAck(0, true);//手动认证当前msg全部
-		
+		for(Long tag : deliverTag){
+			//true 认证tag之前的所有, false 只认证当前的tag
+			channel.basicAck(tag, false);//手动认证当前tag
+		}
+
 	}
 
 	/**
@@ -96,10 +100,10 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 	 * @param batchDatas
 	 * @throws IOException
 	 */
-	private void buildPatchDeliveryDatas(Object deliveryData, Envelope env, ArrayList<Object> batchDatas) throws IOException {
+	private Set<Long> buildPatchDeliveryDatas(Object deliveryData, Envelope env, ArrayList<Object> batchDatas) throws IOException {
 
 		//消息tags
-		ArrayList<String> patchDelivertTags = new ArrayList<>();
+		Set<Long> patchDelivertTags = new HashSet<>();
 
 		//整理push
 		builPush(deliveryData, env, batchDatas, patchDelivertTags);
@@ -109,15 +113,19 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 
 		//打印即将要被消费的消息tags
 		printPatchDeliveryTags(patchDelivertTags);
+
+		return patchDelivertTags;
 	}
 
 	/**
 	 * 打印即将要被消费的消息tags
 	 * @param patchDelivertTags
 	 */
-	private void printPatchDeliveryTags(ArrayList<String> patchDelivertTags) {
-		for(String deiveryTag : patchDelivertTags){
-			LogUtils.printLog("channel id : "+System.identityHashCode(channel)+", patch delivery tag data:  "+deiveryTag);
+	private void printPatchDeliveryTags(Set<Long> patchDelivertTags) {
+		if(mqProperties.isPrintDeliveryTag()){
+			for(Long deiveryTag : patchDelivertTags){
+				LogUtils.printLog("channel id : "+System.identityHashCode(channel)+", patch delivery tag data:  "+deiveryTag);
+			}
 		}
 	}
 
@@ -128,8 +136,8 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 	 * @param batchDatas
 	 * @param patchDelivertTags
 	 */
-	private void builPush(Object deliveryData, Envelope env, ArrayList<Object> batchDatas, ArrayList<String> patchDelivertTags) {
-		patchDelivertTags.add(env.getDeliveryTag()+"");
+	private void builPush(Object deliveryData, Envelope env, ArrayList<Object> batchDatas, Set<Long> patchDelivertTags) {
+		patchDelivertTags.add(env.getDeliveryTag());
 		batchDatas.add(deliveryData);
 	}
 
@@ -139,7 +147,7 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 	 * @param patchDelivertTags
 	 * @throws IOException
 	 */
-	private void buildPull(ArrayList<Object> batchDatas, ArrayList<String> patchDelivertTags) throws IOException {
+	private void buildPull(ArrayList<Object> batchDatas, Set<Long> patchDelivertTags) throws IOException {
 		for(int i=1; i<batchCount;i++){ //i 从1 开始,因为 deliveryData 也算一个.如果batchCount 是1 ,则默认 就使用 deliveryData
 			//开始批处理整理数据
 			GetResponse getResponse = channel.basicGet(queueName, false);
@@ -147,7 +155,7 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 				byte[] body1 = getResponse.getBody();
 				Object msgObject = getMsgObject(body1);
 				batchDatas.add(msgObject);
-				patchDelivertTags.add(getResponse.getEnvelope().getDeliveryTag()+"");
+				patchDelivertTags.add(getResponse.getEnvelope().getDeliveryTag());
 			}
 		}
 	}
@@ -169,17 +177,17 @@ public class MHConsumer extends Thread implements Consumer,Runnable{
 
 	@Override
 	public void handleConsumeOk(String consumerTag) {
-		//System.out.println("消费方法注册成功后处理"+consumerTag);
+		//logger.info("消费方法注册成功后处理"+consumerTag);
 	}
 	
 	@Override
 	public void handleCancelOk(String consumerTag) {
-		//System.out.println("取消成功后处理");
+		//logger.info("取消成功后处理");
 	}
 	
 	@Override
 	public void handleCancel(String consumerTag) throws IOException {
-		//System.out.println("消息取消时（比如队列被删除）处理");
+		//logger.info("消息取消时（比如队列被删除）处理");
 	}
 
 	@Override

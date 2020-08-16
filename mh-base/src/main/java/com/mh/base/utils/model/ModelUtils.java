@@ -24,8 +24,10 @@ import com.mh.base.annotation.model.BaseCancel;
 import com.mh.base.annotation.model.BaseCancelSuper;
 import com.mh.base.annotation.model.BaseModel;
 import com.mh.base.annotation.model.BaseUnique;
-import com.mh.base.utils.converter.TypeCastHelper;
+import com.mh.base.common.converter.TypeCastHelper;
 import com.mh.base.utils.pojo.PojoUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 用于解析model
@@ -33,8 +35,9 @@ import com.mh.base.utils.pojo.PojoUtils;
  *
  */
 public class ModelUtils {
-	
+
 	private static final ThreadLocal<Boolean> cancelSuper = new ThreadLocal<Boolean>(); //取消当前Model的父类属性
+	private static Logger logger = LoggerFactory.getLogger(ModelUtils.class);// log4j记录日志
 
 	/**
 	 * 解析model
@@ -479,7 +482,6 @@ public class ModelUtils {
 	}
 	/**获取能确定最外层Model的唯一字段名称
 	 * @param ones
-	 * @param uniqueFieldNameList
 	 * @throws Exception 
 	 * @throws SecurityException 
 	 */
@@ -583,7 +585,7 @@ public class ModelUtils {
 				data.put(name, value);
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage()+"+++++++++++++++++++出错了！！！");
+			logger.info(e.getMessage()+"+++++++++++++++++++出错了！！！");
 		}
 		return data;
 	}

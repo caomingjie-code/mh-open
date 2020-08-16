@@ -5,7 +5,7 @@ import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.MessageConverter;
 
 import com.mh.base.mq.msgdata.MQMsgImpl;
-import com.mh.base.utils.protostuff.ProtostuffUtils;
+import com.mh.base.common.protostuff.ProtostuffUtils;
 
 /**
  * 信息类型转换

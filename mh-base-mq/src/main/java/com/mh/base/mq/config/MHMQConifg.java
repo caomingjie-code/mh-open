@@ -2,6 +2,7 @@ package com.mh.base.mq.config;
 
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
  */
 @Component
 @Configuration
+@EnableConfigurationProperties(MQProperties.class)
 public class MHMQConifg {
 	
 	@Bean(name="myFactory")

@@ -1,6 +1,6 @@
 package com.mh.security.authentication;
 
-import com.mh.base.utils.json.JsonUtils;
+import com.mh.base.common.json.JsonUtils;
 import lombok.SneakyThrows;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -22,9 +22,9 @@ public class AuthenticationFailureHandlerImpl implements AuthenticationFailureHa
         //认证失败响应数据
         HashMap<String, String> map = new HashMap<>();
         map.put("msg","500");
-        JsonUtils.Json json = JsonUtils.makeJSON(map);
+        String json = JsonUtils.toJSONString(map);
         //现在支持Ajax 失败响应
-        response.getWriter().println(json.toString());
+        response.getWriter().println(json);
         return;
     }
 }

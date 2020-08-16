@@ -4,11 +4,10 @@ import java.util.*;
 
 import org.apache.xerces.impl.dv.util.Base64;
 
-import com.mh.base.utils.protostuff.ProtostuffUtils;
+import com.mh.base.common.protostuff.ProtostuffUtils;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 

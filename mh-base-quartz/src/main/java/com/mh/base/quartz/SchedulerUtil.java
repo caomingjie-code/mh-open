@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -38,6 +38,8 @@ import com.mh.base.quartz.task.BaseStateTask;
 import com.mh.base.quartz.task.data.TaskData;
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.tree.*;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author 曹明杰
  * @date 2019-05-15
@@ -46,7 +48,7 @@ import jdk.internal.org.objectweb.asm.tree.*;
  */
 @SuppressWarnings("restriction")
 public class SchedulerUtil {
-    private static Logger _logger = Logger.getLogger(SchedulerUtil.class);// log4j记录日志
+    private static Logger _logger = LoggerFactory.getLogger(SchedulerUtil.class);// log4j记录日志
     private final static SchedulerFactory schedulerfactory = new StdSchedulerFactory();
     private final static Map<String,Class> taskClazz = new HashMap<String,Class>();
     private final static String anno = "com.mh.base.quartz.annotation.BaseQuartz";
@@ -72,8 +74,8 @@ public class SchedulerUtil {
                 			 String className = cn.name.replaceAll("/", ".");
                 			//获取注解的属性名对应的值，（values是一个集合，它将注解的属性和属性值都放在了values中，通常奇数为值偶数为属性名）
         		        	 String valu = an.values.get(1).toString();
-        		        	 System.out.println(className);
-        		        	 System.out.println(valu);
+							 _logger.info(className);
+        		        	 _logger.info(valu);
         		        	 taskClazz.put(valu, Class.forName(className));//根据匹配的注解，将其封装给具体的业务使用
                 		 }
     		         }

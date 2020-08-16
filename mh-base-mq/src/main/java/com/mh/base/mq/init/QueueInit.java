@@ -1,39 +1,36 @@
 package com.mh.base.mq.init;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentHashMap.KeySetView;
 
 import javax.annotation.Resource;
-import javax.sql.rowset.spi.SyncResolver;
 
 import com.mh.base.mq.annotation.ListenerQueue;
+import com.mh.base.common.log.LogUtils;
+import com.mh.base.mq.config.MQProperties;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.ReceiveAndReplyCallback;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.core.Binding.DestinationType;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.mh.base.mq.client.MHMQClient;
 import com.mh.base.mq.consumer.MHConsumer;
 import com.mh.base.mq.process.ScanQueueClazz;
 import com.mh.base.mq.process.ScanQueueClazz.QueueBeanDefinition;
-import com.mh.base.utils.log.BaseLog;
+import com.mh.base.common.log.BaseLog;
 import com.rabbitmq.client.Channel;
 
 /**
@@ -41,11 +38,13 @@ import com.rabbitmq.client.Channel;
  * @author cmj
  *
  */
-@Service
+@Component
 public class QueueInit implements ApplicationContextAware{
- 
+	private static final Log logger = LogFactory.getLog(QueueInit.class);
 	@Resource
 	private MHMQClient clinet;
+	@Resource
+	private MQProperties mqProperties;
 	private final static String EXCAHNGE_NAME = "_MHEXCHANGE";
 	private static final String QUEUE_NAME = "";//默认队列名称后缀
 	private static final String ROUTING_KEY_NAME = "_MHMQC_ROUTING_KEY";
@@ -66,7 +65,7 @@ public class QueueInit implements ApplicationContextAware{
 	private void buildQueues() {
 		synchronized (lock) {
 			if(initQueueStatus) {
-				BaseLog.printLog("初始化队列数据");
+				logger.info("初始化队列数据");
 				initQueueStatus =false;
 				ConcurrentHashMap<String,Class> queues = ScanQueueClazz.getQueues();//获取所有队列信息
 				//设计原理每一个队列queue 对应一个 exchange
@@ -97,7 +96,7 @@ public class QueueInit implements ApplicationContextAware{
 	private void buildQueuesListener(ApplicationContext applicationContext) throws Exception {
 		synchronized (lock) {
 			if(initQueueListenerStatus) {
-				BaseLog.printLog("初始化队列数据");
+				logger.info("初始化队列数据");
 				initQueueListenerStatus =false;
 				ConcurrentHashMap<String, QueueBeanDefinition> queuesListener = ScanQueueClazz.getlistenerQueueMethods();//获取所有队列信息
 				//设计原理每一个队列queue 对应一个 exchange
@@ -112,14 +111,14 @@ public class QueueInit implements ApplicationContextAware{
 						ListenerQueue declaredAnnotation = listenerMehod.getDeclaredAnnotation(ListenerQueue.class);
 						boolean batch = false;
 						int batchCount = 1;
+						int consumerCount = 1;
 						if(declaredAnnotation!=null){
-							batch = declaredAnnotation.isBatch();
-							batchCount = declaredAnnotation.batchCount()<1?1:declaredAnnotation.batchCount();
+							batchCount = declaredAnnotation.batchCount()<=1?1:declaredAnnotation.batchCount();
+							batch = batchCount>1?true:false;
+							consumerCount = declaredAnnotation.consumerCount()<=1?1:declaredAnnotation.consumerCount();
 						}
 
-
-
-						System.out.println("监听队列： "+qbd.getListenerQueueName());
+						logger.info("监听队列： "+qbd.getListenerQueueName());
 						if(StringUtils.isNotBlank(qbd.getListenerQueueName())) {
 							Connection connection = getMQConnect(amqpTemplate);
 							Channel channel = connection.createChannel(false);//不要开启spring提供的事务机制，会导致ack手动认证不通过
@@ -129,8 +128,11 @@ public class QueueInit implements ApplicationContextAware{
 							} catch (NoSuchBeanDefinitionException e) {
 								springSingleBean = null;
 							}
-							MHConsumer mhConsumer = new MHConsumer(channel, qbd.getBeanClazz().newInstance(), qbd.getListenerQueueName(), qbd.getListenerMehod(),springSingleBean,batch,batchCount);
-							mhConsumer.start();
+							for(;consumerCount>0;){
+								consumerCount--;
+								MHConsumer mhConsumer = new MHConsumer(mqProperties,channel, qbd.getBeanClazz().newInstance(), qbd.getListenerQueueName(), qbd.getListenerMehod(),springSingleBean,batch,batchCount);
+								mhConsumer.start();
+							}
 						}
 					}
 				}

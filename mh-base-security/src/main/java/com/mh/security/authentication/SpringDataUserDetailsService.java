@@ -5,12 +5,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.mh.base.utils.json.JsonUtils;
-import com.mh.base.utils.log.LogUtils;
+import com.mh.base.common.json.JsonUtils;
+import com.mh.base.common.log.LogUtils;
 import com.mh.security.MHRole;
 import com.mh.security.utils.SecurityUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -45,8 +44,8 @@ public class SpringDataUserDetailsService implements UserDetailsService{
 		//如果存在
 		if(user!= null&&user.getLoginName()!=null) {
 			try {
-				JsonUtils.Json json = JsonUtils.makeJSON(user);
-				LogUtils.printLog(json.toString());
+				String json = JsonUtils.toJSONString(user);
+				LogUtils.printLog(json);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

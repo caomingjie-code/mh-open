@@ -11,7 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import com.mh.base.db.test.mapping.StudyMapperProxy;
+import com.mh.base.utils.model.ModelUtils;
+import org.slf4j.Logger;
 import org.junit.Before;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +35,7 @@ import com.mh.base.db.test.service.DBService;
 @RequestMapping("/")
 @Transactional(rollbackOn = Exception.class)
 public class BaseTest<E> {
-
+	private static Logger logger = LoggerFactory.getLogger(BaseTest.class);// log4j记录日志
 	@Resource
 	DBService bd;
 	
@@ -51,7 +54,7 @@ public class BaseTest<E> {
 		WebApplicationContext spring = WebApplicationContextUtils.getWebApplicationContext(sc);
 		String[] definitionNames = spring.getBeanDefinitionNames();
 		for(String beanName : definitionNames) {
-			System.out.println(beanName);
+			logger.info(beanName);
 			list.add(beanName);
 		}
 		

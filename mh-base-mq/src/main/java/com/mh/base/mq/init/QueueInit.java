@@ -42,6 +42,8 @@ import com.rabbitmq.client.Channel;
 public class QueueInit implements ApplicationContextAware{
 	private static final Log logger = LogFactory.getLog(QueueInit.class);
 	@Resource
+	ScanQueueClazz scanQueueClazz;
+	@Resource
 	private MHMQClient clinet;
 	@Resource
 	private MQProperties mqProperties;
@@ -67,28 +69,38 @@ public class QueueInit implements ApplicationContextAware{
 			if(initQueueStatus) {
 				logger.info("初始化队列数据");
 				initQueueStatus =false;
-				ConcurrentHashMap<String,Class> queues = ScanQueueClazz.getQueues();//获取所有队列信息
+				ConcurrentHashMap<String,Class> queues = scanQueueClazz.getQueues();//获取所有队列信息
 				//设计原理每一个队列queue 对应一个 exchange
-				AmqpAdmin amqpAdmin = clinet.getAmqpAdmin();
+
 				Enumeration<String> keys = queues.keys();
 				if(keys!=null) {
 					for(;keys.hasMoreElements();) {
 						String queueName = keys.nextElement();
 						if(StringUtils.isNotBlank(queueName)) {
-							queueName = queueName+QUEUE_NAME;
-							String exchangeName = queueName+EXCAHNGE_NAME;
-							amqpAdmin.declareQueue(new Queue(queueName, true)); //声明一个队列
-							amqpAdmin.declareExchange( new DirectExchange(exchangeName, true, false));
-							HashMap<String, Object> headers = new HashMap<String, Object>();
-							headers.put("defaultExchange", "defaultExchange");
-							amqpAdmin.declareBinding(new Binding(queueName, DestinationType.QUEUE, exchangeName, queueName+ROUTING_KEY_NAME, headers));
+							createQueue(queueName);
 						}
 					}
 				}
 			}
 		}
 	}
-	
+
+	/**
+	 * 创建队列
+	 * @param queueName
+	 */
+	public void createQueue(String queueName) {
+		AmqpAdmin amqpAdmin = clinet.getAmqpAdmin();
+		queueName = queueName+QUEUE_NAME;
+		String exchangeName = queueName+EXCAHNGE_NAME;
+		amqpAdmin.declareQueue(new Queue(queueName, true)); //声明一个队列
+		amqpAdmin.declareExchange( new DirectExchange(exchangeName, true, false));
+		HashMap<String, Object> headers = new HashMap<String, Object>();
+		headers.put("defaultExchange", "defaultExchange");
+		amqpAdmin.declareBinding(new Binding(queueName, DestinationType.QUEUE, exchangeName, queueName+ROUTING_KEY_NAME, headers));
+	}
+
+
 	/**
 	 * 初始化队列
 	 * @throws Exception 
@@ -101,40 +113,61 @@ public class QueueInit implements ApplicationContextAware{
 				ConcurrentHashMap<String, QueueBeanDefinition> queuesListener = ScanQueueClazz.getlistenerQueueMethods();//获取所有队列信息
 				//设计原理每一个队列queue 对应一个 exchange
 				AmqpAdmin amqpAdmin = clinet.getAmqpAdmin();
-				RabbitTemplate amqpTemplate = (RabbitTemplate)clinet.getAmqpTemplate();
 				Enumeration<String> keys = queuesListener.keys();
 				if(keys!=null) {
 					for(;keys.hasMoreElements();) {
 						String queueListenerName = keys.nextElement();//类名+"_"+方法
 						QueueBeanDefinition qbd = queuesListener.get(queueListenerName);
 						Method listenerMehod = qbd.getListenerMehod();
-						ListenerQueue declaredAnnotation = listenerMehod.getDeclaredAnnotation(ListenerQueue.class);
+						ListenerQueue listenerQueue = listenerMehod.getDeclaredAnnotation(ListenerQueue.class);
 						boolean batch = false;
 						int batchCount = 1;
 						int consumerCount = 1;
-						if(declaredAnnotation!=null){
-							batchCount = declaredAnnotation.batchCount()<=1?1:declaredAnnotation.batchCount();
+						if(listenerQueue!=null){
+							batchCount = listenerQueue.batchCount()<=1?1:listenerQueue.batchCount();
 							batch = batchCount>1?true:false;
-							consumerCount = declaredAnnotation.consumerCount()<=1?1:declaredAnnotation.consumerCount();
+							consumerCount = listenerQueue.consumerCount()<=1?1:listenerQueue.consumerCount();
 						}
 
 						logger.info("监听队列： "+qbd.getListenerQueueName());
 						if(StringUtils.isNotBlank(qbd.getListenerQueueName())) {
-							Connection connection = getMQConnect(amqpTemplate);
-							Channel channel = connection.createChannel(false);//不要开启spring提供的事务机制，会导致ack手动认证不通过
+							Channel channel = getChannel();
 							Object springSingleBean = null;
 							try {
 								springSingleBean = applicationContext.getBean(qbd.getBeanClazz()); //从spring容器中获取bean
 							} catch (NoSuchBeanDefinitionException e) {
 								springSingleBean = null;
 							}
-							for(;consumerCount>0;){
-								consumerCount--;
-								MHConsumer mhConsumer = new MHConsumer(mqProperties,channel, qbd.getBeanClazz().newInstance(), qbd.getListenerQueueName(), qbd.getListenerMehod(),springSingleBean,batch,batchCount);
-								mhConsumer.start();
-							}
+
+							//监听队列,生成消费者
+							listennerQueues(qbd, listenerQueue, batch, batchCount, consumerCount, channel, springSingleBean);
+
 						}
 					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 获取channel
+	 * @return
+	 */
+	public Channel getChannel() {
+		RabbitTemplate amqpTemplate = (RabbitTemplate)clinet.getAmqpTemplate();
+		Connection connection = getMQConnect(amqpTemplate);
+		return connection.createChannel(false);
+	}
+
+	//监听队列,生成消费者
+	private void listennerQueues(QueueBeanDefinition qbd, ListenerQueue listenerQueue, boolean batch, int batchCount, int consumerCount, Channel channel, Object springSingleBean) throws InstantiationException, IllegalAccessException {
+		String[] queues = listenerQueue.queues();
+		if(queues!=null&&queues.length>0){
+			for(String qn : queues){
+				for(;consumerCount>0;){
+					consumerCount--;
+					MHConsumer mhConsumer = new MHConsumer(mqProperties,channel, qbd.getBeanClazz().newInstance(), qn, qbd.getListenerMehod(),springSingleBean,batch,batchCount);
+					mhConsumer.start();
 				}
 			}
 		}

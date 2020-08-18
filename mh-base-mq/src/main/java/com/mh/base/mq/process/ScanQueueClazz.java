@@ -2,16 +2,26 @@ package com.mh.base.mq.process;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.mh.base.mq.annotation.CreateQueue;
+import com.mh.base.mq.annotation.ListenerQueue;
 import org.apache.commons.lang3.StringUtils;
 import com.mh.base.mq.exception.MHMQException;
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.tree.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.MethodParameterNamesScanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.springframework.stereotype.Component;
 
 /**
  *  扫描queue 注解
@@ -20,19 +30,26 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 @SuppressWarnings({ "restriction", "unused" })
-public class ScanQueueClazz {
+@Component
+public class ScanQueueClazz  {
 	private static final Log logger = LogFactory.getLog(ScanQueueClazz.class);
 
 	//存放所有队列名称
 	private static final ConcurrentHashMap<String, Class> queues = new ConcurrentHashMap<String, Class>();
-	private static final ConcurrentHashMap<String, Class> listenerQueues = new ConcurrentHashMap<String, Class>();
 	private static final ConcurrentHashMap<String, QueueBeanDefinition> listenerQueueMethods = new ConcurrentHashMap<String, QueueBeanDefinition>();//key: 类名+方法拼接
     private static final String QUEUE_ANNOTATION_NAME = "com.mh.base.mq.annotation.CreateQueue";
     private static final String LISTENER_QUEUE_ANNOTATION_NAME = "com.mh.base.mq.annotation.ListenerQueue";
 	static {
     	try {
-    		String path = ScanQueueClazz.class.getResource("/").getPath();//获取classpath路径
-        	List<File> list = getAllClassFile(new File( path ));//此方法为获取classpath路径下所有的class文件（所有包）
+
+			Collection<URL> urls = ScanQueueClazz.forResource(resourceName("com.mh"), ScanQueueClazz.class.getClassLoader());
+			List<File> list = new LinkedList();
+			for(URL url : urls){
+				String path = url.getPath();
+				List<File> ls = getAllClassFile(new File( path ));//此方法为获取classpath路径下所有的class文件（所有包）
+				list.addAll(ls);
+			}
+
         	for(File f: list) {//便利每一个class文件
     			//getClassName(f);
     			 ClassReader reader = new ClassReader(new FileInputStream(f));
@@ -105,7 +122,122 @@ public class ScanQueueClazz {
 			e.printStackTrace();
 		}
     }
-	
+
+	public static ClassLoader contextClassLoader() {
+		return Thread.currentThread().getContextClassLoader();
+	}
+
+	private static String resourceName(String name) {
+		if (name != null) {
+			String resourceName = name.replace(".", "/");
+			resourceName = resourceName.replace("\\", "/");
+			if (resourceName.startsWith("/")) {
+				resourceName = resourceName.substring(1);
+			}
+			return resourceName;
+		}
+		return null;
+	}
+
+	public static ClassLoader[] classLoaders(ClassLoader... classLoaders) {
+		if (classLoaders != null && classLoaders.length != 0) {
+			return classLoaders;
+		} else {
+			ClassLoader contextClassLoader = contextClassLoader(), staticClassLoader = ScanQueueClazz.class.getClassLoader();
+			return contextClassLoader != null ?
+					staticClassLoader != null && contextClassLoader != staticClassLoader ?
+							new ClassLoader[]{contextClassLoader, staticClassLoader} :
+							new ClassLoader[]{contextClassLoader} :
+					new ClassLoader[] {};
+
+		}
+	}
+
+	public static Collection<URL> forResource(String resourceName, ClassLoader... classLoaders) {
+		final List<URL> result = new ArrayList<>();
+		final ClassLoader[] loaders = classLoaders(classLoaders);
+		for (ClassLoader classLoader : loaders) {
+			try {
+				final Enumeration<URL> urls = classLoader.getResources(resourceName);
+				while (urls.hasMoreElements()) {
+					final URL url = urls.nextElement();
+					int index = url.toExternalForm().lastIndexOf(resourceName);
+					if (index != -1) {
+						// Add old url as contextUrl to support exotic url handlers
+						result.add(new URL(url, url.toExternalForm().substring(0, index)));
+					} else {
+						result.add(url);
+					}
+				}
+			} catch (IOException e) {
+				if (Reflections.log != null) {
+					Reflections.log.error("error getting resources for " + resourceName, e);
+				}
+			}
+		}
+		return distinctUrls(result);
+	}
+	//http://michaelscharf.blogspot.co.il/2006/11/javaneturlequals-and-hashcode-make.html
+	private static Collection<URL> distinctUrls(Collection<URL> urls) {
+		Map<String, URL> distinct = new LinkedHashMap<>(urls.size());
+		for (URL url : urls) {
+			distinct.put(url.toExternalForm(), url);
+		}
+		return distinct.values();
+	}
+
+	private static void parseClassForMq(Set<Class<?>> allClazz) {
+		if(allClazz!=null){
+			for(Class clazz : allClazz){
+
+				logger.info(clazz.getName());
+				//解析创建队列
+				CreateQueue cq = (CreateQueue)clazz.getDeclaredAnnotation(CreateQueue.class);
+				if(cq!=null){
+					queues.put(cq.name(),clazz);
+				}
+
+				//解析监听队列
+				buidQueueBeanDefinition(clazz);
+			}
+		}
+
+	}
+
+	/**
+	 * 构建QueueBeanDefinition
+	 * @param clazz
+	 */
+	private static void buidQueueBeanDefinition(Class clazz) {
+		Method[] declaredMethods = clazz.getDeclaredMethods();
+		if(declaredMethods!=null&&declaredMethods.length>0){
+			for(Method m : declaredMethods){
+				m.setAccessible(true);
+				ListenerQueue lq = m.getDeclaredAnnotation(ListenerQueue.class);
+				if(lq!=null){
+					QueueBeanDefinition queueBeanDefinition = new QueueBeanDefinition(clazz,lq.queues()[0],m,Object.class);
+					String key = clazz.getName()+"_"+m.getName();
+					listenerQueueMethods.put(key,queueBeanDefinition);
+				}
+			}
+		}
+	}
+
+	private static Set<Class> getAllClass(Set<String> allTypes) {
+		HashSet<Class> classes = new HashSet<>();
+		if(allTypes!=null){
+			for(String clazz : allTypes){
+				try {
+					Class<?> aClass = Class.forName(clazz);
+					classes.add(aClass);
+				}catch (ClassNotFoundException e){
+					//ignore
+				}
+			}
+		}
+		return classes;
+	}
+
 	/**
 	 * 预处理
 	 * @param valu
@@ -151,17 +283,13 @@ public class ScanQueueClazz {
 	}
 	
 	
-	public static ConcurrentHashMap<String, Class>  getQueues(){
+	public  ConcurrentHashMap<String, Class>  getQueues(){
 		return queues;
 	}
-	
-	public static ConcurrentHashMap<String, Class>  getListenerQueues(){
-		return listenerQueues;
-	}
-	
+
 	public static class QueueBeanDefinition{
 		private Class beanClazz;
-		private String listenerQueueName;
+		private String listenerQueueName; //该属性已经被弃用,改为: 直接使用注解中的值,支持一个注解支持多个队列的监听消费, 为了兼容没有删除
 		private Method listenerMehod;// 监听的方法
 		private Class<Object> queueDataClazz  ; //队列数据类型,默认为Object类型，不允许其他类型
 		

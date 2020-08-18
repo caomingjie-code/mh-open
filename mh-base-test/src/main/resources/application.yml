@@ -6,6 +6,8 @@ server:
 logging:
   level:
     com.mh.**: DEBUG
+  config: classpath:logback-spring.xml
+
 spring:
   #配置应用名称
   application:
@@ -47,6 +49,11 @@ spring:
     port: 6379
     password: 123
     timeout: 1000
+  # elasticsearch client
+  elasticsearch:
+    jest:
+      uris: localhost:9200
+
 
 #配置mybatis 
 mybatis:

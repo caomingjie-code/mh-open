@@ -8,7 +8,7 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.spring.cloud.study</groupId>
+	<groupId>com.mh.base.mq</groupId>
 	<artifactId>mh-base-mq</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>mh-base-mq</name>
@@ -35,7 +35,7 @@
 		</dependency>
 
 
-		<!-- base 框架 -->
+		<!-- base  common 框架 -->
         <dependency>
             <groupId>org.example</groupId>
             <artifactId>mh-base-common</artifactId>

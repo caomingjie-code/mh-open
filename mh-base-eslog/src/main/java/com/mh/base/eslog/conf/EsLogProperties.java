@@ -3,7 +3,7 @@ package com.mh.base.eslog.conf;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * @Description:
+ * @Description: yml support eslog config
  * @Auther: create by cmj on 2020/8/18 23:56
  */
 @ConfigurationProperties(prefix = "mh.eslog")

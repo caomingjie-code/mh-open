@@ -53,6 +53,11 @@ spring:
   elasticsearch:
     jest:
       uris: localhost:9200
+#mh config
+mh:
+  eslog:
+    indexName: MHTEST
+    logQueueName: mhtest
 
 
 #配置mybatis 

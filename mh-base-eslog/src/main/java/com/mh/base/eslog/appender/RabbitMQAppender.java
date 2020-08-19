@@ -5,6 +5,7 @@ import com.mh.base.eslog.conf.EsLogProperties;
 import com.mh.base.eslog.consumer.EsConsumer;
 import com.mh.base.mq.annotation.CreateQueue;
 import com.mh.base.mq.client.MHMQClient;
+import com.mh.base.mq.config.MQProperties;
 import com.mh.base.mq.consumer.MHConsumer;
 import com.mh.base.mq.init.QueueInit;
 import org.apache.commons.lang3.StringUtils;
@@ -24,21 +25,21 @@ import java.util.Arrays;
 public class RabbitMQAppender extends OutputStreamAppender {
 
     private static boolean startMq = false;//开启mq队列 stored
-    public static final String ES_QUEUE = "RabbitMQAppender"; //默认es的队列
+    public static final String ES_QUEUE = "eslog"; //默认es的队列
     private static MHMQClient mhmqClient;
-    private static EsLogProperties mqPropertie;
+    private static EsLogProperties eslogProperties;
     private static QueueInit queueInit;
 
     @Autowired
-    public void setMhmqClient(MHMQClient mhmqClient, EsLogProperties mqProperties,QueueInit queueInit) throws Exception {
+    public void setMhmqClient(MHMQClient mhmqClient, EsLogProperties eslogProperties, QueueInit queueInit, MQProperties mqProperties) throws Exception {
         RabbitMQAppender.mhmqClient = mhmqClient;
-        RabbitMQAppender.mqPropertie = mqProperties;
+        RabbitMQAppender.eslogProperties = eslogProperties;
         RabbitMQAppender.queueInit = queueInit;
-        if(StringUtils.isNotBlank(mqProperties.getLogQueueName())){
-            RabbitMQAppender.queueInit.createQueue(mqProperties.getLogQueueName());//创建queue
+        if(StringUtils.isNotBlank(eslogProperties.getLogQueueName())){
+            RabbitMQAppender.queueInit.createQueue(eslogProperties.getLogQueueName());//创建queue
             Method logCustomConsumer = EsConsumer.class.getDeclaredMethod("logCustomConsumer", Object.class);
             logCustomConsumer.setAccessible(true);
-            MHConsumer mhConsumer = new MHConsumer(null,queueInit.getChannel(), EsConsumer.class.newInstance(), mqProperties.getLogQueueName(), logCustomConsumer,null,false,1);
+            MHConsumer mhConsumer = new MHConsumer(mqProperties,queueInit.getChannel(), EsConsumer.class.newInstance(), eslogProperties.getLogQueueName(), logCustomConsumer,null,false,1);
             mhConsumer.start();
         }
         RabbitMQAppender.startMq = true;
@@ -88,7 +89,7 @@ public class RabbitMQAppender extends OutputStreamAppender {
          * @return
          */
         private String getSendQueueName() {
-            String logQueueName = mqPropertie.getLogQueueName();
+            String logQueueName = eslogProperties.getLogQueueName();
             if(!StringUtils.isNotBlank(logQueueName)){
                 logQueueName = ES_QUEUE;
             }

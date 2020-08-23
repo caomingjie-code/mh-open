@@ -56,8 +56,10 @@ spring:
 #mh config
 mh:
   eslog:
-    indexName: MHTEST
-    logQueueName: mhtest
+    indexName: udr
+    logQueueName: udr
+    esVersion: 6
+    workId: udr
 
 
 #配置mybatis 

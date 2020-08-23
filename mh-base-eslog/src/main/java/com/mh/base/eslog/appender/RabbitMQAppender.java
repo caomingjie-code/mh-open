@@ -1,6 +1,7 @@
 package com.mh.base.eslog.appender;
 
 import ch.qos.logback.core.OutputStreamAppender;
+import com.mh.base.eslog.client.EsLogClient;
 import com.mh.base.eslog.conf.EsLogProperties;
 import com.mh.base.eslog.consumer.EsConsumer;
 import com.mh.base.mq.annotation.CreateQueue;
@@ -21,7 +22,6 @@ import java.util.Arrays;
  * @Auther: create by cmj on 2020/8/18 09:45
  */
 @CreateQueue(name = RabbitMQAppender.ES_QUEUE)
-@Component
 public class RabbitMQAppender extends OutputStreamAppender {
 
     private static boolean startMq = false;//开启mq队列 stored
@@ -31,7 +31,7 @@ public class RabbitMQAppender extends OutputStreamAppender {
     private static QueueInit queueInit;
 
     @Autowired
-    public void setMhmqClient(MHMQClient mhmqClient, EsLogProperties eslogProperties, QueueInit queueInit, MQProperties mqProperties) throws Exception {
+    public void setMhmqClient(MHMQClient mhmqClient, EsLogProperties eslogProperties, QueueInit queueInit, MQProperties mqProperties, EsLogClient esLogClient) throws Exception {
         RabbitMQAppender.mhmqClient = mhmqClient;
         RabbitMQAppender.eslogProperties = eslogProperties;
         RabbitMQAppender.queueInit = queueInit;
@@ -39,7 +39,10 @@ public class RabbitMQAppender extends OutputStreamAppender {
             RabbitMQAppender.queueInit.createQueue(eslogProperties.getLogQueueName());//创建queue
             Method logCustomConsumer = EsConsumer.class.getDeclaredMethod("logCustomConsumer", Object.class);
             logCustomConsumer.setAccessible(true);
-            MHConsumer mhConsumer = new MHConsumer(mqProperties,queueInit.getChannel(), EsConsumer.class.newInstance(), eslogProperties.getLogQueueName(), logCustomConsumer,null,false,1);
+            EsConsumer esConsumer = EsConsumer.class.newInstance();
+            esConsumer.setEsClient(esLogClient);
+            esConsumer.setEsLogProperties(eslogProperties);
+            MHConsumer mhConsumer = new MHConsumer(mqProperties,queueInit.getChannel(), esConsumer, eslogProperties.getLogQueueName(), logCustomConsumer,null,false,1);
             mhConsumer.start();
         }
         RabbitMQAppender.startMq = true;

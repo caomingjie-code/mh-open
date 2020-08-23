@@ -20,10 +20,10 @@
 
 
 
-<!--    <root level="info">&lt;!&ndash;log level&ndash;&gt;-->
-<!--        &lt;!&ndash;use appender&ndash;&gt;-->
-<!--        <appender-ref ref="STDOUT"/>-->
-<!--    </root>-->
+    <root level="info"><!--log level-->
+        <!--use appender-->
+        <appender-ref ref="STDOUT"/>
+    </root>
 
     <root level="error"><!--log level-->
         <!--use appender-->

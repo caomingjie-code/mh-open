@@ -53,6 +53,11 @@ spring:
   elasticsearch:
     jest:
       uris: localhost:9200
+  # mq
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
 #mh config
 mh:
   eslog:

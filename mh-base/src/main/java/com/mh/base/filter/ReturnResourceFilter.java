@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import com.mh.base.utils.datasource.BaseComboPooledDataSource;
 import org.springframework.stereotype.Component;
 
 import com.mh.base.utils.redis.JedisUtils;
@@ -31,8 +32,11 @@ public class ReturnResourceFilter implements Filter{
 		}finally {
 			//回收Redis资源
 			JedisUtils.returnResource();
+			BaseComboPooledDataSource.clean();//清楚陆游数据
 		}
 		
 	}
+
+
 
 }

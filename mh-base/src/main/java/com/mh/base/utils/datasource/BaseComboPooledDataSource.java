@@ -32,6 +32,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 		if(!StringUtils.isNoneBlank(dataSourceSlaveName)) {
 			throw BaseDataSourceException.getException("DataSourceSlave Is Null");
 		}
+
 		dataSourceRoute.set(dataSourceSlaveName);
 	}
 	
@@ -110,7 +111,12 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 	    	Connection connection = super.getConnection();
 	    	return connection;
 	    }
-	    
-	    
+
+	/**
+	 * 清除陆游信息
+ 	 */
+	public static void clean(){
+		dataSourceRoute.set(null);
+	}
 
 }

@@ -2,6 +2,7 @@ package com.mh.test.dao;
 
 import com.mh.base.annotation.datasource.DataSourceRoute;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -15,6 +16,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping
+@Transactional(rollbackFor = Exception.class)
 public class DaoController {
 
     @Resource
@@ -24,6 +26,8 @@ public class DaoController {
     @ResponseBody
     public List testRuteDataBases(){
         List<Map<String, Object>> maps = daoService.queryData("select * from test limit 2");
+        maps = daoService.queryData("select * from test limit 2,2");
+
         return maps;
     }
 

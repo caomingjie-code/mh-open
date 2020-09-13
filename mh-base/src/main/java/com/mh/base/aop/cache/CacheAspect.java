@@ -9,6 +9,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.mh.base.annotation.conditional.ConditionalOnPropertyMustExists;
 import com.mh.base.utils.model.ModelUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -57,6 +59,7 @@ import jdk.internal.org.objectweb.asm.tree.AnnotationNode;
  * @return
  */
 @Component
+@ConditionalOnProperty(prefix = "mh.cache",value = "cache",havingValue = "true")
 @Aspect
 public class CacheAspect implements InitializingBean{
 

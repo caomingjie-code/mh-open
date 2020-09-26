@@ -239,7 +239,7 @@ public class ClassUtils {
 	}
 
 	public static final  Set<ClassDefinition> getClassDefinitions() {
-		return CLASS_DEFINITIONS;
+		return Collections.unmodifiableSet(CLASS_DEFINITIONS);
 	}
 
 }

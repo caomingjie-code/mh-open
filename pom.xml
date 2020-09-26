@@ -23,7 +23,6 @@
       <module>mh-base-test</module>
       <module>mh-base-kafka</module>
       <module>mh-base-common</module>
-        <module>mh-bash-loges</module>
       <module>mh-base-eslog</module>
     </modules>
 

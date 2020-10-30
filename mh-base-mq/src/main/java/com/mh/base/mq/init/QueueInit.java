@@ -38,7 +38,7 @@ import com.rabbitmq.client.Channel;
  * @author cmj
  *
  */
-@Component
+
 public class QueueInit implements ApplicationContextAware{
 	private static final Log logger = LogFactory.getLog(QueueInit.class);
 	@Resource

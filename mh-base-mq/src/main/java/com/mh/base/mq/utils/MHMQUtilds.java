@@ -13,7 +13,7 @@ import com.mh.base.mq.client.MHMQClient;
  * @author cmj
  *
  */
-@Component
+
 public class MHMQUtilds {
 	
 	private static MHMQClient mhmq; 

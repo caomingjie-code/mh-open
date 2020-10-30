@@ -2,6 +2,7 @@ package com.mh.base.eslog.appender;
 
 import ch.qos.logback.core.OutputStreamAppender;
 import com.mh.base.eslog.client.EsLogClient;
+import com.mh.base.eslog.conf.AutoConfigEslog;
 import com.mh.base.eslog.conf.EsLogProperties;
 import com.mh.base.eslog.consumer.EsConsumer;
 import com.mh.base.mq.annotation.CreateQueue;
@@ -11,6 +12,7 @@ import com.mh.base.mq.consumer.MHConsumer;
 import com.mh.base.mq.init.QueueInit;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,6 +23,7 @@ import java.util.Arrays;
  * @Description: 自定义logbak appender
  * @Auther: create by cmj on 2020/8/18 09:45
  */
+@ConditionalOnBean(AutoConfigEslog.class)
 @CreateQueue(name = RabbitMQAppender.ES_QUEUE)
 public class RabbitMQAppender extends OutputStreamAppender {
 

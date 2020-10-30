@@ -25,7 +25,7 @@ import com.mh.base.mq.msgdata.MqMsg;
  * @author cmj
  *
  */
-@Component
+
 public class MHMQClient  {
 	  
 	private static final long serialVersionUID = 7600492377783562841L;

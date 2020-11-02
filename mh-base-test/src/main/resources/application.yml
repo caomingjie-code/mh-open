@@ -24,12 +24,12 @@ spring:
       username: root
       password: zqbxcmj
   #从数据库    
-  datasource_slaves:
-      slavename: slaveDS
-      url: jdbc:mysql://localhost:3306/fit?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
-      username: root
-      password: zqbxcmj
-      driver: com.mysql.jdbc.Driver
+#  datasource_slaves:
+#      slavename: slaveDS
+#      url: jdbc:mysql://localhost:3306/fit?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+#      username: root
+#      password: zqbxcmj
+#      driver: com.mysql.jdbc.Driver
 
   main:
      allow-bean-definition-overriding: true

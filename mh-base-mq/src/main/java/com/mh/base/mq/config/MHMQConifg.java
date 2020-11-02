@@ -17,8 +17,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
  * @author cmj
  *
  */
-@Component
-@Configuration
+
 @EnableConfigurationProperties(MQProperties.class)
 public class MHMQConifg {
 	

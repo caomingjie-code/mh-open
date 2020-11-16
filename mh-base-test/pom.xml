@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mh-web-manager</artifactId>
+    <artifactId>mh-base-test</artifactId>
 
-    <name>mh-web-manager</name>
+    <name>mh-base-test</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 

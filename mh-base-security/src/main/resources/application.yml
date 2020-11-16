@@ -23,7 +23,7 @@ spring:
      allow-bean-definition-overriding: true
   #定义freemarker   
   freemarker:
-    prefix: page/
+    prefix:
     suffix: .html
     cache: false
   #静态文件  

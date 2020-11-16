@@ -79,7 +79,7 @@ public class SpringDataUserDetailsService implements UserDetailsService{
 
 
 
-			//返回认证
+			//返回User交给Security框架去认证
 			return new User(username, passwdEncode, ga);
 		}else{
 			throw  new UsernameNotFoundException("用户账户或密码错误！！！");

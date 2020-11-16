@@ -42,14 +42,6 @@ public class MHUser  implements Serializable {
 	@Column(name = "update_time", columnDefinition = "datetime comment '更新时间'")
 	private Date updateTime;//更新时间
 
-	@Column(name = "base_user1",columnDefinition = "varchar(300) comment '备用字段1'")
-	private String baseUse1;
-
-	@Column(name = "base_user2",columnDefinition = "varchar(300) comment '备用字段2'")
-	private String baseUse2;
-
-	@Column(name = "base_user3",columnDefinition = "varchar(300) comment '备用字段3'")
-	private String baseUse3;
 
 	public Integer getUserId() {
 		return userId; 

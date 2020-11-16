@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
  * create by cmj
  */
 
-@SpringBootApplication(scanBasePackages = {"com.mh.test.dao"})
+@SpringBootApplication(scanBasePackages = {"com.mh.test.dao","com.mh.security"})
 public class TestApp extends Base
 {
     public static void main( String[] args )

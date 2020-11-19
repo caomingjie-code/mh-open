@@ -19,7 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.xerces.impl.dv.util.Base64;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import com.mh.base.common.protostuff.ProtostuffUtils;
 import redis.clients.jedis.Jedis;
@@ -43,7 +46,8 @@ import redis.clients.jedis.JedisPoolConfig;
  *        cmj v1.0.0 修改原因
  */
 @Component
-public class JedisUtils implements InitializingBean {
+@ConditionalOnProperty(prefix = "spring.redis",name = "host")
+public class JedisUtils implements InitializingBean, EnvironmentAware {
 
 	private static String reduesUrl; // redis url
 	private static String jedisPW; // redis 密码
@@ -56,22 +60,22 @@ public class JedisUtils implements InitializingBean {
 	@Resource
 	private RedisProperties redisProperties;
 
-	@Value("${spring.redis.host}")
+	//@Value("${spring.redis.host}")
 	private void setUrl(String url) {
 		reduesUrl = url;
 	}
 
-	@Value("${spring.redis.password}")
+	//@Value("${spring.redis.password}")
 	private void setPw(String pw) {
 		jedisPW = pw;
 	}
 
-	@Value("${spring.redis.port}")
-	private void setPw(Integer jp) {
+	//@Value("${spring.redis.port}")
+	private void setPt(Integer jp) {
 		jedisPort = jp;
 	}
 
-	@Value("${spring.redis.timeout}")
+	//@Value("${spring.redis.timeout}")
 	private void setjedisTimeOut(String jedisTimeOutStr) {
 		int timeout_ = 1;
 		String[] split = jedisTimeOutStr.split("[*]");
@@ -86,6 +90,18 @@ public class JedisUtils implements InitializingBean {
 			timeout_ = 1000 * 60 * 3;
 		}
 		jedisTimeOut = timeout_;
+	}
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		String host = environment.getProperty("spring.redis.host");
+		setUrl(host);
+		String password = environment.getProperty("spring.redis.password");
+		setPw(password);
+		String port = environment.getProperty("spring.redis.port");
+		setPt(Integer.parseInt(port));
+		String timeout = environment.getProperty("spring.redis.timeout");
+		setjedisTimeOut(timeout);
 	}
 
 	public static Jedis getClient() {
@@ -336,6 +352,8 @@ public class JedisUtils implements InitializingBean {
 		T data = decode.getData();
 		return data;
 	}
+
+
 
 	// Data start
 

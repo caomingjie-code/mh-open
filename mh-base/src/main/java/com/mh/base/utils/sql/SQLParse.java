@@ -42,11 +42,11 @@ public class SQLParse {
 
     public static SQL parseSqlParams(String sql, List<Map<String,String>> paramMap){
 
-        Matcher matcher = compile.matcher(sql);
         ArrayList<Object[]> objects = new ArrayList<>();
         for(int i=0; paramMap!=null&&i<paramMap.size();i++){
             Map<String, String> pm = paramMap.get(i);
             ArrayList<String> params = new ArrayList<>();
+            Matcher matcher = compile.matcher(sql);
             while(matcher.find()){
                 String result = matcher.group(1);
                 String paramKey = result.substring(2, result.length() - 1);

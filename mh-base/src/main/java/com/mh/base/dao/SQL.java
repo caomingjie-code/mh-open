@@ -30,8 +30,7 @@ public class SQL implements BatchPreparedStatementSetter{
 	public void setValues(PreparedStatement ps, int i) throws SQLException {
 		
 		if(argsParam!=null&& argsParam.size()>0&&StringUtils.isNoneBlank(sql)) {
-			for(int j=0;j<argsParam.size();j++) {
-				Object[] objects = argsParam.get(j);
+				Object[] objects = argsParam.get(i);
 				if(objects!=null&&objects.length>0) {
 					for(int l=0;l<objects.length;l++) {
 						Object param = objects[l];
@@ -41,7 +40,6 @@ public class SQL implements BatchPreparedStatementSetter{
 						ps.setObject(l+1, param);
 					}
 				}
-			}
 		}
 		
 	}

@@ -3,10 +3,7 @@ package com.mh.security.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import javax.annotation.Resource;
-
-import com.mh.base.dao.BatchSQL;
 import com.mh.security.MHRole;
 import org.springframework.stereotype.Service;
 

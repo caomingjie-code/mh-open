@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import com.mh.base.dao.SQL;
 import com.mh.base.utils.sql.SQLParse;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import com.mh.base.dao.BaseBatis;
 import com.mh.base.utils.model.ModelUtils;
@@ -32,7 +34,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	@Override
 	public void saveData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql_.getSql(),sql_.getArgsParam());
+		this.jdbcTemplate.update(sql,  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
 
 	public void deleteData(String sql) {
@@ -42,7 +44,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	@Override
 	public void deleteData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql_.getSql(),sql_.getArgsParam());
+		this.jdbcTemplate.update(sql,  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
 
 	public void updateData(String sql) {
@@ -52,7 +54,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	@Override
 	public void updateData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql_.getSql(),sql_.getArgsParam());
+		this.jdbcTemplate.update(sql,  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
 
 
@@ -66,7 +68,8 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	@Override
 	public List<Map<String, Object>> queryData(String sql, Map<String, String> map) {
 		SQL batchSQL = SQLParse.getSQL(sql, map);
-		List<Map<String, Object>> result = this.jdbcTemplate.queryForList(batchSQL.getSql(), batchSQL.getArgsParam());
+		 //query(sql, args, getColumnMapRowMapper());
+		List<Map<String, Object>> result = this.jdbcTemplate.query(batchSQL.getSql(), batchSQL.getArgsParam().get(0),new ColumnMapRowMapper());
 		return result;
 	}
 

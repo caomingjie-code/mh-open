@@ -20,12 +20,20 @@ public interface BaseBatis<T,ID>{
 	
     /*****************************************************************************/ 
 	public void saveData(String sql);
+
+	public void saveData(String sql,Map<String,String> map);
 	
 	public void deleteData(String sql);
+
+	public void deleteData(String sql,Map<String,String> map);
 	
 	public void updateData(String sql);
+
+	public void updateData(String sql,Map<String,String> map);
 	
 	public List<Map<String,Object>> queryData(String sql);
+
+	public List<Map<String,Object>> queryData(String sql,Map<String,String> map);
 	
 	/*****************************************************************************/ 
 	public <E> List<E> queryDataForT(String sql,Class<E> clazz);
@@ -41,7 +49,8 @@ public interface BaseBatis<T,ID>{
 	
     
 	/*****************************************************************************/ 
-	public Integer batchUpdate(String sql,BatchPreparedStatementSetter pss);
+	public Integer batchUpdate(String sql,List<Map<String,String>> paramMap );
+
 	
 	/*****************************************************************************/ 
 	public  List<Map<String,Object>> executorSQL(String sqlId);

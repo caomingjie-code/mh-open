@@ -1,22 +1,13 @@
 package com.mh.base.dao.impl;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-
+import com.mh.base.dao.SQL;
+import com.mh.base.utils.sql.SQLParse;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.data.jpa.repository.support.JpaEntityInformation;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-
 import com.mh.base.dao.BaseBatis;
 import com.mh.base.utils.model.ModelUtils;
 import com.mh.base.utils.param.ParamUtils;
@@ -38,21 +29,47 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 		this.jdbcTemplate.execute(sql);
 	}
 
+	@Override
+	public void saveData(String sql, Map<String, String> map) {
+		SQL sql_ = SQLParse.getSQL(sql, map);
+		this.jdbcTemplate.update(sql_.getSql(),sql_.getArgsParam());
+	}
+
 	public void deleteData(String sql) {
 		this.jdbcTemplate.execute(sql);
+	}
+
+	@Override
+	public void deleteData(String sql, Map<String, String> map) {
+		SQL sql_ = SQLParse.getSQL(sql, map);
+		this.jdbcTemplate.update(sql_.getSql(),sql_.getArgsParam());
 	}
 
 	public void updateData(String sql) {
 		this.jdbcTemplate.execute(sql);
 	}
 
-	
+	@Override
+	public void updateData(String sql, Map<String, String> map) {
+		SQL sql_ = SQLParse.getSQL(sql, map);
+		this.jdbcTemplate.update(sql_.getSql(),sql_.getArgsParam());
+	}
+
+
 	/********************************** JPA ************************************/
 
 	public List<Map<String, Object>> queryData(String sql) {
 		List<Map<String, Object>> queryForList = this.jdbcTemplate.queryForList(sql);
 		return queryForList;
 	}
+
+	@Override
+	public List<Map<String, Object>> queryData(String sql, Map<String, String> map) {
+		SQL batchSQL = SQLParse.getSQL(sql, map);
+		List<Map<String, Object>> result = this.jdbcTemplate.queryForList(batchSQL.getSql(), batchSQL.getArgsParam());
+		return result;
+	}
+
 
 	/**
 	 * 支持Pojo和Model
@@ -65,17 +82,16 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 
 
 
-	public Integer batchUpdate(String sql, BatchPreparedStatementSetter pss) {
-		int[] is = this.jdbcTemplate.batchUpdate("BASE." + sql, pss);
+
+	public Integer batchUpdate(String sql,List<Map<String,String>> paramMap ) {
+		SQL batchSQL = SQLParse.parseSqlParams(sql, paramMap);
+		int[] is = this.jdbcTemplate.batchUpdate( batchSQL.getSql(), batchSQL);
 		return Integer.valueOf(is.length);
 	}
 
 	/****************************** BATIS ***********************************/
 	
-	
 
-	
-	
 	/**
 	 * 支持Pojo和Model
 	 */

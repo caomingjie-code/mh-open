@@ -69,6 +69,9 @@ public class DataSourceSlaveConfig {
         cpds.setPassword(password);
         cpds.setMaxPoolSize(100);
         cpds.setMinPoolSize(10);
+        cpds.setIdleConnectionTestPeriod(0);
+        cpds.setMaxIdleTime(0);
+
         return cpds;
     }
     
@@ -95,6 +98,8 @@ public class DataSourceSlaveConfig {
         cpds.setMaxPoolSize(500);
         cpds.setMinPoolSize(100);
         cpds.setSlavename(slavename);
+        cpds.setIdleConnectionTestPeriod(0);
+        cpds.setMaxIdleTime(0);
         return cpds;
     }
 }

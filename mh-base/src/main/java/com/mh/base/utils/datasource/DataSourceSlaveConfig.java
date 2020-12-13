@@ -69,8 +69,11 @@ public class DataSourceSlaveConfig {
         cpds.setPassword(password);
         cpds.setMaxPoolSize(100);
         cpds.setMinPoolSize(10);
-        cpds.setIdleConnectionTestPeriod(0);
-        cpds.setMaxIdleTime(0);
+        cpds.setIdleConnectionTestPeriod(60);//每 60 秒检查所有连接池中的空闲连接
+        cpds.setMaxIdleTime(25000);//最大空闲时间,25000 秒内未使用则连接被丢弃
+        cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
+        cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
+
 
         return cpds;
     }
@@ -98,8 +101,10 @@ public class DataSourceSlaveConfig {
         cpds.setMaxPoolSize(500);
         cpds.setMinPoolSize(100);
         cpds.setSlavename(slavename);
-        cpds.setIdleConnectionTestPeriod(0);
-        cpds.setMaxIdleTime(0);
+        cpds.setIdleConnectionTestPeriod(60);//每 60 秒检查所有连接池中的空闲连接
+        cpds.setMaxIdleTime(25000);//最大空闲时间,25000 秒内未使用则连接被丢弃
+        cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
+        cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
         return cpds;
     }
 }

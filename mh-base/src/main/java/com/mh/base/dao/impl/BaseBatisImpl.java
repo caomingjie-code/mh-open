@@ -34,7 +34,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	@Override
 	public void saveData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql,  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
+		this.jdbcTemplate.update(sql_.getSql(),  sql_);
 	}
 
 	public void deleteData(String sql) {
@@ -44,7 +44,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	@Override
 	public void deleteData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql,  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
+		this.jdbcTemplate.update(sql_.getSql(),  sql_);
 	}
 
 	public void updateData(String sql) {
@@ -54,7 +54,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	@Override
 	public void updateData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql,  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
+		this.jdbcTemplate.update(sql_.getSql(),  sql_);
 	}
 
 

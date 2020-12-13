@@ -1,8 +1,5 @@
 package com.mh.base.dao.impl;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.Resource;
 import com.mh.base.dao.SQL;
 import com.mh.base.utils.sql.SQLParse;
@@ -27,34 +24,34 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	private Class clazzT;
 	private Class clazzId;
 	
-	public void saveData(String sql) {
-		this.jdbcTemplate.execute(sql);
+	public int saveData(String sql) {
+		return saveData(sql,Collections.EMPTY_MAP);
 	}
 
 	@Override
-	public void saveData(String sql, Map<String, String> map) {
+	public int saveData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql_.getSql(),  sql_);
+		return this.jdbcTemplate.update(sql_.getSql(),  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
 
-	public void deleteData(String sql) {
-		this.jdbcTemplate.execute(sql);
+	public int deleteData(String sql) {
+		return deleteData(sql,Collections.EMPTY_MAP);
 	}
 
 	@Override
-	public void deleteData(String sql, Map<String, String> map) {
+	public int deleteData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql_.getSql(),  sql_);
+		return this.jdbcTemplate.update(sql_.getSql(),  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
 
-	public void updateData(String sql) {
-		this.jdbcTemplate.execute(sql);
+	public int updateData(String sql) {
+		return updateData(sql, Collections.EMPTY_MAP);
 	}
 
 	@Override
-	public void updateData(String sql, Map<String, String> map) {
+	public int updateData(String sql, Map<String, String> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
-		this.jdbcTemplate.update(sql_.getSql(),  sql_);
+		return this.jdbcTemplate.update(sql_.getSql(),  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
 
 
@@ -134,19 +131,18 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 
 
 	@Override
-	public void insertSql(String sqlId) {
-		executorSQL(sqlId);
-
+	public int insertSql(String sqlId) {
+		return sqlSessionTemplate.insert("BASE."+sqlId);
 	}
 
 	@Override
-	public void deleteSql(String sqlId) {
-		executorSQL(sqlId);
+	public int deleteSql(String sqlId) {
+		return sqlSessionTemplate.delete("BASE."+sqlId);
 	}
 
 	@Override
-	public void updateSql(String sqlId) {
-		executorSQL(sqlId);
+	public int updateSql(String sqlId) {
+		return sqlSessionTemplate.update("BASE."+sqlId);
 	}
 
 	@Override
@@ -155,18 +151,18 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	}
 
 	@Override
-	public void insertSql(String sqlId, Map<String, Object> paramMap) {
-		executorSQL(sqlId, paramMap);
+	public int insertSql(String sqlId, Map<String, Object> paramMap) {
+		return sqlSessionTemplate.insert("BASE."+sqlId,paramMap);
 	}
 
 	@Override
-	public void deleteSql(String sqlId, Map<String, Object> paramMap) {
-		executorSQL(sqlId, paramMap);
+	public int deleteSql(String sqlId, Map<String, Object> paramMap) {
+		return sqlSessionTemplate.delete("BASE."+sqlId, paramMap);
 	}
 
 	@Override
-	public void updateSql(String sqlId, Map<String, Object> paramMap) {
-		executorSQL(sqlId, paramMap);
+	public int updateSql(String sqlId, Map<String, Object> paramMap) {
+		return sqlSessionTemplate.update("BASE."+sqlId, paramMap);
 	}
 
 	@Override
@@ -175,18 +171,18 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	}
 
 	@Override
-	public void insertSqlByPojo(String sqlId, Object pojo) {
-		executorSQLByPojo(sqlId, pojo);
+	public int insertSqlByPojo(String sqlId, Object pojo) {
+		return sqlSessionTemplate.insert("BASE."+sqlId, pojo);
 	}
 
 	@Override
-	public void deleteSqlByPojo(String sqlId, Object pojo) {
-		executorSQLByPojo(sqlId, pojo);
+	public int deleteSqlByPojo(String sqlId, Object pojo) {
+		return sqlSessionTemplate.delete("BASE."+sqlId, pojo);
 	}
 
 	@Override
-	public void updateSqlByPojo(String sqlId, Object pojo) {
-		executorSQLByPojo(sqlId, pojo);
+	public int updateSqlByPojo(String sqlId, Object pojo) {
+		return sqlSessionTemplate.update("BASE."+sqlId, pojo);
 	}
 
 	@Override

@@ -19,17 +19,17 @@ import com.mh.base.dao.impl.FPage;
 public interface BaseBatis<T,ID>{
 	
     /*****************************************************************************/ 
-	public void saveData(String sql);
+	public int saveData(String sql);
 
-	public void saveData(String sql,Map<String,String> map);
+	public int saveData(String sql,Map<String,String> map);
 	
-	public void deleteData(String sql);
+	public int deleteData(String sql);
 
-	public void deleteData(String sql,Map<String,String> map);
+	public int deleteData(String sql,Map<String,String> map);
 	
-	public void updateData(String sql);
+	public int updateData(String sql);
 
-	public void updateData(String sql,Map<String,String> map);
+	public int updateData(String sql,Map<String,String> map);
 	
 	public List<Map<String,Object>> queryData(String sql);
 
@@ -58,29 +58,29 @@ public interface BaseBatis<T,ID>{
 	public  List<Map<String,Object>> executorSQL(String sqlId,Map<String,Object> paramMap);
 	
 	/*****************************************************************************/ 
-	public void insertSql(String sqlId);
+	public int insertSql(String sqlId);
 	
-	public void deleteSql(String sqlId);
+	public int deleteSql(String sqlId);
 	
-	public void updateSql(String sqlId);
+	public int updateSql(String sqlId);
 	
 	public List<Map<String,Object>> selectSql(String sqlId);
 	
 	/*****************************************************************************/ 
-    public void insertSql(String sqlId,Map<String,Object> paramMap);
+    public int insertSql(String sqlId,Map<String,Object> paramMap);
 	
-	public void deleteSql(String sqlId,Map<String,Object> paramMap);
+	public int deleteSql(String sqlId,Map<String,Object> paramMap);
 	
-	public void updateSql(String sqlId,Map<String,Object> paramMap);
+	public int updateSql(String sqlId,Map<String,Object> paramMap);
 	
 	public List<Map<String,Object>> selectSql(String sqlId,Map<String,Object> paramMap);
 	
 	/*****************************************************************************/ 
-    public void insertSqlByPojo(String sqlId,Object pojo);
+    public int insertSqlByPojo(String sqlId,Object pojo);
 	
-	public void deleteSqlByPojo(String sqlId,Object pojo);
+	public int deleteSqlByPojo(String sqlId,Object pojo);
 	
-	public void updateSqlByPojo(String sqlId,Object pojo);
+	public int updateSqlByPojo(String sqlId,Object pojo);
 	
 	public List<Map<String,Object>> selectSqlByPojo(String sqlId,Object pojo);
 	

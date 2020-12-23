@@ -53,10 +53,11 @@ public class JedisUtils implements InitializingBean, EnvironmentAware {
 	private static String jedisPW; // redis 密码
 	private static Integer jedisPort; // redis 端口号
 	private static Integer jedisTimeOut;// 超时时间
+	private static Integer connectionCount; //链接数
 
 	public final static ThreadLocal<Jedis> tl = new ThreadLocal<Jedis>();
 	private static JedisPool jedisPool = null;
-	
+	final static JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
 	@Resource
 	private RedisProperties redisProperties;
 
@@ -73,6 +74,10 @@ public class JedisUtils implements InitializingBean, EnvironmentAware {
 	//@Value("${spring.redis.port}")
 	private void setPt(Integer jp) {
 		jedisPort = jp;
+	}
+
+	private void setConnectionCount(Integer cc){
+		connectionCount = cc;
 	}
 
 	//@Value("${spring.redis.timeout}")
@@ -95,13 +100,35 @@ public class JedisUtils implements InitializingBean, EnvironmentAware {
 	@Override
 	public void setEnvironment(Environment environment) {
 		String host = environment.getProperty("spring.redis.host");
-		setUrl(host);
+		if(StringUtils.isNotBlank(host)){
+			setUrl(host);
+		}
+
 		String password = environment.getProperty("spring.redis.password");
-		setPw(password);
+		if(StringUtils.isNotBlank(password)){
+			setPw(password);
+		}
+
 		String port = environment.getProperty("spring.redis.port");
-		setPt(Integer.parseInt(port));
+		if(StringUtils.isNotBlank(port)){
+			setPt(Integer.parseInt(port));
+		}
+
 		String timeout = environment.getProperty("spring.redis.timeout");
-		setjedisTimeOut(timeout);
+		if(StringUtils.isNotBlank(timeout)){
+			setjedisTimeOut(timeout);
+		}
+
+		String cc = environment.getProperty("spring.redis.jedis.pool.max-active");
+		if(StringUtils.isNotBlank(cc)){
+			setConnectionCount(Integer.parseInt(cc));
+		}
+
+		jedisPoolConfig.setMaxWaitMillis(1000 * 60 * 3);
+		jedisPoolConfig.setMinIdle(10);
+		jedisPoolConfig.setMaxIdle(20);
+		jedisPoolConfig.setMaxTotal(Math.max(connectionCount,10));
+
 	}
 
 	public static Jedis getClient() {
@@ -417,11 +444,9 @@ public class JedisUtils implements InitializingBean, EnvironmentAware {
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-		jedisPoolConfig.setMaxWaitMillis(1000 * 60 * 3);
-		jedisPoolConfig.setMinIdle(10);
-		jedisPoolConfig.setMaxIdle(20);
-		jedisPoolConfig.setMaxTotal(1000);
+
+
+
 		if(redisProperties!=null&&!StringUtils.isBlank(redisProperties.getHost())) {
 			if(jedisPW==null){
 				jedisPool = new JedisPool(jedisPoolConfig, reduesUrl);

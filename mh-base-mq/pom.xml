@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>mh-open</artifactId>
-		<groupId>org.example</groupId>
+		<groupId>com.mh</groupId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
@@ -37,7 +37,7 @@
 
 		<!-- base  common 框架 -->
         <dependency>
-            <groupId>org.example</groupId>
+            <groupId>com.mh</groupId>
             <artifactId>mh-base-common</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>

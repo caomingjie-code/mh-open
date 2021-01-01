@@ -34,7 +34,7 @@ spring:
     static-locations : classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/static/page/
 #mybatis 
 mybatis:
-  mapper-locations : classpath*:com/mh/**/*.xml
+  mapper-locations : classpath*:com/javaoffers/**/*.xml
   
   
 #配置eureka 

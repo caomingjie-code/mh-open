@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
- <mapper namespace="com.mh.base.db.test.mapping.TestDaoI">
+ <mapper namespace="com.javaoffers.base.db.test.mapping.TestDaoI">
 	 <select id="queryDataFor" resultType="map">
 	    select * from test_data
 	 </select>

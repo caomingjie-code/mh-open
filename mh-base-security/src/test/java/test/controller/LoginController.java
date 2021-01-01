@@ -1,9 +1,9 @@
 package test.controller;
 
-import com.mh.base.common.json.JsonUtils;
-import com.mh.base.common.log.LogUtils;
-import com.mh.security.MHUser;
-import com.mh.security.utils.SecurityUtils;
+import com.javaoffers.base.common.json.JsonUtils;
+import com.javaoffers.base.common.log.LogUtils;
+import com.javaoffers.security.MHUser;
+import com.javaoffers.security.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;

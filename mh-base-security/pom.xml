@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>mh-open</artifactId>
-		<groupId>com.mh</groupId>
-		<version>1.0-SNAPSHOT</version>
+		<groupId>com.javaoffers</groupId>
+		<version>1.0.1</version>
 	</parent>
 
-	<groupId>com.mh.security</groupId>
+	<groupId>com.javaoffers.security</groupId>
 	<artifactId>mh-base-security</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1.1</version>
 	<name>mh-base-security</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -20,9 +20,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.mh.base</groupId>
+			<groupId>com.javaoffers.base</groupId>
 			<artifactId>mh-base</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1.1</version>
        </dependency>
        
        <!-- security 权限 -->

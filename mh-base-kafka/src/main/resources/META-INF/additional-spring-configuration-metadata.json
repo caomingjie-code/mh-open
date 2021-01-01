@@ -1,7 +1,7 @@
 {
   "properties": [
     {
-      "sourceType":"com.mh.base.kafka.conf.KafkaProperties",
+      "sourceType": "com.javaoffers.base.kafka.conf.KafkaProperties",
       "name": "kafka.zk.nodes",
       "type": "java.lang.String",
       "description": " zk nodes of kafka",
@@ -22,7 +22,7 @@
     {
       "name": "kafka.zk.nodes",
       "type": "java.lang.String",
-      "sourceType": "com.mh.base.kafka.conf.KafkaProperties"
+      "sourceType": "com.javaoffers.base.kafka.conf.KafkaProperties"
     }
 
   ]

@@ -1,0 +1,42 @@
+package com.javaoffers.test.dao;
+
+import com.javaoffers.base.annotation.datasource.DataSourceRoute;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Description:
+ * @Auther: create by cmj on 2020/8/28 15:31
+ */
+@Controller
+@RequestMapping
+@Transactional(rollbackFor = Exception.class)
+public class DaoController {
+
+    @Resource
+    DaoService daoService;
+
+    @RequestMapping("/testRuteDataBases")
+    @ResponseBody
+    public List testRuteDataBases(){
+        List<Map<String, Object>> maps = daoService.queryData("select * from test limit 2");
+        maps = daoService.queryData("select * from test limit 2,2");
+
+        return maps;
+    }
+
+    @RequestMapping("/testRuteDataBases2")
+    @ResponseBody
+    @DataSourceRoute("slaveDS")
+    public List testRuteDataBases2(){
+        List<Map<String, Object>> maps = daoService.queryData("select * from oper_cargo limit 2");
+        return maps;
+    }
+
+}

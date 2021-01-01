@@ -5,7 +5,7 @@ server:
 #配置日志
 logging:
   level:
-    com.mh.**: DEBUG
+    com.javaoffers.**: DEBUG
 spring:
   #配置应用名称
   application:

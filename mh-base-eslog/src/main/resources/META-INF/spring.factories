@@ -1,1 +1,1 @@
-#org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.mh.base.eslog.conf.AutoConfigEslog
+#org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.javaoffers.base.eslog.conf.AutoConfigEslog

@@ -2,7 +2,7 @@
 <configuration>
 
     <!--eslog-->
-    <appender name="ESLOG" class="com.mh.base.eslog.appender.RabbitMQAppender">
+    <appender name="ESLOG" class="com.javaoffers.base.eslog.appender.RabbitMQAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern> time ^|^ %d{HH:mm:ss.SSS} +|+ thread ^|^ [%thread] +|+ level ^|^ %-5level +|+ class ^|^ %logger{36}  +|+ msg ^|^ %msg </Pattern>
         </layout>

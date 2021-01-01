@@ -4,14 +4,14 @@
 
     <parent>
         <artifactId>mh-open</artifactId>
-        <groupId>com.mh</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.javaoffers</groupId>
+        <version>1.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mh.base</groupId>
+    <groupId>com.javaoffers.base</groupId>
     <artifactId>mh-base</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1.1</version>
     <name>mh-base</name>
 
 
@@ -236,9 +236,9 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.mh</groupId>
+            <groupId>com.javaoffers</groupId>
             <artifactId>mh-base-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.1</version>
         </dependency>
 
 

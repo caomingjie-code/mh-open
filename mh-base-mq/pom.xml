@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>mh-open</artifactId>
-		<groupId>com.mh</groupId>
-		<version>1.0-SNAPSHOT</version>
+		<groupId>com.javaoffers</groupId>
+		<version>1.0.1</version>
 	</parent>
 
-	<groupId>com.mh.base.mq</groupId>
+	<groupId>com.javaoffers.base.mq</groupId>
 	<artifactId>mh-base-mq</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1.1</version>
 	<name>mh-base-mq</name>
 
 	<properties>
@@ -37,9 +37,9 @@
 
 		<!-- base  common 框架 -->
         <dependency>
-            <groupId>com.mh</groupId>
+            <groupId>com.javaoffers</groupId>
             <artifactId>mh-base-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.1</version>
             <scope>compile</scope>
         </dependency>
 

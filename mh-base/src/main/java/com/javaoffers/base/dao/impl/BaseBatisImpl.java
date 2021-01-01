@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import com.javaoffers.base.dao.BaseBatis;
-import com.javaoffers.base.utils.model.ModelUtils;
+import com.javaoffers.base.common.model.ModelUtils;
 import com.javaoffers.base.utils.param.ParamUtils;
 
 public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {

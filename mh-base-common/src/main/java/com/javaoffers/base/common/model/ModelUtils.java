@@ -1,4 +1,4 @@
-package com.javaoffers.base.utils.model;
+package com.javaoffers.base.common.model;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -15,17 +15,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.javaoffers.base.common.exception.ModelException;
+import com.javaoffers.base.common.pojo.PojoUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.Map.Entry;
-
-import com.javaoffers.base.exception.BaseException;
-import com.javaoffers.base.annotation.model.BaseCancel;
-import com.javaoffers.base.annotation.model.BaseCancelSuper;
-import com.javaoffers.base.annotation.model.BaseModel;
-import com.javaoffers.base.annotation.model.BaseUnique;
+import com.javaoffers.base.common.annotation.model.BaseCancel;
+import com.javaoffers.base.common.annotation.model.BaseCancelSuper;
+import com.javaoffers.base.common.annotation.model.BaseModel;
+import com.javaoffers.base.common.annotation.model.BaseUnique;
 import com.javaoffers.base.common.converter.TypeCastHelper;
-import com.javaoffers.base.utils.pojo.PojoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +145,7 @@ public class ModelUtils {
 	
 	/**用于原始数据集转换Model数据集
 	 * @param clazz  Model的Class对象
-	 * @param list      封装后的Model数据集
+	 * @param list_map      封装后的Model数据集
 	 * @throws Exception 
 	 * @throws SecurityException 
 	 * 2020-01-08 修改为按照数据库元数据 排序
@@ -255,8 +253,8 @@ public class ModelUtils {
 			final String superName = map.get(name);
 			if(StringUtils.isNotBlank(superName)){
 				try {
-					throw new BaseException("Model 模型不能存在相同的父类，防止字段重复！！"+clazz.getName());
-				} catch (BaseException e) {
+					throw new ModelException("Model 模型不能存在相同的父类，防止字段重复！！"+clazz.getName());
+				} catch (ModelException e) {
 					e.printStackTrace();
 				}
 			}else{
@@ -451,7 +449,7 @@ public class ModelUtils {
 			Type listActualTypeArguments = listGenericType.getActualTypeArguments()[0];
 			return Class.forName(listActualTypeArguments.getTypeName());
 		} catch (Exception e) {
-			new BaseException(e.getMessage()+"\n一对多关系注意引用集合类一定要加上泛型类例如 ：List<Model>,Model不能省去").printStackTrace();
+			new ModelException(e.getMessage()+"\n一对多关系注意引用集合类一定要加上泛型类例如 ：List<Model>,Model不能省去").printStackTrace();
 
 		}
 		
@@ -543,7 +541,7 @@ public class ModelUtils {
 				return true;
 			}
 		} catch (Exception e2) {
-			new BaseException(e2.getMessage()+"\n一对多关系注意引用集合类一定要加上泛型类例如 ：List<Model>,Model不能省去").printStackTrace();
+			new ModelException(e2.getMessage()+"\n一对多关系注意引用集合类一定要加上泛型类例如 ：List<Model>,Model不能省去").printStackTrace();
 		}
 		return false;
 	}
@@ -606,7 +604,7 @@ public class ModelUtils {
 				Field declaredField = clazz.getDeclaredField(fieldName);
 				declaredField.setAccessible(true);
 				if(declaredField==null) {
-					throw new BaseException(" 该字段名："+fieldName+" 不存在！！！");
+					throw new ModelException(" 该字段名："+fieldName+" 不存在！！！");
 				}
 				String value = "";
 				TreeMap<Object,String> treeMap = new TreeMap<Object, String>();

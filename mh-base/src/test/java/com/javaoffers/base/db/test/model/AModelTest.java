@@ -3,8 +3,8 @@ package com.javaoffers.base.db.test.model;
 import java.util.List;
 import java.util.Set;
 
-import com.javaoffers.base.annotation.model.BaseModel;
-import com.javaoffers.base.annotation.model.BaseUnique;
+import com.javaoffers.base.common.annotation.model.BaseModel;
+import com.javaoffers.base.common.annotation.model.BaseUnique;
 /**
  *  select 
  *  a.id aid 

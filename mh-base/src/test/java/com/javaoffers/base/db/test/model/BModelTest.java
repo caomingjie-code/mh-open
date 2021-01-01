@@ -1,7 +1,7 @@
 package com.javaoffers.base.db.test.model;
 
-import com.javaoffers.base.annotation.model.BaseModel;
-import com.javaoffers.base.annotation.model.BaseUnique;
+import com.javaoffers.base.common.annotation.model.BaseModel;
+import com.javaoffers.base.common.annotation.model.BaseUnique;
 
 /**
  *  select 

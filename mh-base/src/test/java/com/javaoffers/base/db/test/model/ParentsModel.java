@@ -1,6 +1,6 @@
 package com.javaoffers.base.db.test.model;
 
-import com.javaoffers.base.annotation.model.BaseCancel;
+import com.javaoffers.base.common.annotation.model.BaseCancel;
 
 @BaseCancel
 public class ParentsModel {

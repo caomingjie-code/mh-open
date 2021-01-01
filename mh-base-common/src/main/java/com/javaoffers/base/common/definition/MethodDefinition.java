@@ -2,13 +2,14 @@ package com.javaoffers.base.common.definition;
 
 import java.util.List;
 import java.util.Map;
+
 import jdk.internal.org.objectweb.asm.tree.*;
 /**
  * 方法定义
  * @author mj
  *
  */
-public class MethodDefinition implements Definition{
+public class MethodDefinition implements Definition {
 	
 	private MethodNode methodNode = null;
 	private String methodName = null;

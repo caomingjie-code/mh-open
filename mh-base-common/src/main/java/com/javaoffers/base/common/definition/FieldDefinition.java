@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * 属性定义
  */
-public class FieldDefinition implements Definition{
+public class FieldDefinition implements Definition {
 
 
     private FieldNode fieldNode = null;

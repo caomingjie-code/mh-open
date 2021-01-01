@@ -1,4 +1,4 @@
-package com.javaoffers.base.annotation.model;
+package com.javaoffers.base.common.annotation.model;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

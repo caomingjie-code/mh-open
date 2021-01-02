@@ -51,7 +51,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <!--下面这一行要注释掉否则不会部署到中央仓库-->
+        <!--<maven.deploy.skip>true</maven.deploy.skip>-->
     </properties>
 
     <!--name 和 id 指定你 https://oss.sonatype.org 的登录名称， email 你创建gpg私钥时填写的email就可以-->

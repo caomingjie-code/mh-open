@@ -13,7 +13,7 @@ public class JsonUtils extends JSON {
 
 
     /**
-     * 迭代查找 key -> value，解决 json 深层查找时需要大量的get方法
+     * 迭代查找 key mapping value，解决 json 深层查找时需要大量的get方法
      * @param jsonObject
      * @param key
      * @return  返回最近的key 对应的 value

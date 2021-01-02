@@ -9,9 +9,6 @@ public final class Utils {
     /**
      * create by cmj
      * 连续构建参数
-     * @param key
-     * @param value
-     * @return
      */
     public static <V> Utils startBuildParam(String key,Object value){
         HashMap<String,Object> param = new HashMap<>();
@@ -44,8 +41,8 @@ public final class Utils {
     /**
      * 返回 16 进制的长度 必须是 偶数,  不够的高位补0
      * @param sequenceNumber 16进制的字符
-     * @param addNum
-     * @return
+     * @param addNum 要增加的数字
+     * @return　16进制的String类型
      */
     public static  String hexAdd( String sequenceNumber,long addNum) {
         if(StringUtils.isNotBlank(sequenceNumber)){

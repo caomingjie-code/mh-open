@@ -11,8 +11,8 @@ import com.javaoffers.base.common.protostuff.ProtostuffUtils;
  */
 public class Clone {
     /**
-     *@Autour  cmj  on 2019/8/15 14:38
-     *@Description : 深度clone
+     *@Autour:  cmj  on 2019/8/15 14:38
+     *@Description: 深度clone
      */
     public static <E> E clone(E e){
         InnerCloneData innerCloneData = new InnerCloneData(e);
@@ -21,8 +21,8 @@ public class Clone {
         return data;
     }
     /**
-     *@Autour  cmj  on 2019/8/15 14:50
-     *@Description : 内部类，封装数据
+     *@Autour: cmj  on 2019/8/15 14:50
+     *@Description: 内部类，封装数据
      */
      private static class InnerCloneData{
         Object data;

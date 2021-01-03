@@ -11,14 +11,14 @@
 
     <artifactId>mh-base-eslog</artifactId>
     <groupId>com.javaoffers.base.eslog</groupId>
-    <version>0.0.1.1</version>
+    <version>1.0.1</version>
 
 
     <dependencies>
         <dependency>
             <groupId>com.javaoffers.base.mq</groupId>
             <artifactId>mh-base-mq</artifactId>
-            <version>0.0.1.1</version>
+            <version>1.0.1</version>
         </dependency>
 
         <!--elasticsearch restful api-->

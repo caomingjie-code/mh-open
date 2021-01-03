@@ -51,8 +51,8 @@ public class JedisUtils implements InitializingBean, EnvironmentAware {
 	private static String reduesUrl; // redis url
 	private static String jedisPW; // redis 密码
 	private static Integer jedisPort; // redis 端口号
-	private static Integer jedisTimeOut;// 超时时间
-	private static Integer connectionCount; //链接数
+	private static Integer jedisTimeOut=60;// 超时时间
+	private static Integer connectionCount=10; //链接数
 
 	public final static ThreadLocal<Jedis> tl = new ThreadLocal<Jedis>();
 	private static JedisPool jedisPool = null;

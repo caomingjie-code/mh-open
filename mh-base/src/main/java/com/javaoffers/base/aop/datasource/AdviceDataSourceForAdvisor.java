@@ -12,12 +12,20 @@ import org.aopalliance.intercept.MethodInvocation;
 public class AdviceDataSourceForAdvisor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        //获取方法的注解
-        DataSourceRoute declaredAnnotation = invocation.getMethod().getDeclaredAnnotation(DataSourceRoute.class);
-        if(declaredAnnotation!=null){ //如果存在,则开始陆游
-            String value = declaredAnnotation.value();
-            BaseComboPooledDataSource.setDataSourceRoute(value);
+        String value = null;
+        try {
+            //获取方法的注解
+            DataSourceRoute declaredAnnotation = invocation.getMethod().getDeclaredAnnotation(DataSourceRoute.class);
+            if(declaredAnnotation!=null){ //如果存在,则开始陆游
+                 value = declaredAnnotation.value();
+                BaseComboPooledDataSource.pushStackRouter(value);
+            }
+            return  invocation.proceed();
+        }catch ( Exception e){
+            e.printStackTrace();
+        } finally {
+            BaseComboPooledDataSource.meanClean(value);
         }
-        return  invocation.proceed();
+        return null;
     }
 }

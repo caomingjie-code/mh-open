@@ -15,14 +15,10 @@ public class MvcConfig implements WebMvcConfigurer{
 
 	@Resource
 	public MvcHandlerInterceptorAdapter mhi;
-	@Resource
-	public DataSourceRouteInterceptorAdapter dsri;
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(mhi)
-		.addPathPatterns("/**");
-		
-		registry.addInterceptor(dsri)
 		.addPathPatterns("/**");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}

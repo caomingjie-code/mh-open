@@ -10,10 +10,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mh-base-test</artifactId>
+    <packaging>pom</packaging>
 
     <name>mh-base-test</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
+    <modules>
+        <module>sample-base-dao</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,13 +30,13 @@
         <dependency>
             <groupId>com.javaoffers.base</groupId>
             <artifactId>mh-base</artifactId>
-            <version>0.0.1.1</version>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.javaoffers.security</groupId>
             <artifactId>mh-base-security</artifactId>
-            <version>0.0.1.1</version>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>
@@ -43,14 +47,14 @@
         <dependency>
             <groupId>com.javaoffers.base.mq</groupId>
             <artifactId>mh-base-mq</artifactId>
-            <version>0.0.1.1</version>
+            <version>1.0.1</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <artifactId>mh-base-eslog</artifactId>
             <groupId>com.javaoffers.base.eslog</groupId>
-            <version>0.0.1.1</version>
+            <version>1.0.1</version>
         </dependency>
 
 

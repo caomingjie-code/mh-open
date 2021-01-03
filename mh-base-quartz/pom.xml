@@ -11,7 +11,7 @@
 
 	<groupId>com.javaoffers.base.quartz</groupId>
 	<artifactId>mh-base-quartz</artifactId>
-	<version>0.0.1.1</version>
+	<version>1.0.1</version>
 	<name>mh-base-quartz</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -24,7 +24,7 @@
        <dependency>
 			<groupId>com.javaoffers.base</groupId>
 			<artifactId>mh-base</artifactId>
-			<version>0.0.1.1</version>
+			<version>1.0.1</version>
        </dependency>
 		
 		<!-- quartz -->

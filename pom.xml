@@ -16,14 +16,14 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!--      <module>mh-base</module>-->
-        <!--      <module>mh-base-quartz</module>-->
-        <!--      <module>mh-base-mq</module>-->
-        <!--      <module>mh-base-security</module>-->
-        <!--      <module>mh-base-test</module>-->
-        <!--      <module>mh-base-kafka</module>-->
+        <module>mh-base</module>
+        <module>mh-base-quartz</module>
+        <module>mh-base-mq</module>
+        <module>mh-base-security</module>
+        <module>mh-base-test</module>
+        <module>mh-base-kafka</module>
         <module>mh-base-common</module>
-        <!--      <module>mh-base-eslog</module>-->
+        <module>mh-base-eslog</module>
     </modules>
 
     <name>mh-open</name>
@@ -141,9 +141,6 @@
             </distributionManagement>
         </profile>
     </profiles>
-
-
-
 
 
     <build>

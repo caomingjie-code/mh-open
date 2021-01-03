@@ -19,17 +19,17 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   #配置数据库http://localhost/BaseDB/testDataSourceRoute
-  datasource_master: 
+  datasource_master:
       url: jdbc:mysql://localhost:3306/base?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
       username: root
       password: zqbxcmj
   #从数据库    
-#  datasource_slaves:
-#      slavename: slaveDS
-#      url: jdbc:mysql://localhost:3306/fit?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
-#      username: root
-#      password: zqbxcmj
-#      driver: com.mysql.jdbc.Driver
+  datasource_slaves:
+      slavename: slaveDS
+      url: jdbc:mysql://localhost:3306/fit?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+      username: root
+      password: zqbxcmj
+      driver: com.mysql.jdbc.Driver
 
   main:
      allow-bean-definition-overriding: true
@@ -50,14 +50,14 @@ spring:
     password: 123
     timeout: 1000
   # elasticsearch client
-  elasticsearch:
-    jest:
-      uris: localhost:9200
-  # mq
-  rabbitmq:
-    username: guest
-    password: guest
-    host: localhost
+#  elasticsearch:
+#    jest:
+#      uris: localhost:9200
+#  # mq
+#  rabbitmq:
+#    username: guest
+#    password: guest
+#    host: localhost
 #javaoffers config
 mh:
   eslog:

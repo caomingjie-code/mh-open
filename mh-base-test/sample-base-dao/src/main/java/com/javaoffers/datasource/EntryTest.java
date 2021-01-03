@@ -1,4 +1,4 @@
-package com.javaoffers.test.dao;
+package com.javaoffers.datasource;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

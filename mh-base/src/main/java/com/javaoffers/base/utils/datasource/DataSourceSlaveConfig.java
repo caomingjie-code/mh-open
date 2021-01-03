@@ -1,53 +1,54 @@
 package com.javaoffers.base.utils.datasource;
 import com.javaoffers.base.annotation.conditional.ConditionalOnPropertyMustExists;
 import com.javaoffers.base.exception.BaseDataSourceException;
-import com.javaoffers.base.properties.DataSourceMaster;
-import com.javaoffers.base.properties.DataSourceSlave;
-
+import com.javaoffers.base.properties.DataSourceMasterAndSlave;
+import com.javaoffers.base.properties.DataSourceProperteis;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 数据源构造
  */
-@ConditionalOnSingleCandidate(DataSourceMaster.class)
-@EnableConfigurationProperties({DataSourceMaster.class,DataSourceSlave.class})
+@ConditionalOnSingleCandidate(DataSourceMasterAndSlave.class)
+@EnableConfigurationProperties({DataSourceMasterAndSlave.class})
 @Configuration
 @ConditionalOnPropertyMustExists("spring.datasource_master.url")
 public class DataSourceSlaveConfig {
 
     @Bean("dataSourceMater")
     @ConditionalOnPropertyMustExists("spring.datasource_master.url")
-    public DataSource createDataSourceSlave(DataSourceMaster dataSourceMaster,DataSourceSlave dataSourceSlave) throws Exception {
-    	BaseComboPooledDataSource dataSourceOfC3p0 = getDataSourceOfC3p0(dataSourceMaster);//Master
+    public DataSource createDataSourceSlave(DataSourceMasterAndSlave dataSourceMasterAndSlave) throws Exception {
+    	BaseComboPooledDataSource dataSourceOfC3p0Master = getDataSourceOfC3p0(dataSourceMasterAndSlave);//Master
     	//初始化slave
-    	initSlave(dataSourceSlave, dataSourceOfC3p0);
+    	initSlave(dataSourceMasterAndSlave, dataSourceOfC3p0Master);
     	
-    	return dataSourceOfC3p0;
+    	return dataSourceOfC3p0Master;
     }
 
     /**
      * 初始化Slave
-     * @param dataSourceMaster
-     * @param dataSourceOfC3p0
+     * @param dataSourceMasterAndSlave 用于解析slave数据源
+     * @param dataSourceOfC3p0Master master数据源
      * @throws PropertyVetoException
      * @throws SQLException 
      */
-	private void initSlave(DataSourceSlave dataSourceMaster, BaseComboPooledDataSource dataSourceOfC3p0)
+	private void initSlave(DataSourceMasterAndSlave dataSourceMasterAndSlave, BaseComboPooledDataSource dataSourceOfC3p0Master)
 			throws PropertyVetoException, SQLException {
 		
-		BaseComboPooledDataSource dataSourceSlaveOfC3p02 = getDataSourceSlaveOfC3p0(dataSourceMaster);//Slave
-    	if(dataSourceSlaveOfC3p02==null) {
-    		return;
-    	}
-		dataSourceOfC3p0.addDataSourceSlaves(dataSourceSlaveOfC3p02.getSlavename(), dataSourceSlaveOfC3p02);
+		List<BaseComboPooledDataSource> dataSourceSlavesOfC3p02 = getDataSourceSlaveOfC3p0(dataSourceMasterAndSlave);//Slave
+    	for(BaseComboPooledDataSource slave : dataSourceSlavesOfC3p02){
+            dataSourceOfC3p0Master.addDataSourceSlaves(slave.getRouterName(), slave);
+        }
 	}
 
     /**
@@ -55,7 +56,7 @@ public class DataSourceSlaveConfig {
      * @return
      * @throws PropertyVetoException
      */
-    private BaseComboPooledDataSource getDataSourceOfC3p0(DataSourceMaster dataSourceMaster) throws PropertyVetoException {
+    private BaseComboPooledDataSource getDataSourceOfC3p0(DataSourceMasterAndSlave dataSourceMaster) throws PropertyVetoException {
         String url = dataSourceMaster.getDatasource_master().getUrl();
         String username = dataSourceMaster.getDatasource_master().getUsername();
         String password = dataSourceMaster.getDatasource_master().getPassword();
@@ -66,7 +67,7 @@ public class DataSourceSlaveConfig {
         cpds.setUser(username);
         cpds.setPassword(password);
         cpds.setMaxPoolSize(100);
-        cpds.setMinPoolSize(10);
+        cpds.setMinPoolSize(50);
         cpds.setIdleConnectionTestPeriod(60);//每 60 秒检查所有连接池中的空闲连接
         cpds.setMaxIdleTime(25000);//最大空闲时间,25000 秒内未使用则连接被丢弃
         cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
@@ -81,28 +82,34 @@ public class DataSourceSlaveConfig {
      * @return
      * @throws PropertyVetoException
      */
-    private BaseComboPooledDataSource getDataSourceSlaveOfC3p0(DataSourceSlave dataSourceSlave) throws PropertyVetoException,SQLException {
-    	if(dataSourceSlave.getDatasource_slaves()==null||StringUtils.isBlank(dataSourceSlave.getDatasource_slaves().getUrl())){return null;} 
-    	String url = dataSourceSlave.getDatasource_slaves().getUrl();
-        String username = dataSourceSlave.getDatasource_slaves().getUsername();
-        String password = dataSourceSlave.getDatasource_slaves().getPassword();
-        String driver = dataSourceSlave.getDatasource_slaves().getDriver();
-        String slavename = dataSourceSlave.getDatasource_slaves().getSlavename();
-        if(!StringUtils.isNoneBlank(slavename)) {
-        	throw BaseDataSourceException.getException("slave name is null");
+    private List<BaseComboPooledDataSource> getDataSourceSlaveOfC3p0(DataSourceMasterAndSlave dataSourceSlaves) throws PropertyVetoException,SQLException {
+        LinkedList<BaseComboPooledDataSource> slaves = new LinkedList<>();
+        if(dataSourceSlaves!=null&&dataSourceSlaves.getDatasource_slaves()!=null){
+            for(DataSourceProperteis dataSourceSlave : dataSourceSlaves.getDatasource_slaves()){
+                if(dataSourceSlave==null||StringUtils.isBlank(dataSourceSlave.getUrl())){return null;}
+                String url = dataSourceSlave.getUrl();
+                String username = dataSourceSlave.getUsername();
+                String password = dataSourceSlave.getPassword();
+                String driver = dataSourceSlave.getDriver();
+                String slavename = dataSourceSlave.getSlavename();
+                if(!StringUtils.isNoneBlank(slavename)) {
+                    throw BaseDataSourceException.getException("slave name is null");
+                }
+                BaseComboPooledDataSource cpds = new BaseComboPooledDataSource();
+                cpds.setDriverClass( driver); //loads the jdbc driver
+                cpds.setJdbcUrl( url );
+                cpds.setUser(username);
+                cpds.setPassword(password);
+                cpds.setMaxPoolSize(500);
+                cpds.setMinPoolSize(100);
+                cpds.setRouterName(slavename);
+                cpds.setIdleConnectionTestPeriod(60);//每 60 秒检查所有连接池中的空闲连接
+                cpds.setMaxIdleTime(25000);//最大空闲时间,25000 秒内未使用则连接被丢弃
+                cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
+                cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
+                slaves.add(cpds);
+            }
         }
-        BaseComboPooledDataSource cpds = new BaseComboPooledDataSource();
-        cpds.setDriverClass( driver); //loads the jdbc driver
-        cpds.setJdbcUrl( url );
-        cpds.setUser(username);
-        cpds.setPassword(password);
-        cpds.setMaxPoolSize(500);
-        cpds.setMinPoolSize(100);
-        cpds.setSlavename(slavename);
-        cpds.setIdleConnectionTestPeriod(60);//每 60 秒检查所有连接池中的空闲连接
-        cpds.setMaxIdleTime(25000);//最大空闲时间,25000 秒内未使用则连接被丢弃
-        cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
-        cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
-        return cpds;
+        return Collections.unmodifiableList(slaves);
     }
 }

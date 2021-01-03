@@ -10,7 +10,7 @@
 
 	<groupId>com.javaoffers.security</groupId>
 	<artifactId>mh-base-security</artifactId>
-	<version>0.0.1.1</version>
+	<version>1.0.1</version>
 	<name>mh-base-security</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.javaoffers.base</groupId>
 			<artifactId>mh-base</artifactId>
-			<version>0.0.1.1</version>
+			<version>1.0.1</version>
        </dependency>
        
        <!-- security 权限 -->

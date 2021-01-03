@@ -5,52 +5,77 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.naming.Referenceable;
 import javax.sql.DataSource;
 
+import com.javaoffers.base.aop.datasource.RouterConnection;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mchange.v2.c3p0.AbstractComboPooledDataSource;
 import com.javaoffers.base.exception.BaseDataSourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * 数据源Master , 该master包含slave
+ */
 final public class BaseComboPooledDataSource extends AbstractComboPooledDataSource implements Serializable, Referenceable{
-	
-	private String slavename;
+	public static final String DEFAULT_ROUTER = "MASTER_ROUTER";
+	//路由的名称
+	private String routerName;
 	//数据源的路由
-	private static ThreadLocalNaming<String> dataSourceRoute = new ThreadLocalNaming<String>("DataSourceRouteThreadLocal");
+	private static ThreadLocalNaming<ConcurrentLinkedDeque<String>> dataSourceRoute = new ThreadLocalNaming<ConcurrentLinkedDeque<String>>("DataSourceRouteThreadLocal");
+	//将要clean，具体在close链接时使用
+	private static ThreadLocalNaming<String> meanClean = new ThreadLocalNaming<>("DataSourceRouteThreadLocal");
 	//存放子数据源
 	private static  ConcurrentHashMap<String, DataSource> dataSourceSlaves = new ConcurrentHashMap<String, DataSource>();
-	
+
+	Logger logger = LoggerFactory.getLogger(BaseComboPooledDataSource.class);
+
+	private static AtomicLong ai = new AtomicLong(0);
 	/**
 	 * 设置route
 	 * @param dataSourceSlaveName
 	 * @throws SQLException
 	 */
-	public static void setDataSourceRoute(String dataSourceSlaveName) throws SQLException {
+	public static void pushStackRouter(String dataSourceSlaveName) throws SQLException {
 		if(!StringUtils.isNoneBlank(dataSourceSlaveName)) {
 			throw BaseDataSourceException.getException("DataSourceSlave Is Null");
 		}
+		ConcurrentLinkedDeque stack = dataSourceRoute.get();
+		if(stack==null){
+			stack = new ConcurrentLinkedDeque();
+			dataSourceRoute.set(stack);
+		}
+		stack.push(dataSourceSlaveName); //放入stack 顶部
 
-		dataSourceRoute.set(dataSourceSlaveName);
-	}
-	
-	public String getSlavename() {
-		return slavename;
 	}
 
-	public void setSlavename(String slavename) {
-		this.slavename = slavename;
+	public static String getRouterSourceName() {
+		ConcurrentLinkedDeque<String> stackRouter = dataSourceRoute.get();
+		if(stackRouter!=null&&stackRouter.size()>0){
+			return stackRouter.peekFirst();
+		}
+		return DEFAULT_ROUTER;
+	}
+
+	public static void meanClean(String value) {
+		meanClean.set(value);
 	}
 
 	/**
-	 * 添加slave
+	 * 解析并添加slave数据源
 	 * @param dataSourceSlaveName
 	 * @param dataSourceSlave
 	 */
 	protected void addDataSourceSlaves(String dataSourceSlaveName,DataSource dataSourceSlave) {
 		dataSourceSlaves.put(dataSourceSlaveName, dataSourceSlave);
 	}
+
 	public BaseComboPooledDataSource()
 	    { super(); }
 
@@ -85,19 +110,26 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 	    
 	    public Connection getConnection() throws SQLException{
 	    	//判断是否需要route
-	    	String slaveDataSourceName = dataSourceRoute.get();
-	    	if(StringUtils.isNoneBlank(slaveDataSourceName)) {
+			Connection concurrentConnection = null;
+			ConcurrentLinkedDeque<String> stackRouter = dataSourceRoute.get();
+			String routerName = DEFAULT_ROUTER;
+	    	if(stackRouter!=null&&stackRouter.size()>0) {
 	    		try {
-		    		Connection connectionSlaveonnection = ((BaseComboPooledDataSource) dataSourceSlaves.get(slaveDataSourceName)).getSuperConnection();
-				    return connectionSlaveonnection;
+	    			routerName = stackRouter.peekFirst();
+					concurrentConnection = ((BaseComboPooledDataSource) dataSourceSlaves.get(routerName)).getSuperConnection();
 	    		} catch (Exception e) {
-					throw BaseDataSourceException.getException("config is error of data source slave ");
+					throw BaseDataSourceException.getException("config is error of data source slave ["+e.getMessage()+"]");
 				  
 	    		}
-	    	}
-	    	//获取MasterConnection
-	    	Connection masterConnection = super.getConnection();
-			return masterConnection;
+	    	}else{
+				//获取MasterConnection
+				concurrentConnection = super.getConnection();
+			}
+			concurrentConnection.setAutoCommit(false);
+			RouterConnection routerConnection = new RouterConnection(this);
+	    	routerConnection.putConcurrentConnection(routerName,concurrentConnection);
+			logger.info("opened jdbc connection counts : "+ai.addAndGet(1));
+			return routerConnection;
 	    
 	    }
 	    
@@ -115,7 +147,22 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 	 * 清除陆游信息
  	 */
 	public static void clean(){
-		dataSourceRoute.set(null);
+		ConcurrentLinkedDeque<String> stack = dataSourceRoute.get();
+		if(stack!=null&&stack.size()>0){
+			stack.pop();
+		}
+		if(stack==null||stack.size()==0){
+			dataSourceRoute.set(null); // help gc
+		}
+
+		meanClean.set(null); //清空meanClean
 	}
 
+	public String getRouterName() {
+		return routerName;
+	}
+
+	public void setRouterName(String routerName) {
+		this.routerName = routerName;
+	}
 }

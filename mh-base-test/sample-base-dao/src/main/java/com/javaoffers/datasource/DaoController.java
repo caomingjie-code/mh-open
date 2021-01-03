@@ -1,4 +1,4 @@
-package com.javaoffers.test.dao;
+package com.javaoffers.datasource;
 
 import com.javaoffers.base.annotation.datasource.DataSourceRoute;
 import org.springframework.stereotype.Controller;

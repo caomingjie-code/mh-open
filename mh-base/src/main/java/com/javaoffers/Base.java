@@ -16,7 +16,11 @@ public class Base {
 	public static void main(String[] args) {
 		new Base().run(args);
 	}
-	public void run(String[] args) {
+	public static void run(Class boot,String[] args) {
+		SpringApplication.run(boot, args);
+		logger.info("系统启动完毕");
+	}
+	public  void run(String[] args) {
 		SpringApplication.run(Base.class, args);
 		logger.info("系统启动完毕");
 	}

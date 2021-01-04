@@ -7,7 +7,9 @@ import org.springframework.aop.*;
 import org.springframework.aop.support.annotation.AnnotationClassFilter;
 import org.springframework.aop.support.annotation.AnnotationMethodMatcher;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 
 /**
@@ -19,10 +21,14 @@ public class AdvisorDataSource implements Advisor, PointcutAdvisor {
 
     private String name = "cmj"; //只做一个标记不起作用
 
-    Advice advice = new AdviceDataSourceForAdvisor();
+    @Resource
+    AbstractPlatformTransactionManager transactionManager;
+
+    AdviceDataSourceForAdvisor advice = new AdviceDataSourceForAdvisor();
 
     @Override
     public Advice getAdvice() {
+        advice.setAbstractPlatformTransactionManager(transactionManager);
         return advice;
     }
 

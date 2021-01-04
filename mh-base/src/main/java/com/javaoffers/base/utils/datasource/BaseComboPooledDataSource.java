@@ -30,7 +30,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 	//数据源的路由
 	private static ThreadLocalNaming<ConcurrentLinkedDeque<String>> dataSourceRoute = new ThreadLocalNaming<ConcurrentLinkedDeque<String>>("DataSourceRouteThreadLocal");
 	//将要clean，具体在close链接时使用
-	private static ThreadLocalNaming<String> meanClean = new ThreadLocalNaming<>("DataSourceRouteThreadLocal");
+	private static ThreadLocalNaming<String> meanClean = new ThreadLocalNaming<>("DataSourceRouteThreadLocal"); //如果该值存在则说明此链接属于一路由链接并且数据源管理是JpaTransactionManager
 	//存放子数据源
 	private static  ConcurrentHashMap<String, DataSource> dataSourceSlaves = new ConcurrentHashMap<String, DataSource>();
 
@@ -60,11 +60,31 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 		if(stackRouter!=null&&stackRouter.size()>0){
 			return stackRouter.peekFirst();
 		}
-		return DEFAULT_ROUTER;
+		return null;
 	}
 
-	public static void meanClean(String value) {
-		meanClean.set(value);
+	/**
+	 * 设置即将路由的数据源名称
+	 * @param routerSourceName
+	 */
+	public static void meanClean(String routerSourceName) {
+		meanClean.set(routerSourceName);
+	}
+
+	/**
+	 * 判断是否是路由链接并且数据源管理为JpaTransactionManager
+	 * @return
+	 */
+	public static boolean isRouterConnection() {
+		return meanClean.get()!=null;
+	}
+
+	/**
+	 * 获取当前即将清除的链接名称，并且数据源管理为JpaTransactionManager
+	 * @return
+	 */
+	public static String getMeanClean() {
+		return meanClean.get();
 	}
 
 	/**
@@ -125,7 +145,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 				//获取MasterConnection
 				concurrentConnection = super.getConnection();
 			}
-			concurrentConnection.setAutoCommit(false);
+			//concurrentConnection.setAutoCommit(false);
 			RouterConnection routerConnection = new RouterConnection(this);
 	    	routerConnection.putConcurrentConnection(routerName,concurrentConnection);
 			logger.info("opened jdbc connection counts : "+ai.addAndGet(1));
@@ -154,8 +174,6 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 		if(stack==null||stack.size()==0){
 			dataSourceRoute.set(null); // help gc
 		}
-
-		meanClean.set(null); //清空meanClean
 	}
 
 	public String getRouterName() {

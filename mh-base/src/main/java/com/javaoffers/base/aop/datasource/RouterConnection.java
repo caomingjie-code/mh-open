@@ -49,8 +49,14 @@ public class RouterConnection implements Connection {
      */
     private Connection getRouterConnection()  {
         String routerSourceName = BaseComboPooledDataSource.getRouterSourceName();
+        //判断是否属于路由链接，并且数据源管理为JpaTransactionManager
         if(StringUtils.isBlank(routerSourceName)){
-            routerSourceName = BaseComboPooledDataSource.DEFAULT_ROUTER;
+            if(BaseComboPooledDataSource.isRouterConnection()){
+                routerSourceName = BaseComboPooledDataSource.getMeanClean();
+            }else {
+                routerSourceName = BaseComboPooledDataSource.DEFAULT_ROUTER;
+            }
+
         }
         Connection connection = routerConnection.get(routerSourceName);
         if(connection ==null){
@@ -165,7 +171,6 @@ public class RouterConnection implements Connection {
             int i = ai.incrementAndGet();
             LOGGER.info("close jdbc connection counts : "+i);
             },0);
-        BaseComboPooledDataSource.clean();
     }
 
     @Override

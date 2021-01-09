@@ -1,6 +1,6 @@
 package com.javaoffers.mh.db.router.aop.datasource;
 
-import com.javaoffers.base.annotation.datasource.DataSourceRoute;
+import com.javaoffers.mh.db.router.annotation.DataSourceRoute;
 import com.javaoffers.mh.db.router.datasource.BaseComboPooledDataSource;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;

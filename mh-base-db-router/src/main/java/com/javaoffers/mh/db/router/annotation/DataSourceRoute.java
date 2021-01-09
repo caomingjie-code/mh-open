@@ -1,4 +1,4 @@
-package com.javaoffers.mh.db.router.anno;
+package com.javaoffers.mh.db.router.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

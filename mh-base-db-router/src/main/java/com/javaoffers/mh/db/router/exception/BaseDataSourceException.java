@@ -1,4 +1,4 @@
-package com.javaoffers.base.exception;
+package com.javaoffers.mh.db.router.exception;
 
 import java.sql.SQLException;
 

@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.naming.Referenceable;
 import javax.sql.DataSource;
 
-import com.javaoffers.base.aop.datasource.RouterConnection;
+import com.javaoffers.mh.db.router.aop.datasource.RouterConnection;
+import com.javaoffers.mh.db.router.exception.BaseDataSourceException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mchange.v2.c3p0.AbstractComboPooledDataSource;
-import com.javaoffers.base.exception.BaseDataSourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

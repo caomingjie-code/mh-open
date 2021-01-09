@@ -13,6 +13,36 @@
     <groupId>java.offers</groupId>
     <artifactId>mh-base-db-router</artifactId>
     <version>1.0.1</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.5.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.javaoffers</groupId>
+            <artifactId>mh-base-springboot-common</artifactId>
+            <version>1.0.1.</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
     <name>mh-base-db-router</name>
 
 

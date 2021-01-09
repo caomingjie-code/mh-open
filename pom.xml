@@ -24,6 +24,7 @@
 <!--        <module>mh-base-kafka</module>-->
         <module>mh-base-common</module>
         <module>mh-base-db-router</module>
+        <module>mh-base-springboot-common</module>
         <!--        <module>mh-base-eslog</module>-->
     </modules>
 

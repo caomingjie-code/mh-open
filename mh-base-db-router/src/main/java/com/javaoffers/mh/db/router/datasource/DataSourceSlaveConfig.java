@@ -1,6 +1,6 @@
 package com.javaoffers.mh.db.router.datasource;
-import com.javaoffers.base.annotation.conditional.ConditionalOnPropertyMustExists;
-import com.javaoffers.base.exception.BaseDataSourceException;
+import com.javaoffers.base.common.annotation.conditional.ConditionalOnPropertyMustExists;
+import com.javaoffers.mh.db.router.exception.BaseDataSourceException;
 import com.javaoffers.mh.db.router.properties.DataSourceMasterAndSlave;
 import com.javaoffers.mh.db.router.properties.DataSourceProperteis;
 import org.apache.commons.lang3.StringUtils;

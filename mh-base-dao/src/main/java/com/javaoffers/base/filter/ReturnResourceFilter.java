@@ -8,7 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import com.javaoffers.base.utils.datasource.BaseComboPooledDataSource;
+import com.javaoffers.mh.db.router.datasource.BaseComboPooledDataSource;
 import org.springframework.stereotype.Component;
 
 import com.javaoffers.base.utils.redis.JedisUtils;

@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.javaoffers.base</groupId>
-    <artifactId>mh-base</artifactId>
+    <groupId>com.javaoffers</groupId>
+    <artifactId>mh-base-dao</artifactId>
     <version>1.0.1</version>
     <name>mh-base</name>
 

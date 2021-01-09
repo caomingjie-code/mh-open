@@ -1,9 +1,8 @@
-package com.javaoffers.base.properties;
+package com.javaoffers.mh.db.router.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

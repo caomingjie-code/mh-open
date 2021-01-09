@@ -1,4 +1,4 @@
-package com.javaoffers.base.properties;
+package com.javaoffers.mh.db.router.properties;
 
 public class DataSourceProperteis {
 	private String url;

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import com.javaoffers.base.db.test.mapping.StudyMapperProxy;
+import com.javaoffers.mh.db.router.annotation.DataSourceRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -22,7 +23,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.javaoffers.base.annotation.cache.EnableCache;
 import com.javaoffers.base.annotation.cache.UnableCache;
-import com.javaoffers.base.annotation.datasource.DataSourceRoute;
 import com.javaoffers.base.dao.impl.FPage;
 import com.javaoffers.base.db.test.mapping.TestDaoI;
 import com.javaoffers.base.db.test.mapping.TestData;

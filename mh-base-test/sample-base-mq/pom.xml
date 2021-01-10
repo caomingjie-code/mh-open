@@ -3,30 +3,36 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>mh-open</artifactId>
+        <artifactId>mh-base-test</artifactId>
         <groupId>com.javaoffers</groupId>
         <version>1.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mh-base-eslog</artifactId>
+    <artifactId>sample-base-mq</artifactId>
     <groupId>com.javaoffers</groupId>
     <version>1.0.1</version>
-
+    <name>sample-base-mq</name>
 
     <dependencies>
+
         <dependency>
             <groupId>com.javaoffers</groupId>
             <artifactId>mh-base-mq</artifactId>
             <version>1.0.1</version>
         </dependency>
 
-        <!--elasticsearch restful api-->
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>7.8.0</version>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-api</artifactId>
+            <version>1.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.javaoffers</groupId>
+            <artifactId>sample-base-dao</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
     </dependencies>
 
 </project>

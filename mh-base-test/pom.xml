@@ -10,13 +10,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mh-base-test</artifactId>
-    <packaging>pom</packaging>
-
+    <groupId>com.javaoffers</groupId>
+    <version>1.0.1</version>
     <name>mh-base-test</name>
+
+    <packaging>pom</packaging>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
     <modules>
-        <module>sample-base-dao</module>
+<!--        <module>sample-base-dao</module>-->
+<!--        <module>sample-base-eslog</module>-->
+<!--        <module>sample-base-mq</module>-->
+        <module>sample-base-db-router</module>
     </modules>
 
     <properties>
@@ -28,37 +33,16 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.javaoffers.base</groupId>
-            <artifactId>mh-base</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.javaoffers.security</groupId>
-            <artifactId>mh-base-security</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
         </dependency>
-        <dependency>
-            <groupId>com.javaoffers.base.mq</groupId>
-            <artifactId>mh-base-mq</artifactId>
-            <version>1.0.1</version>
-            <scope>compile</scope>
-        </dependency>
 
         <dependency>
-            <artifactId>mh-base-eslog</artifactId>
-            <groupId>com.javaoffers.base.eslog</groupId>
+            <groupId>com.javaoffers</groupId>
+            <artifactId>mh-base-dao</artifactId>
             <version>1.0.1</version>
         </dependency>
-
-
-
     </dependencies>
 
 

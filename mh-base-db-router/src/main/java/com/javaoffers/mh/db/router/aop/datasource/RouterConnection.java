@@ -4,7 +4,6 @@ import com.javaoffers.mh.db.router.datasource.BaseComboPooledDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.*;
 import java.util.Collection;
 import java.util.Map;
@@ -169,7 +168,7 @@ public class RouterConnection implements Connection {
         funcRouterConnection(c->{
             c.close();
             int i = ai.incrementAndGet();
-            LOGGER.info("close jdbc connection counts : "+i);
+            LOGGER.info("close  jdbc connection id["+c.hashCode()+"] counts : "+i);
             },0);
     }
 

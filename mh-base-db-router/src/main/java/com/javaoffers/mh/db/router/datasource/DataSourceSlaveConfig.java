@@ -24,13 +24,12 @@ import java.util.List;
 @ConditionalOnPropertyMustExists("spring.datasource_master.url")
 public class DataSourceSlaveConfig {
 
-    @Bean("dataSourceMater")
+    @Bean("dataSource")
     @ConditionalOnPropertyMustExists("spring.datasource_master.url")
     public DataSource createDataSourceSlave(DataSourceMasterAndSlave dataSourceMasterAndSlave) throws Exception {
     	BaseComboPooledDataSource dataSourceOfC3p0Master = getDataSourceOfC3p0(dataSourceMasterAndSlave);//Master
     	//初始化slave
     	initSlave(dataSourceMasterAndSlave, dataSourceOfC3p0Master);
-    	
     	return dataSourceOfC3p0Master;
     }
 

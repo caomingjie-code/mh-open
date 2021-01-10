@@ -1,8 +1,8 @@
 package com.javaoffers.test.mq.conf;
 
 import com.javaoffers.base.mq.annotation.ListenerQueue;
-import com.javaoffers.test.dao.datasource.DaoService;
-import com.javaoffers.test.dao.datasource.EntryTest;
+import com.javaoffers.datasource.DaoService;
+import com.javaoffers.datasource.EntryTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

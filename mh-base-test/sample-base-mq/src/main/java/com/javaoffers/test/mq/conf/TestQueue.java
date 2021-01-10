@@ -1,9 +1,9 @@
 package com.javaoffers.test.mq.conf;
 
+import com.javaoffers.base.mq.annotation.CreateQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.javaoffers.base.mq.annotation.CreateQueue;
 
 @CreateQueue(name="testQueue")
 public class TestQueue {

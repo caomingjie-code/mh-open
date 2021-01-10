@@ -8,7 +8,7 @@
 		<version>1.0.1</version>
 	</parent>
 
-	<groupId>com.javaoffers.base.mq</groupId>
+	<groupId>com.javaoffers</groupId>
 	<artifactId>mh-base-mq</artifactId>
 	<version>1.0.1</version>
 	<name>mh-base-mq</name>

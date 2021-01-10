@@ -17,15 +17,15 @@
 
     <modules>
         <module>mh-base-dao</module>
-<!--        <module>mh-base-quartz</module>-->
-<!--        <module>mh-base-mq</module>-->
-<!--        <module>mh-base-security</module>-->
-<!--        <module>mh-base-test</module>-->
-<!--        <module>mh-base-kafka</module>-->
+        <module>mh-base-quartz</module>
+        <module>mh-base-mq</module>
+        <module>mh-base-security</module>
+        <module>mh-base-test</module>
+        <module>mh-base-kafka</module>
         <module>mh-base-common</module>
         <module>mh-base-db-router</module>
         <module>mh-base-springboot-common</module>
-        <!--        <module>mh-base-eslog</module>-->
+        <module>mh-base-eslog</module>
     </modules>
 
     <name>mh-open</name>
@@ -53,6 +53,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
         <!--下面这一行要注释掉否则不会部署到中央仓库-->
         <!--<maven.deploy.skip>true</maven.deploy.skip>-->
     </properties>

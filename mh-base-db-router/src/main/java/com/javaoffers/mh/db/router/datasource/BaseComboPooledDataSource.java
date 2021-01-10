@@ -147,7 +147,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 			//concurrentConnection.setAutoCommit(false);
 			RouterConnection routerConnection = new RouterConnection(this);
 	    	routerConnection.putConcurrentConnection(routerName,concurrentConnection);
-			logger.info("opened jdbc connection counts : "+ai.addAndGet(1));
+			logger.info("opened jdbc connection id["+concurrentConnection.hashCode()+"] counts : "+ai.addAndGet(1));
 			return routerConnection;
 	    
 	    }

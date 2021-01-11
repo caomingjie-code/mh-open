@@ -9,7 +9,7 @@
 		<version>1.0.1</version>
 	</parent>
 
-	<groupId>com.javaoffers.base.quartz</groupId>
+	<groupId>com.javaoffers</groupId>
 	<artifactId>mh-base-quartz</artifactId>
 	<version>1.0.1</version>
 	<name>mh-base-quartz</name>

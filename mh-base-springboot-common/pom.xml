@@ -11,7 +11,7 @@
 
     <groupId>com.javaoffers</groupId>
     <artifactId>mh-base-springboot-common</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.1</version>
     <name>mh-base-springboot-common</name>
 
     <dependencies>

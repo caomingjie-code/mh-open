@@ -23,7 +23,7 @@ public class AutoConfigEslog implements ImportSelector , EnvironmentAware {
         //基础检验
         if(stop){  return null; }
         return new String[]{
-                "com.javaoffers.base.eslog.appender.RabbitMQAppender"
+                 "com.javaoffers.base.eslog.appender.RabbitMQAppender"
                 ,"com.javaoffers.base.eslog.client.EsLogClient"
                 ,"com.javaoffers.base.eslog.consumer.EsConsumer"
         };

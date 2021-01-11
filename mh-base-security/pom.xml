@@ -8,7 +8,7 @@
 		<version>1.0.1</version>
 	</parent>
 
-	<groupId>com.javaoffers.security</groupId>
+	<groupId>com.javaoffers</groupId>
 	<artifactId>mh-base-security</artifactId>
 	<version>1.0.1</version>
 	<name>mh-base-security</name>

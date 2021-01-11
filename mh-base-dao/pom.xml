@@ -240,7 +240,7 @@
         </dependency>
 
         <dependency>
-            <groupId>java.offers</groupId>
+            <groupId>com.javaoffers</groupId>
             <artifactId>mh-base-db-router</artifactId>
             <version>1.0.1</version>
         </dependency>

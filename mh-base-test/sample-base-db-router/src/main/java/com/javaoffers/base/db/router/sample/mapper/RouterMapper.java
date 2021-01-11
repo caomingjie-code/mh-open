@@ -18,4 +18,14 @@ public interface RouterMapper {
 
     List<Map<String, Object>> defaultRouter();
 
+    @DataSourceRoute("exam")
+    List<Map<String, Object>> examRouter();
+
+    public List<Map<String,Object>> uniqueRouter2();
+
+    @DataSourceRoute("exam")
+    List<Map<String, Object>> examRouter2();
+
+    public List<Map<String,Object>> uniqueRouter3();
+
 }

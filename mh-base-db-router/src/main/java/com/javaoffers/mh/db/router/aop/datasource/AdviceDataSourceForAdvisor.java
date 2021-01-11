@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
 /**
- * @Description:
+ * @Description: 路由拦截器
  * @Auther: create by cmj on 2020/8/28 13:09
  */
 public class AdviceDataSourceForAdvisor implements MethodInterceptor {
@@ -39,11 +39,11 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
         } finally {
             if(value!=null){
                 if("DataSourceTransactionManager".equalsIgnoreCase(className)){
-                    logger.info("清除路由："+BaseComboPooledDataSource.getRouterSourceName());
+                    logger.info("clean router："+BaseComboPooledDataSource.getRouterSourceName());
                     BaseComboPooledDataSource.clean();
                 }
                 if("JpaTransactionManager".equalsIgnoreCase(className)){
-                    logger.info("清除路由："+BaseComboPooledDataSource.getRouterSourceName());
+                    logger.info("clean router："+BaseComboPooledDataSource.getRouterSourceName());
                     BaseComboPooledDataSource.meanClean(BaseComboPooledDataSource.getRouterSourceName());
                     BaseComboPooledDataSource.clean();
                 }

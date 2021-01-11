@@ -4,13 +4,35 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.javaoffers.base.db.router.sample.mapper.RouterMapper">
-    <!--单数据源切换 fit -->
+    <!-- fit 数据库-->
     <select id="uniqueRouter" resultType="map">
-        select * from oper_assess_subject;
+        select * from oper_assess_subject limit 1;
     </select>
 
-    <!--默认路由-->
-    <select id="defaultRouter" resultType="map">
-        select * from mh_user;
+    <!-- fit 数据库-->
+    <select id="uniqueRouter2" resultType="map">
+        select * from oper_assess_subject limit 1;
     </select>
+
+    <!-- fit 数据库-->
+    <select id="uniqueRouter3" resultType="map">
+        select * from oper_assess_subject limit 2,1;
+    </select>
+
+    <!-- base数据库-->
+    <select id="defaultRouter" resultType="map">
+        select * from mh_user limit 1;
+    </select>
+
+    <!-- exam数据库-->
+    <select id="examRouter" resultType="map">
+        select * from browser_user limit 1;
+    </select>
+
+    <!-- exam数据库-->
+    <select id="examRouter2" resultType="map">
+        select * from browser_user limit 1,1;
+    </select>
+
+
 </mapper>

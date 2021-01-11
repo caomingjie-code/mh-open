@@ -3,6 +3,7 @@ import com.javaoffers.base.common.annotation.conditional.ConditionalOnPropertyMu
 import com.javaoffers.mh.db.router.exception.BaseDataSourceException;
 import com.javaoffers.mh.db.router.properties.DataSourceMasterAndSlave;
 import com.javaoffers.mh.db.router.properties.DataSourceProperteis;
+import com.sun.imageio.plugins.common.I18N;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -55,26 +56,65 @@ public class DataSourceSlaveConfig {
      * @throws PropertyVetoException
      */
     private BaseComboPooledDataSource getDataSourceOfC3p0(DataSourceMasterAndSlave dataSourceMaster) throws PropertyVetoException {
-        String url = dataSourceMaster.getDatasource_master().getUrl();
-        String username = dataSourceMaster.getDatasource_master().getUsername();
-        String password = dataSourceMaster.getDatasource_master().getPassword();
-        String driver = dataSourceMaster.getDatasource_master().getDriver();
+        DataSourceProperteis datasourceMaster = dataSourceMaster.getDatasource_master();
+        BaseComboPooledDataSource cpds = initDatabases(datasourceMaster);
+
+
+        return cpds;
+    }
+
+    private BaseComboPooledDataSource initDatabases(DataSourceProperteis dataSourceProperteis) throws PropertyVetoException {
+        String url = dataSourceProperteis.getUrl();
+        url = initUrl(url);
+        String username = dataSourceProperteis.getUsername();
+        String password = dataSourceProperteis.getPassword();
+        String driver = dataSourceProperteis.getDriver();
+        Integer maxPoolSize = dataSourceProperteis.getMaxPoolSize();
+        maxPoolSize = maxPoolSize==null||maxPoolSize<50?50:maxPoolSize;//默认最大50
+        Integer minPoolSize = dataSourceProperteis.getMinPoolSize();
+        minPoolSize = minPoolSize==null||minPoolSize<10?10:minPoolSize; //默认最小10
+        Integer initialPoolSize = minPoolSize;//最小线程池为初始化线程池的数量
+
         BaseComboPooledDataSource cpds = new BaseComboPooledDataSource();
         cpds.setDriverClass( driver); //loads the jdbc driver
         cpds.setJdbcUrl( url );
         cpds.setUser(username);
         cpds.setPassword(password);
-        cpds.setMaxPoolSize(100);
-        cpds.setMinPoolSize(50);
+        cpds.setMaxPoolSize(maxPoolSize);
+        cpds.setMinPoolSize(minPoolSize);
+        cpds.setInitialPoolSize(initialPoolSize);
         cpds.setIdleConnectionTestPeriod(60);//每 60 秒检查所有连接池中的空闲连接
         cpds.setMaxIdleTime(25000);//最大空闲时间,25000 秒内未使用则连接被丢弃
         cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
         cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
-
-
         return cpds;
     }
-    
+
+    private String initUrl(String url) {
+        //?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+        if(!url.contains("?")){
+            url = url+"?";
+        }
+        url = addPropertiesForUrl(url,"useUnicode","true");
+        url = addPropertiesForUrl(url,"characterEncoding","utf8");
+        url = addPropertiesForUrl(url,"serverTimezone","GMT%2B8");
+        url = addPropertiesForUrl(url,"useSSL","false");
+        url = addPropertiesForUrl(url,"allowMultiQueries","true");
+        return url;
+    }
+
+    private String addPropertiesForUrl(String url,String proper,String value){
+        if(!url.contains(proper)){
+            String endChar = url.substring(url.length() - 1, url.length());
+            if("&".equalsIgnoreCase(endChar)){
+                url = url+proper+"=" +value;
+            }else{
+                url = url+"&"+proper+"=" +value;
+            }
+        }
+        return url;
+    }
+
     /**
      * 获取c3p0的数据源
      * @return
@@ -85,26 +125,13 @@ public class DataSourceSlaveConfig {
         if(dataSourceSlaves!=null&&dataSourceSlaves.getDatasource_slaves()!=null){
             for(DataSourceProperteis dataSourceSlave : dataSourceSlaves.getDatasource_slaves()){
                 if(dataSourceSlave==null||StringUtils.isBlank(dataSourceSlave.getUrl())){return null;}
-                String url = dataSourceSlave.getUrl();
-                String username = dataSourceSlave.getUsername();
-                String password = dataSourceSlave.getPassword();
-                String driver = dataSourceSlave.getDriver();
+
                 String slavename = dataSourceSlave.getSlavename();
                 if(!StringUtils.isNoneBlank(slavename)) {
                     throw BaseDataSourceException.getException("slave name is null");
                 }
-                BaseComboPooledDataSource cpds = new BaseComboPooledDataSource();
-                cpds.setDriverClass( driver); //loads the jdbc driver
-                cpds.setJdbcUrl( url );
-                cpds.setUser(username);
-                cpds.setPassword(password);
-                cpds.setMaxPoolSize(500);
-                cpds.setMinPoolSize(100);
-                cpds.setRouterName(slavename);
-                cpds.setIdleConnectionTestPeriod(60);//每 60 秒检查所有连接池中的空闲连接
-                cpds.setMaxIdleTime(25000);//最大空闲时间,25000 秒内未使用则连接被丢弃
-                cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
-                cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
+                BaseComboPooledDataSource cpds = initDatabases(dataSourceSlave);
+                cpds.setRouterName(dataSourceSlave.getSlavename());
                 slaves.add(cpds);
             }
         }

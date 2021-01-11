@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 数据源切换，只用于controller层
+ * 数据源切换
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

@@ -5,33 +5,33 @@
 
 <mapper namespace="com.javaoffers.base.db.router.sample.mapper.RouterMapper">
     <!-- fit 数据库-->
-    <select id="uniqueRouter" resultType="map">
-        select * from oper_assess_subject limit 1;
+    <select id="uniqueFitRouter" resultType="map">
+        select * from fit_user limit 1;
     </select>
 
     <!-- fit 数据库-->
-    <select id="uniqueRouter2" resultType="map">
-        select * from oper_assess_subject limit 1;
+    <select id="saveFitData" resultType="map">
+        insert into  fit_user (name )values (#{name})
     </select>
 
     <!-- fit 数据库-->
-    <select id="uniqueRouter3" resultType="map">
-        select * from oper_assess_subject limit 2,1;
+    <select id="queryFitData" resultType="map">
+        select * from fit_user
     </select>
 
     <!-- base数据库-->
     <select id="defaultRouter" resultType="map">
-        select * from mh_user limit 1;
+        select * from test limit 1;
     </select>
 
     <!-- exam数据库-->
     <select id="examRouter" resultType="map">
-        select * from browser_user limit 1;
+        select * from exam_data
     </select>
 
     <!-- exam数据库-->
-    <select id="examRouter2" resultType="map">
-        select * from browser_user limit 1,1;
+    <select id="saveExamData" resultType="map">
+        insert into exam_data (data) values (#{data})
     </select>
 
 

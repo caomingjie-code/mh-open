@@ -15,14 +15,15 @@ import java.util.Map;
  * @Description:
  * @Auther: create by cmj on 2021/1/11 00:36
  */
-@Controller("/router/")
+@Controller
+@RequestMapping("/router/")
 @ResponseBody
 public class RouterController {
     @Resource
     RouterMapper routerMapper;
 
     /**
-     * 默认路由
+     * 默认数据源,即datasource_master配置中的数据源
      */
     @RequestMapping("defaultRouter")
     public Object defaultRouter(){
@@ -33,9 +34,9 @@ public class RouterController {
     /**
      * 单路由
      */
-    @RequestMapping("uniqueRouter")
-    public Object uniqueRouter(){
-        List<Map<String, Object>> maps = routerMapper.uniqueRouter();
+    @RequestMapping("uniqueFitRouter")
+    public Object uniqueFitRouter(){
+        List<Map<String, Object>> maps = routerMapper.uniqueFitRouter();//路由到fit数据源，因该方法标有@DataSourceRoute("fit")
         return maps;
     }
 
@@ -44,9 +45,9 @@ public class RouterController {
      */
     @RequestMapping("mulRouter")
     public Object mulRouter(){
-        List<Map<String, Object>> base = routerMapper.defaultRouter();//base数据库
-        List<Map<String, Object>> fit = routerMapper.uniqueRouter();//fit 数据库
-        List<Map<String, Object>> exam = routerMapper.examRouter();//exam数据库
+        List<Map<String, Object>> base = routerMapper.defaultRouter();//base数据库，没有注解默认 datasource_master配置中的数据源
+        List<Map<String, Object>> fit = routerMapper.uniqueFitRouter();//fit 数据库，标有注解 @DataSourceRoute("fit")
+        List<Map<String, Object>> exam = routerMapper.examRouter();//exam数据库，标有注解 @DataSourceRoute("exam")
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("base数据库",base);
@@ -60,16 +61,26 @@ public class RouterController {
      * 多重路由（嵌套路由）fit -> exam -> fit
      */
     @RequestMapping("nestingRouter")
-    @DataSourceRoute("slaveDS")
+    @DataSourceRoute("fit")//进入此方法时默认使用fit数据源
     @Transactional(rollbackFor = Exception.class)//同时支持多个数据源在同一个事务中，
     public Object nestingRouter(){
-        List<Map<String, Object>> fit = routerMapper.uniqueRouter2();//fit 数据库
-        List<Map<String, Object>> exam = routerMapper.examRouter2();//exam数据库
-        List<Map<String, Object>> fit2 = routerMapper.uniqueRouter3();//fit 数据库
+
+        HashMap<String, Object> fitUser = new HashMap<>();
+        fitUser.put("name","小王");
+         routerMapper.saveFitData(fitUser);//  向fit 数据库插入一条数据， 因为该方法没有路由注解所以使用此方法的默认路由
+
+        HashMap<String, Object> examUser = new HashMap<>();
+        examUser.put("data","exam数据测试");
+         routerMapper.saveExamData(examUser);// 向exam数据库插入一条数据，标有@DataSourceRoute("exam")
+
+        List<Map<String, Object>> fit = routerMapper.queryFitData();// fit 查询 数据库， 因为该方法没有路由注解所以使用此方法的默认路由
+        List<Map<String, Object>> exam = routerMapper.examRouter();//exam数据库，标有  @DataSourceRoute("exam")
+
+        int e = 1/0;//模拟错误
+
         HashMap<String, Object> map = new HashMap<>();
-        map.put("fit 数据库 limit 1",fit);
+        map.put("fit 数据库 ",fit);
         map.put("exam数据库",exam);
-        map.put("fit 数据库 liimt 2,1",fit2);
         return map;
     }
 }

@@ -16,15 +16,15 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>mh-base-dao</module>
-        <module>mh-base-quartz</module>
-        <module>mh-base-mq</module>
-        <module>mh-base-security</module>
-        <module>mh-base-kafka</module>
-        <module>mh-base-common</module>
+<!--        <module>mh-base-dao</module>-->
+<!--        <module>mh-base-quartz</module>-->
+<!--        <module>mh-base-mq</module>-->
+<!--        <module>mh-base-security</module>-->
+<!--        <module>mh-base-kafka</module>-->
+<!--        <module>mh-base-common</module>-->
         <module>mh-base-db-router</module>
-        <module>mh-base-springboot-common</module>
-        <module>mh-base-eslog</module>
+<!--        <module>mh-base-springboot-common</module>-->
+<!--        <module>mh-base-eslog</module>-->
         <module>mh-base-test</module>
     </modules>
 

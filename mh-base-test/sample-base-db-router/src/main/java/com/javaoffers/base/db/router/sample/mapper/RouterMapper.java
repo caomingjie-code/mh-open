@@ -3,6 +3,7 @@ package com.javaoffers.base.db.router.sample.mapper;
 import com.javaoffers.mh.db.router.annotation.DataSourceRoute;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,19 +14,19 @@ import java.util.Map;
 @Transactional(rollbackFor = Exception.class)
 public interface RouterMapper {
 
-    @DataSourceRoute("slaveDS")
-    public List<Map<String,Object>> uniqueRouter();
+    @DataSourceRoute("fit")
+    public List<Map<String,Object>> uniqueFitRouter();
 
     List<Map<String, Object>> defaultRouter();
 
     @DataSourceRoute("exam")
     List<Map<String, Object>> examRouter();
 
-    public List<Map<String,Object>> uniqueRouter2();
+    public List<Map<String,Object>> saveFitData(Map<String,Object> param);
 
     @DataSourceRoute("exam")
-    List<Map<String, Object>> examRouter2();
+    List<Map<String, Object>> saveExamData( HashMap<String, Object> examUser);
 
-    public List<Map<String,Object>> uniqueRouter3();
+    public List<Map<String,Object>> queryFitData();
 
 }

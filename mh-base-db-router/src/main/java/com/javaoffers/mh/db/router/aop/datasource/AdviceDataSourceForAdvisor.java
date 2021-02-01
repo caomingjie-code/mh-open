@@ -38,11 +38,11 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
             e.printStackTrace();
         } finally {
             if(value!=null){
-                if("DataSourceTransactionManager".equalsIgnoreCase(className)){
+                if("DataSourceTransactionManager".equalsIgnoreCase(className)){//该DataSourceTransactionManager数据源管理是关闭数据库链接，跳出invocation.proceed();
                     logger.info("clean router："+BaseComboPooledDataSource.getRouterSourceName());
                     BaseComboPooledDataSource.clean();
                 }
-                if("JpaTransactionManager".equalsIgnoreCase(className)){
+                if("JpaTransactionManager".equalsIgnoreCase(className)){//该 JpaTransactionManager 数据源管理是跳出invocation.proceed()后， 再关闭数据库链接。
                     logger.info("clean router："+BaseComboPooledDataSource.getRouterSourceName());
                     BaseComboPooledDataSource.meanClean(BaseComboPooledDataSource.getRouterSourceName());
                     BaseComboPooledDataSource.clean();

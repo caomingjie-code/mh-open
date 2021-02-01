@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 数据源Master , 该master包含slave
+ * crete by cmj
  */
 final public class BaseComboPooledDataSource extends AbstractComboPooledDataSource implements Serializable, Referenceable{
 	public static final String DEFAULT_ROUTER = "MASTER_ROUTER";

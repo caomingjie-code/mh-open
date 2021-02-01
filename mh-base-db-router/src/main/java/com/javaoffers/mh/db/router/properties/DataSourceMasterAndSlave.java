@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * 从数据配置
+ * create by cmj
  */
 @Component
 @ConfigurationProperties(prefix = "spring",ignoreInvalidFields = true )

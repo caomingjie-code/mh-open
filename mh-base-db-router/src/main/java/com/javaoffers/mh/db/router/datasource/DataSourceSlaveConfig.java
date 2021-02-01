@@ -18,6 +18,7 @@ import java.util.List;
 
 /**
  * 数据源构造
+ * create by cmj
  */
 @ConditionalOnSingleCandidate(DataSourceMasterAndSlave.class)
 @EnableConfigurationProperties({DataSourceMasterAndSlave.class})

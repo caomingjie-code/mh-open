@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @Description:
+ * @Description: router config
  * @Auther: create by cmj on 2021/1/9 15:19
  */
 @Configuration

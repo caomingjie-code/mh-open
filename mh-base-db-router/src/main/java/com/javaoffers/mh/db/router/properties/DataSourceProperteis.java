@@ -1,5 +1,8 @@
 package com.javaoffers.mh.db.router.properties;
 
+/**
+ * create by cmj
+ */
 public class DataSourceProperteis {
 	private String url;
     private String password;

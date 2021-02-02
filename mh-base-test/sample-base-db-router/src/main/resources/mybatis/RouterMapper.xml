@@ -4,6 +4,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.javaoffers.base.db.router.sample.mapper.RouterMapper">
+    <insert id="defaultWrite">
+      insert into test (value) values('1')
+    </insert>
     <!-- fit 数据库-->
     <select id="uniqueFitRouter" resultType="map">
         select * from fit_user limit 1;

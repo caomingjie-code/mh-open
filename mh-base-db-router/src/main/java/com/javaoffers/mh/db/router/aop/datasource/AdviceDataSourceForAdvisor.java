@@ -31,8 +31,13 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
             DataSourceRoute declaredAnnotation = invocation.getMethod().getDeclaredAnnotation(DataSourceRoute.class);
             if(declaredAnnotation!=null){ //如果存在,则开始陆游
                  value = declaredAnnotation.value();
-                BaseComboPooledDataSource.pushStackRouter(value);
+            }else if(declaredAnnotation==null&&BaseComboPooledDataSource.getRouterSourceName_()!=null){
+                value = BaseComboPooledDataSource.getRouterSourceName_();//继承栈顶路由,如果存在
+            }else{//执行默认路由master,此时栈中是不存在路由的
+                value = BaseComboPooledDataSource.DEFAULT_ROUTER;
             }
+            BaseComboPooledDataSource.pushStackRouter(value);
+            logger.info("start router : "+value);//打印即将路由的信息名称
             return  invocation.proceed();
         }catch ( Exception e){
             e.printStackTrace();

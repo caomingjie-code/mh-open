@@ -29,9 +29,13 @@ public class DataSourceSlaveConfig {
     @Bean("dataSource")
     @ConditionalOnPropertyMustExists("spring.datasource_master.url")
     public DataSource createDataSourceSlave(DataSourceMasterAndSlave dataSourceMasterAndSlave) throws Exception {
-    	BaseComboPooledDataSource dataSourceOfC3p0Master = getDataSourceOfC3p0(dataSourceMasterAndSlave);//Master
+        //Master
+    	BaseComboPooledDataSource dataSourceOfC3p0Master = getDataSourceOfC3p0(dataSourceMasterAndSlave);
     	//初始化slave
     	initSlave(dataSourceMasterAndSlave, dataSourceOfC3p0Master);
+    	//发布
+        dataSourceOfC3p0Master.finish();
+
     	return dataSourceOfC3p0Master;
     }
 
@@ -49,7 +53,16 @@ public class DataSourceSlaveConfig {
     	for(BaseComboPooledDataSource slave : dataSourceSlavesOfC3p02){
             dataSourceOfC3p0Master.addDataSourceSlaves(slave.getRouterName(), slave);
         }
-	}
+    	//初始化数据库配置
+        DataSourceProperteis datasource_master = dataSourceMasterAndSlave.getDatasource_master();
+        List<DataSourceProperteis> datasource_slaves = dataSourceMasterAndSlave.getDatasource_slaves();
+        dataSourceOfC3p0Master.putDataSourcesProperties(dataSourceOfC3p0Master.DEFAULT_ROUTER,datasource_master);
+        if (datasource_slaves!=null&&datasource_slaves.size()>0){
+            for(DataSourceProperteis dataSourceProperteis : datasource_slaves ){
+                dataSourceOfC3p0Master.putDataSourcesProperties(dataSourceProperteis.getSlavename(),dataSourceProperteis);
+            }
+        }
+    }
 
     /**
      * 获取c3p0的数据源

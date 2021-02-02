@@ -2,6 +2,7 @@ package com.javaoffers.base.db.router.sample.controller;
 
 import com.javaoffers.base.db.router.sample.mapper.RouterMapper;
 import com.javaoffers.mh.db.router.annotation.DataSourceRoute;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,8 +63,8 @@ public class RouterController {
      */
     @RequestMapping("nestingRouter")
     @DataSourceRoute("fit")//进入此方法时默认使用fit数据源
-    @Transactional(rollbackFor = Exception.class)//同时支持多个数据源在同一个事务中，
-    public Object nestingRouter(){
+    @Transactional(rollbackFor = Exception.class)//同时支持多个数据源在同一个事务中
+    public Object nestingRouter(String ok){
 
         HashMap<String, Object> fitUser = new HashMap<>();
         fitUser.put("name","小王");
@@ -75,12 +76,18 @@ public class RouterController {
 
         List<Map<String, Object>> fit = routerMapper.queryFitData();// fit 查询 数据库， 因为该方法没有路由注解所以使用此方法的默认路由
         List<Map<String, Object>> exam = routerMapper.examRouter();//exam数据库，标有  @DataSourceRoute("exam")
-
-        int e = 1/0;//模拟错误
-
+        if(StringUtils.isNotBlank(ok)){
+            if("error".equalsIgnoreCase(ok)){
+                int e = 1/0;//模拟错误
+            }
+        }
         HashMap<String, Object> map = new HashMap<>();
         map.put("fit 数据库 ",fit);
         map.put("exam数据库",exam);
         return map;
     }
+
+
+
+
 }

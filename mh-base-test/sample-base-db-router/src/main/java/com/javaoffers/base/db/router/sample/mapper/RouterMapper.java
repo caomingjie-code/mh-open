@@ -29,4 +29,6 @@ public interface RouterMapper {
 
     public List<Map<String,Object>> queryFitData();
 
+    public void defaultWrite();
+
 }

@@ -16,6 +16,9 @@ spring:
       url: jdbc:mysql://localhost:3306/base
       username: root
       password: zqbxcmj
+      #readWriteSeparation: true #开启读写分离
+      readDataSources: slaveBase, slaveBaseTow #指定读数据库
+
   #从数据库    
   datasource_slaves:
     -
@@ -28,6 +31,17 @@ spring:
       url: jdbc:mysql://localhost:3306/exam
       username: root
       password: zqbxcmj
+    -
+      slavename: slaveBase
+      url: jdbc:mysql://localhost:3306/base
+      username: root
+      password: zqbxcmj
+    -
+      slavename: slaveBaseTow
+      url: jdbc:mysql://localhost:3306/base
+      username: root
+      password: zqbxcmj
+
 #配置mybatis 
 mybatis:
   #扫描mapper 文件路径

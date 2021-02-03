@@ -1,5 +1,6 @@
 package com.javaoffers.base.db.router.sample.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.javaoffers.base.db.router.sample.mapper.RouterMapper;
 import com.javaoffers.mh.db.router.annotation.DataSourceRoute;
 import org.apache.commons.lang3.StringUtils;
@@ -84,7 +85,7 @@ public class RouterController {
         HashMap<String, Object> map = new HashMap<>();
         map.put("fit 数据库 ",fit);
         map.put("exam数据库",exam);
-        return map;
+        return JSON.toJSONString(map);
     }
 
 

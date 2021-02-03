@@ -467,7 +467,7 @@ public class RouterConnection implements Connection {
                         if(routerConnection.containsKey(readDB)){
                             cacheDb = readDB;
                             isCached = true;
-                            LOGGER.info("read db cache is " + cacheDb);
+                            LOGGER.info(" The cache "+cacheDb+" and "+routerSourceName+" functions the same "+", so it switches to a " + cacheDb);
                             break;
                         }
                     }
@@ -482,6 +482,26 @@ public class RouterConnection implements Connection {
                     BaseComboPooledDataSource.replaceFirstStackElement(router).getRouterName(); //返回旧的栈顶元素
                     LOGGER.info(routerSourceName+ " Switch to read database : "+cacheDb);
                 }
+            }else{ //优先使用已经存在的读链接
+                String cacheDb = null;
+                String[] writeDataSource = baseComboPooledDataSource.getWriteDataSource(routerSourceName);
+                if(writeDataSource!=null&&writeDataSource.length>0) {
+                    for (int i = 0; i < writeDataSource.length; i++) {
+                        String[] readDataSources = baseComboPooledDataSource.getReadDataSource(writeDataSource[i]);
+                        if (readDataSources != null && readDataSources.length > 0) {
+                            //判断是否已经缓存了读，如果有直接使用，避免再此占用一个读链接
+                            for (String readDB : readDataSources) {
+                                if (routerConnection.containsKey(readDB)) {
+                                    cacheDb = readDB;
+                                    router.setRouterName(cacheDb);
+                                    LOGGER.info(" The cache "+cacheDb+" and "+routerSourceName+" functions the same "+", so it switches to a " + cacheDb);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }else{ //写sql
             if(!BaseComboPooledDataSource.checkedIsWriteDataSource(routerSourceName)){//如果不是写，则切换为写

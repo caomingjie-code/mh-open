@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
-<!--        <module>mh-base-dao</module>-->
+        <module>mh-base-dao</module>
 <!--        <module>mh-base-quartz</module>-->
 <!--        <module>mh-base-mq</module>-->
 <!--        <module>mh-base-security</module>-->

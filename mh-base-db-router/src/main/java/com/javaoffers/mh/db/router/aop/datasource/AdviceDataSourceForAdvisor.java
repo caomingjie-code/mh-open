@@ -1,6 +1,7 @@
 package com.javaoffers.mh.db.router.aop.datasource;
 
 import com.javaoffers.mh.db.router.annotation.DataSourceRoute;
+import com.javaoffers.mh.db.router.common.Router;
 import com.javaoffers.mh.db.router.datasource.BaseComboPooledDataSource;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -26,22 +27,27 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         String value = null;
+        boolean isForce = false;//非强制
         try {
             //获取方法的注解
             DataSourceRoute declaredAnnotation = invocation.getMethod().getDeclaredAnnotation(DataSourceRoute.class);
             if(declaredAnnotation!=null){ //如果存在,则开始陆游
                  value = declaredAnnotation.value();
-            }else if(declaredAnnotation==null&&BaseComboPooledDataSource.getRouterSourceName_()!=null){
-                value = BaseComboPooledDataSource.getRouterSourceName_();//继承栈顶路由,如果存在
+                 isForce = declaredAnnotation.isForce();
+            }else if(declaredAnnotation==null&&BaseComboPooledDataSource.getRouter()!=null){
+                value = BaseComboPooledDataSource.getRouter().getRouterName();//继承栈顶路由,如果存在
+
             }else{//执行默认路由master,此时栈中是不存在路由的(如果master中存在slave 读则优先取读数据库)
+
                 value = BaseComboPooledDataSource.DEFAULT_ROUTER;
                 String[] readDataSources = BaseComboPooledDataSource.getReadDataSource(value);
-                if(readDataSources!=null&&readDataSources.length>0){
+                if(readDataSources!=null&&readDataSources.length>0){//优先取读数据库
                     int randIndex = ((int)System.nanoTime() & 1)% readDataSources.length;
                     value =  readDataSources[randIndex];
                 }
             }
-            BaseComboPooledDataSource.pushStackRouter(value);
+
+            BaseComboPooledDataSource.pushStackRouter(new Router(value,isForce));
             logger.info("start router : "+value);//打印即将路由的信息名称
             return  invocation.proceed();
         }catch ( Exception e){
@@ -54,7 +60,10 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
                 }
                 if("JpaTransactionManager".equalsIgnoreCase(className)){//该 JpaTransactionManager 数据源管理是跳出invocation.proceed()后， 再关闭数据库链接。
                     logger.info("clean router："+BaseComboPooledDataSource.getRouterSourceName());
-                    BaseComboPooledDataSource.meanClean(BaseComboPooledDataSource.getRouterSourceName());
+                    //主要解决JpaTransactionManager关闭时，找不到真是链接：
+                    // 因为 DataSourceTransactionManager 关闭链接时栈顶为对应的路由（此时如果有其他操作依然可以找到对应的真实链接），而 JpaTransactionManager 关闭时，
+                    // 栈顶已清空，为了也让其有与之对应的路由所以使用meanClean来记录 ,解决在关闭时（有可能有其他操作，比如此链接是否是已经关闭 isClosed ）获取对应的真实链接缺失。
+                    BaseComboPooledDataSource.meanClean(BaseComboPooledDataSource.getRouterSourceName());//
                     BaseComboPooledDataSource.clean();
                 }
             }

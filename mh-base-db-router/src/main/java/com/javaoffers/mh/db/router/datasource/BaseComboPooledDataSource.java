@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 
 import com.javaoffers.mh.db.router.aop.datasource.RouterConnection;
 import com.javaoffers.mh.db.router.common.ConcurrentMapSet;
+import com.javaoffers.mh.db.router.common.Router;
 import com.javaoffers.mh.db.router.exception.BaseDataSourceException;
 import com.javaoffers.mh.db.router.properties.DataSourceProperteis;
 import org.apache.commons.lang3.ArrayUtils;
@@ -38,7 +39,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
     //路由的名称
     private String routerName;
     //数据源的路由
-    private static ThreadLocalNaming<ConcurrentLinkedDeque<String>> dataSourceRoute = new ThreadLocalNaming<ConcurrentLinkedDeque<String>>("DataSourceRouteThreadLocal");
+    private static ThreadLocalNaming<ConcurrentLinkedDeque<Router>> dataSourceRoute = new ThreadLocalNaming<ConcurrentLinkedDeque<Router>>("DataSourceRouteThreadLocal");
     //将要clean，具体在close链接时使用
     private static ThreadLocalNaming<String> meanClean = new ThreadLocalNaming<>("DataSourceRouteThreadLocal"); //如果该值存在则说明此链接属于一路由链接并且数据源管理是JpaTransactionManager
     //存放子数据源
@@ -57,11 +58,11 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
     /**
      * 设置route
      *
-     * @param dataSourceSlaveName
+     * @param router
      * @throws SQLException
      */
-    public static void pushStackRouter(String dataSourceSlaveName) throws SQLException {
-        if (!StringUtils.isNoneBlank(dataSourceSlaveName)) {
+    public static void pushStackRouter(Router router) throws SQLException {
+        if (router==null||!StringUtils.isNoneBlank(router.getRouterName())) {
             throw BaseDataSourceException.getException("DataSourceSlave Is Null");
         }
         ConcurrentLinkedDeque stack = dataSourceRoute.get();
@@ -69,7 +70,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
             stack = new ConcurrentLinkedDeque();
             dataSourceRoute.set(stack);
         }
-        stack.push(dataSourceSlaveName); //放入stack 顶部
+        stack.push(router); //放入stack 顶部
 
     }
 
@@ -77,8 +78,8 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
      * 获取栈顶元素，如果没有则返回null
      * @return
      */
-    public static String getRouterSourceName_() {
-        ConcurrentLinkedDeque<String> stackRouter = dataSourceRoute.get();
+    public static Router getRouter() {
+        ConcurrentLinkedDeque<Router> stackRouter = dataSourceRoute.get();
         if (stackRouter != null && stackRouter.size() > 0) {
             return stackRouter.peekFirst();
         }
@@ -90,14 +91,18 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
      * @return
      */
     public static String getRouterSourceName() {
-        String routerSourceName = BaseComboPooledDataSource.getRouterSourceName_();
-        //判断是否属于路由链接，并且数据源管理为JpaTransactionManager
-        if(StringUtils.isBlank(routerSourceName)){
+        Router router = BaseComboPooledDataSource.getRouter();
+        //如果栈顶没有路由元素
+        String routerSourceName = null;
+        if(router==null||StringUtils.isBlank(router.getRouterName())){
+            //并且数据源管理为JpaTransactionManager
             if(BaseComboPooledDataSource.isRouterConnection()){
-                routerSourceName = BaseComboPooledDataSource.getMeanClean();
+                routerSourceName = BaseComboPooledDataSource.getMeanClean(); //（管理为JpaTransactionManager）取最后一个路由
             }else {
                 routerSourceName = BaseComboPooledDataSource.DEFAULT_ROUTER;
             }
+        }else{
+            routerSourceName = router.getRouterName();
         }
         return routerSourceName;
     }
@@ -148,14 +153,14 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
     public Connection getConnection() throws SQLException {
         //判断是否需要route
         Connection concurrentConnection = null;
-        ConcurrentLinkedDeque<String> stackRouter = dataSourceRoute.get();
+        ConcurrentLinkedDeque<Router> stackRouter = dataSourceRoute.get();
         String routerName = DEFAULT_ROUTER;
         if (stackRouter != null && stackRouter.size() > 0) {
             try {
-                routerName = stackRouter.peekFirst();
+                routerName = stackRouter.peekFirst().getRouterName();
                 concurrentConnection = ((BaseComboPooledDataSource) dataSourceSlaves.get(routerName)).getSuperConnection();
             } catch (Exception e) {
-                if(routerName.equals(stackRouter.peekFirst())){ //有可能是master.
+                if(routerName.equals(stackRouter.peekFirst().getRouterName())){ //有可能是master.
                     //获取MasterConnection
                     concurrentConnection = super.getConnection();
                 }else{
@@ -179,9 +184,9 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
     /**
      * 清除陆游信息
      */
-    public static String clean() {
-        String pop = null;
-        ConcurrentLinkedDeque<String> stack = dataSourceRoute.get();
+    public static Router clean() {
+        Router pop = null;
+        ConcurrentLinkedDeque<Router> stack = dataSourceRoute.get();
         if (stack != null && stack.size() > 0) {
             pop = stack.pop();
         }
@@ -250,10 +255,9 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
     /**
      * 替换栈顶元素
      */
-    public static String replaceFirstStackElement(String dataSourceName) throws SQLException {
-        String topE = clean(); //弹出栈顶元素
-        pushStackRouter(dataSourceName);//添加新元素
-        return topE;
+    public static Router replaceFirstStackElement(Router router) throws SQLException {
+        //空实现
+        return router;
     }
 
     /**

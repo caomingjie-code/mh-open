@@ -15,4 +15,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataSourceRoute {
     String value() default BaseComboPooledDataSource.DEFAULT_ROUTER;
+    boolean isForce() default  false;//是否强制路由, 该机制实在开启主从同步场景下使用。
 }

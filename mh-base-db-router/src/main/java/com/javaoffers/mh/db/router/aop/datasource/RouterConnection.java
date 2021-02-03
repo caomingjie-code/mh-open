@@ -1,5 +1,6 @@
 package com.javaoffers.mh.db.router.aop.datasource;
 
+import com.javaoffers.mh.db.router.common.Router;
 import com.javaoffers.mh.db.router.common.SQLUtils;
 import com.javaoffers.mh.db.router.datasource.BaseComboPooledDataSource;
 import com.javaoffers.mh.db.router.exception.BaseDataSourceException;
@@ -453,7 +454,8 @@ public class RouterConnection implements Connection {
     //读写分离
     private void readWriteSeparation(String sql) throws SQLException {
         boolean b = SQLUtils.checkedSqlIsRead(sql);
-        String routerSourceName = baseComboPooledDataSource.getRouterSourceName();
+        Router router = baseComboPooledDataSource.getRouter();
+        String routerSourceName = router.getRouterName();
         if(b){ //如果是读sql
             if(!BaseComboPooledDataSource.checkedIsReadDataSource(routerSourceName)){ //如果不是读,则切换为读
                 String[] readDataSources = baseComboPooledDataSource.getReadDataSource(routerSourceName);
@@ -476,9 +478,9 @@ public class RouterConnection implements Connection {
                             throw BaseDataSourceException.getException("ReadDataSource Is Null");
                         }
                     }
-
-                    String oldE = BaseComboPooledDataSource.replaceFirstStackElement(cacheDb); //返回旧的栈顶元素
-                    LOGGER.info(oldE+ " Switch to read database : "+cacheDb);
+                    router.setRouterName(cacheDb);
+                    BaseComboPooledDataSource.replaceFirstStackElement(router).getRouterName(); //返回旧的栈顶元素
+                    LOGGER.info(routerSourceName+ " Switch to read database : "+cacheDb);
                 }
             }
         }else{ //写sql
@@ -486,12 +488,13 @@ public class RouterConnection implements Connection {
                 String[] writeDataSources = baseComboPooledDataSource.getWriteDataSource(routerSourceName);
                 if(writeDataSources!=null&&writeDataSources.length>0){
                     long l = (System.nanoTime() & 1) % writeDataSources.length; //随机策略
-                    String rd = writeDataSources[(int)l];
-                    if(StringUtils.isBlank(rd)){
+                    String wd = writeDataSources[(int)l];
+                    if(StringUtils.isBlank(wd)){
                         throw BaseDataSourceException.getException("WriteDataSource Is Null");
                     }
-                    String oldE =  BaseComboPooledDataSource.replaceFirstStackElement(rd);
-                    LOGGER.info(oldE+ " Switch to write database : "+rd);
+                    router.setRouterName(wd);
+                    BaseComboPooledDataSource.replaceFirstStackElement(router).getRouterName();
+                    LOGGER.info(routerSourceName+ " Switch to write database : "+wd);
                 }
             }
         }

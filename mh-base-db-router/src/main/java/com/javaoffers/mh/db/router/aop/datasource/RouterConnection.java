@@ -458,13 +458,27 @@ public class RouterConnection implements Connection {
             if(!BaseComboPooledDataSource.checkedIsReadDataSource(routerSourceName)){ //如果不是读,则切换为读
                 String[] readDataSources = baseComboPooledDataSource.getReadDataSource(routerSourceName);
                 if(readDataSources!=null&&readDataSources.length>0){
-                    long l = (System.nanoTime() & 1) % readDataSources.length; //随机策略
-                    String rd = readDataSources[(int)l];
-                    if(StringUtils.isBlank(rd)){
-                        throw BaseDataSourceException.getException("ReadDataSource Is Null");
+                    //判断是否已经缓存了读，如果有直接使用，避免再此占用一个读链接
+                    boolean isCached = false;//是否被缓存了
+                    String cacheDb = null;
+                    for(String readDB : readDataSources ){
+                        if(routerConnection.containsKey(readDB)){
+                            cacheDb = readDB;
+                            isCached = true;
+                            LOGGER.info("read db cache is " + cacheDb);
+                            break;
+                        }
                     }
-                    String oldE = BaseComboPooledDataSource.replaceFirstStackElement(rd); //返回旧的栈顶元素
-                    LOGGER.info(oldE+ " Switch to read database : "+rd);
+                    if(!isCached){ //如果缓存没有命中
+                        long l = (System.nanoTime() & 1) % readDataSources.length; //随机策略
+                        cacheDb = readDataSources[(int)l];
+                        if(StringUtils.isBlank(cacheDb)){
+                            throw BaseDataSourceException.getException("ReadDataSource Is Null");
+                        }
+                    }
+
+                    String oldE = BaseComboPooledDataSource.replaceFirstStackElement(cacheDb); //返回旧的栈顶元素
+                    LOGGER.info(oldE+ " Switch to read database : "+cacheDb);
                 }
             }
         }else{ //写sql

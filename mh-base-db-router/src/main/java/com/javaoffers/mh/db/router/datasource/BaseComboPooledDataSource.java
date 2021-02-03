@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * crete by cmj
  */
 final public class BaseComboPooledDataSource extends AbstractComboPooledDataSource implements Serializable, Referenceable {
+
     public static final String DEFAULT_ROUTER = "MASTER_ROUTER";
     //路由的名称
     private String routerName;
@@ -84,7 +85,6 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
         return null;
     }
 
-
     /**
      * 获取栈顶元素如果没有则返回master(默认)
      * @return
@@ -101,7 +101,6 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
         }
         return routerSourceName;
     }
-
 
     /**
      * 设置即将路由的数据源名称
@@ -130,16 +129,6 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
         return meanClean.get();
     }
 
-    /**
-     * 解析并添加slave数据源
-     *
-     * @param dataSourceSlaveName
-     * @param dataSourceSlave
-     */
-    protected void addDataSourceSlaves(String dataSourceSlaveName, DataSource dataSourceSlave) {
-        dataSourceSlaves.put(dataSourceSlaveName, dataSourceSlave);
-    }
-
     public BaseComboPooledDataSource() {
         super();
     }
@@ -152,25 +141,9 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
         super(configName);
     }
 
-
     // serialization stuff -- set up bound/constrained property event handlers on deserialization
     private static final long serialVersionUID = 1;
     private static final short VERSION = 0x0002;
-
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.writeShort(VERSION);
-    }
-
-    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-        short version = ois.readShort();
-        switch (version) {
-            case VERSION:
-                //ok
-                break;
-            default:
-                throw new IOException("Unsupported Serialized Version: " + version);
-        }
-    }
 
     public Connection getConnection() throws SQLException {
         //判断是否需要route
@@ -190,7 +163,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
                 }
             }
         } else {
-            //获取MasterConnection
+            //获取MasterConnection，（开始事务时，不经过advisor,spring会直接获取一链接，因为在事务的场景下通常为写， 所以选取默认master.）
             concurrentConnection = super.getConnection();
         }
         //concurrentConnection.setAutoCommit(false);
@@ -201,16 +174,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
 
     }
 
-    /**
-     * 直接调取夫类方法获取连接,只给Slave调用
-     *
-     * @return
-     * @throws SQLException
-     */
-    private Connection getSuperConnection() throws SQLException {
-        Connection connection = super.getConnection();
-        return connection;
-    }
+
 
     /**
      * 清除陆游信息
@@ -245,26 +209,84 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
      * @param writeDataSourceName
      * @return
      */
-    public String[] getReadDataSource(String writeDataSourceName){
+    public static String[] getReadDataSource(String writeDataSourceName){
 
         String[] salves = masterMappingSlaves.get(writeDataSourceName);
         return salves==null?ArrayUtils.EMPTY_STRING_ARRAY:salves;
     }
 
+    /**
+     * 检查是否是是读数据源
+     * @param dataSourceName
+     * @return
+     */
     public static boolean checkedIsReadDataSource(String dataSourceName){
         return slavesMappingMaster.containsKey(dataSourceName);
     }
 
+    /**
+     * 检查是否是写数据源
+     * @param dataSourceName
+     * @return
+     */
     public static boolean checkedIsWriteDataSource(String dataSourceName){
         return  masterMappingSlaves.containsKey(dataSourceName);
 
     }
-    public String[] getWriteDataSource(String readDataSourceName){
+
+    /**
+     * 获取写数据源
+     * @param readDataSourceName
+     * @return
+     */
+    public static String[] getWriteDataSource(String readDataSourceName){
         ConcurrentSkipListSet<String> wd = slavesMappingMaster.get(readDataSourceName);
         if(wd==null||wd.size()==0){
             return  ArrayUtils.EMPTY_STRING_ARRAY;
         }
         return wd.toArray(new String[wd.size()]);
+    }
+
+    /**
+     * 替换栈顶元素
+     */
+    public static String replaceFirstStackElement(String dataSourceName) throws SQLException {
+        String topE = clean(); //弹出栈顶元素
+        pushStackRouter(dataSourceName);//添加新元素
+        return topE;
+    }
+
+    /**
+     * 发布
+     */
+    public  void finish(){
+        initCacheMasterAndSlaveMapper();
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.writeShort(VERSION);
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        short version = ois.readShort();
+        switch (version) {
+            case VERSION:
+                //ok
+                break;
+            default:
+                throw new IOException("Unsupported Serialized Version: " + version);
+        }
+    }
+
+    /**
+     * 直接调取夫类方法获取连接,只给Slave调用
+     *
+     * @return
+     * @throws SQLException
+     */
+    private Connection getSuperConnection() throws SQLException {
+        Connection connection = super.getConnection();
+        return connection;
     }
 
     /**
@@ -296,20 +318,15 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
             }
         }
     }
-
     /**
-     * 替换栈顶元素
+     * 解析并添加slave数据源
+     *
+     * @param dataSourceSlaveName
+     * @param dataSourceSlave
      */
-    public static String replaceFirstStackElement(String dataSourceName) throws SQLException {
-        String topE = clean(); //弹出栈顶元素
-        pushStackRouter(dataSourceName);//添加新元素
-        return topE;
+    protected void addDataSourceSlaves(String dataSourceSlaveName, DataSource dataSourceSlave) {
+        dataSourceSlaves.put(dataSourceSlaveName, dataSourceSlave);
     }
 
-    /**
-     * 发布
-     */
-    public  void finish(){
-        initCacheMasterAndSlaveMapper();
-    }
+
 }

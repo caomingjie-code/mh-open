@@ -16,21 +16,21 @@ spring:
       url: jdbc:mysql://localhost:3306/base
       username: root
       password: zqbxcmj
-      #readWriteSeparation: true #开启读写分离
-      readDataSources: slaveBase, slaveBaseTow #指定读数据库
+      readWriteSeparation: true #开启读写分离
+      #readDataSources: slaveBase, slaveBaseTow #指定读数据库
 
   #从数据库    
   datasource_slaves:
-    -
-      slavename: fit
-      url: jdbc:mysql://localhost:3306/fit
-      username: root
-      password: zqbxcmj
-    -
-      slavename: exam
-      url: jdbc:mysql://localhost:3306/exam
-      username: root
-      password: zqbxcmj
+#    -
+#      slavename: fit
+#      url: jdbc:mysql://localhost:3306/fit
+#      username: root
+#      password: zqbxcmj
+#    -
+#      slavename: exam
+#      url: jdbc:mysql://localhost:3306/exam
+#      username: root
+#      password: zqbxcmj
     -
       slavename: slaveBase
       url: jdbc:mysql://localhost:3306/base

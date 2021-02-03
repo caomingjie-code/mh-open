@@ -33,8 +33,13 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
                  value = declaredAnnotation.value();
             }else if(declaredAnnotation==null&&BaseComboPooledDataSource.getRouterSourceName_()!=null){
                 value = BaseComboPooledDataSource.getRouterSourceName_();//继承栈顶路由,如果存在
-            }else{//执行默认路由master,此时栈中是不存在路由的
+            }else{//执行默认路由master,此时栈中是不存在路由的(如果master中存在slave 读则优先取读数据库)
                 value = BaseComboPooledDataSource.DEFAULT_ROUTER;
+                String[] readDataSources = BaseComboPooledDataSource.getReadDataSource(value);
+                if(readDataSources!=null&&readDataSources.length>0){
+                    int randIndex = ((int)System.nanoTime() & 1)% readDataSources.length;
+                    value =  readDataSources[randIndex];
+                }
             }
             BaseComboPooledDataSource.pushStackRouter(value);
             logger.info("start router : "+value);//打印即将路由的信息名称

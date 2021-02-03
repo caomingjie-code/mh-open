@@ -493,9 +493,11 @@ public class RouterConnection implements Connection {
                             for (String readDB : readDataSources) {
                                 if (routerConnection.containsKey(readDB)) {
                                     cacheDb = readDB;
-                                    router.setRouterName(cacheDb);
-                                    LOGGER.info(" The cache "+cacheDb+" and "+routerSourceName+" functions the same "+", so it switches to a " + cacheDb);
-                                    return;
+                                    if(!cacheDb.equalsIgnoreCase(routerSourceName)){ //不相同则使用缓存， 相同就忽略此不步骤，因为当前路由的和缓存的名称一样。
+                                        router.setRouterName(cacheDb);
+                                        LOGGER.info(" The cache "+cacheDb+" and "+routerSourceName+" functions the same "+", so it switches to a " + cacheDb);
+                                        return;
+                                    }
                                 }
                             }
                         }

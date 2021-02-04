@@ -1,7 +1,8 @@
 package com.javaoffers.base.common.rpc;
 
-import com.javaoffers.base.common.json.JsonUtils;
+import com.alibaba.fastjson.JSON;
 import com.javaoffers.base.common.utils.Utils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
@@ -10,6 +11,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -30,13 +33,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class HttpClientUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
-    private static final NamedThreadLocal<Integer> httpResponseCode = new NamedThreadLocal<>("response status code");//存放每个请求对应的响应状态码,如 200,300,400,500等
-    private static final NamedThreadLocal<String>  httpResponseErrorMasg = new NamedThreadLocal<>("response masg error");//存放响应错误请求的数据
+    private static final NamedThreadLocal<Integer> httpResponseCode = new NamedThreadLocal<Integer>("response status code");//存放每个请求对应的响应状态码,如 200,300,400,500等
+    private static final NamedThreadLocal<String>  httpResponseErrorMasg = new NamedThreadLocal<String>("response masg error");//存放响应错误请求的数据
     private static final CopyOnWriteArraySet<Integer> globalThrowsCode = new CopyOnWriteArraySet<>();//异常code, 如果设置了throws code, 则跑出对应的异常,全局
     private static final String NULL = "";
-
-
-
 
     /**
      * 自定义request方法请求,body 为字符类型
@@ -48,10 +48,9 @@ public class HttpClientUtils {
      */
     public static String requestMethodsHttpData(HttpRequestBase requestMethod, Map<String,Object> urlParam, String bodyStr, Map<String, String> headerParam) throws Exception {
         logger.info("执行 rpc 请求体: bodyStr->| "+bodyStr+" |");
-        HttpEntity resEntity = requestMethodsHttpEntry(requestMethod, urlParam, new StringEntity(bodyStr), headerParam);
+        HttpEntity resEntity = requestMethodsHttpEntry(requestMethod, urlParam, new StringEntity(bodyStr,HTTP.UTF_8), headerParam);
         return parseString( resEntity);
     }
-
 
     /**
      * 自定义request方法请求,body为字节类型
@@ -65,7 +64,6 @@ public class HttpClientUtils {
         logger.info("执行 rpc 请求体: bodyStr->| "+ Arrays.toString(bodyStr) +" |");
         return requestMethodsHttpEntry(requestMethod,urlParam,new ByteArrayEntity(bodyStr),headerParam);
     }
-
 
     /**
      * 直接发送 enry 数据
@@ -155,10 +153,152 @@ public class HttpClientUtils {
         return responseStr;
     }
 
+    /**
+     * 发送请求, 该方法只关注响应状态,不关心响应数据实体.并会将响应实体返回给具体的业务处理
+     * @param httpClient
+     * @param httpMethod
+     * @return  返回响应数据
+     * @throws IOException
+     */
+    private static HttpEntity send( HttpClient httpClient, HttpRequestBase httpMethod) throws Exception {
+        HttpEntity resEntity = null;
+        long startTime = System.currentTimeMillis();    //获取开始时间
+        logger.warn("执行 rpc 调用开始: url->[ "+httpMethod.getURI()+"]");
+        httpMethod.setURI(new URI(processUrlEncodeForStr(httpMethod.getURI().toString())));//处理特殊字符编码
+        HttpResponse response = httpClient.execute(httpMethod);//开始执行
+        long endTime = System.currentTimeMillis();    //获取结束时间
+        if (response != null) {
+            StatusLine statusLine = response.getStatusLine();
+            httpResponseCode.set(statusLine.getStatusCode());//储存响应code
+            logger.warn("执行 rpc 调用结束: 响应状态 -> [ " + statusLine+"] ");
+            resEntity = response.getEntity();
+            globalThrowsCode(httpResponseCode.get());//指定需要抛出的异常code
+        }
+        logger.warn("执行 rpc 调用请求耗时: " + (endTime - startTime) + "ms*");
+        return resEntity;
+    }
 
+    /**
+     * 发送请求,将 HttpResponse 返回
+     * @param httpClient
+     * @param httpMethod
+     * @return  返回响应数据
+     * @throws IOException
+     */
+    private static HttpResponse sendBackHttpResponse( HttpClient httpClient, HttpRequestBase httpMethod) throws Exception {
+        long startTime = System.currentTimeMillis();    //获取开始时间
+        logger.warn("执行 rpc 调用开始: url->[ "+httpMethod.getURI()+"]");
+        HttpResponse response = httpClient.execute(httpMethod);//开始执行
+        long endTime = System.currentTimeMillis();    //获取结束时间
+        if (response != null) {
+            StatusLine statusLine = response.getStatusLine();
+            httpResponseCode.set(statusLine.getStatusCode());//储存响应code
+            logger.warn("执行 rpc 调用结束: 响应状态 -> [ " + statusLine+"] ");
+            globalThrowsCode(httpResponseCode.get());//指定需要抛出的异常code
+        }
+        logger.warn("执行 rpc 调用请求耗时: " + (endTime - startTime) + "ms*");
+        return response;
+    }
 
+    /**
+     * 抛出全局设置的异常
+     * @param statusCode
+     */
+    private static void globalThrowsCode(int statusCode) throws Exception{
+        for(Integer code : globalThrowsCode){
+            if(statusCode == code){
+                throw new HttpRequestException(HttpClientUtils.watchResponseErrorMasg());
+            }
+        }
+    }
 
+    /**
+     * 构建参body
+     * @param bodyStr
+     * @param httpMethod
+     * @throws UnsupportedEncodingException
+     */
+    private static void buildBody(byte[] bodyStr, HttpRequestBase httpMethod) throws UnsupportedEncodingException {
+        if(bodyStr!=null&&bodyStr.length>0){
+            ByteArrayEntity entityParams = new ByteArrayEntity(bodyStr);
+            if(httpMethod instanceof HttpEntityEnclosingRequest){
+                HttpEntityEnclosingRequest bodyMethod = (HttpEntityEnclosingRequest) httpMethod;
+                bodyMethod.setEntity(entityParams);
+            }
+        }
+    }
 
+    /**
+     * 构建参原始body entry
+     * @param httpMethod
+     * @throws UnsupportedEncodingException
+     */
+    private static void buildBody(HttpEntity enetry, HttpRequestBase httpMethod) throws UnsupportedEncodingException {
+        if(enetry!=null){
+            if(httpMethod instanceof HttpEntityEnclosingRequest){
+                HttpEntityEnclosingRequest bodyMethod = (HttpEntityEnclosingRequest) httpMethod;
+                bodyMethod.setEntity(enetry);
+            }
+        }
+    }
+
+    /**
+     * 构建url 拼接参数
+     * @param urlParam
+     * @param requestMethod
+     */
+    private static void buildUrlParams(Map<String, Object> urlParam, HttpRequestBase requestMethod) throws URISyntaxException {
+        String uri = requestMethod.getURI().toString();
+        //拼接参数
+        if(urlParam!=null&&urlParam.size()>0){
+            uri = uri+"?"+getParamData(urlParam);
+        }
+        //重新设置uri
+        requestMethod.setURI(new URI(uri));
+
+    }
+
+    /**
+     * 拼接表单参数
+     * @param urlParam
+     * @return
+     */
+    private static String  getParamData(Map<String, Object> urlParam) {
+        StringBuffer parmBuffer = new StringBuffer("");
+        urlParam.forEach((k,v)->{
+            //v只分两种类型: String , List<String>
+            if(v!=null && v instanceof String ){
+                parmBuffer.append(k+"="+v+"&");
+            }else if(v!=null && v instanceof Collection){
+                Collection lv = (Collection)v;
+                lv.forEach(s->{
+                    String strPram  = s+"";
+                    parmBuffer.append(k+"="+strPram+"&");
+                });
+            }else if(v!=null && v.getClass().isArray()){ //只支持一维数组
+                int length = Array.getLength(v);
+                for(int i=0; i<length;i++){
+                    Object s = Array.get(v, i);
+                    String strPram  = s+"";
+                    parmBuffer.append(k+"="+strPram+"&");
+                }
+            }
+        });
+        return processUrlEncodeForStr(parmBuffer.toString());
+    }
+
+    /**
+     * 构建请求header
+     * @param headerParam
+     * @param httpMethod
+     */
+    private static void buildHeaders(Map<String, String> headerParam, HttpRequestBase httpMethod) {
+        if(headerParam!=null){
+            headerParam.forEach((k,v)->{
+                httpMethod.addHeader(k+"", v+"");
+            });
+        }
+    }
 
     /**
      * get 请求
@@ -170,7 +310,6 @@ public class HttpClientUtils {
         String s = requestMethodsHttpData(httpGet, Collections.emptyMap(), NULL, Collections.EMPTY_MAP);
         return s;
     }
-
 
     /**
      * get 请求
@@ -196,7 +335,6 @@ public class HttpClientUtils {
         return apply;
     }
 
-
     /**
      * get 请求
      * @param url
@@ -208,7 +346,6 @@ public class HttpClientUtils {
         String s = requestMethodsHttpData(httpGet, formParam, NULL, headers);
         return s;
     }
-
 
     /**
      * get 请求
@@ -234,7 +371,7 @@ public class HttpClientUtils {
     public static String postXML(String url, String xml)throws Exception {
         //httpPost.setHeader("Content-Type", "text/xml; charset=UTF-8");
         HttpPost httpPost = new HttpPost(url);
-        HashMap<String, String> headers = Utils.startBuildParam("Content-Type", "text/xml; charset=UTF-8").endBuildStringParam();
+        Map<String, String> headers = Utils.startBuildParam("Content-Type", "text/xml; charset=UTF-8").endBuildStringParam();
         String s = requestMethodsHttpData(httpPost, Collections.emptyMap(), xml, headers);
         return s;
     }
@@ -252,8 +389,6 @@ public class HttpClientUtils {
         return parseString(httpEntity);
     }
 
-
-
     /**
      * 以post方式发送json数据,header 自定义.
      * @param targetUrl
@@ -264,7 +399,7 @@ public class HttpClientUtils {
     public static String postData(String targetUrl, Map<String, Object> bodyParam, Map<String, String> headers) throws Exception {
         HttpPost httpPost = new HttpPost(targetUrl);
         headers.put("Content-Type", "application/json");
-        return requestMethodsHttpData(httpPost, Collections.emptyMap(), JsonUtils.toJSONString(bodyParam), headers);
+        return requestMethodsHttpData(httpPost, Collections.emptyMap(), JSON.toJSONString(bodyParam), headers);
     }
 
     /**
@@ -301,7 +436,7 @@ public class HttpClientUtils {
      * @throws Exception
      */
     public static String postParamData(String targetUrl,Object bodyParam) throws Exception {
-        return postParamData(targetUrl,JsonUtils.parseObject(JsonUtils.toJSONString(bodyParam),Map.class),Collections.emptyMap());
+        return postParamData(targetUrl,JSON.parseObject(JSON.toJSONString(bodyParam),Map.class),Collections.emptyMap());
     }
 
     /**
@@ -344,7 +479,6 @@ public class HttpClientUtils {
         String jsonStr = postJsonStr(url, bodyJson, headers);
         return r.apply(jsonStr);
     }
-
 
     /**
      * 发送 json 格式数据
@@ -403,7 +537,6 @@ public class HttpClientUtils {
         return s;
     }
 
-
     /**
      * put请求
      * @param url
@@ -416,12 +549,9 @@ public class HttpClientUtils {
         Map<String,String> headers = new HashMap<>();
         headers.put("Content-Type","application/json");
 
-        HttpResponse response = requestMethodsHttpResponse(httpPut, Collections.emptyMap(), new StringEntity(bodyJson), headers);
+        HttpResponse response = requestMethodsHttpResponse(httpPut, Collections.emptyMap(), new StringEntity(bodyJson, HTTP.UTF_8), headers);
         return response;
     }
-
-
-
 
     /**
      * put请求
@@ -512,155 +642,6 @@ public class HttpClientUtils {
     }
 
     /**
-     * 发送请求, 该方法只关注响应状态,不关心响应数据实体.并会将响应实体返回给具体的业务处理
-     * @param httpClient
-     * @param httpMethod
-     * @return  返回响应数据
-     * @throws IOException
-     */
-    private static HttpEntity send( HttpClient httpClient, HttpRequestBase httpMethod) throws Exception {
-        HttpEntity resEntity = null;
-        long startTime = System.currentTimeMillis();    //获取开始时间
-        logger.warn("执行 rpc 调用开始: url->[ "+httpMethod.getURI()+"]");
-        HttpResponse response = httpClient.execute(httpMethod);//开始执行
-        long endTime = System.currentTimeMillis();    //获取结束时间
-        if (response != null) {
-            StatusLine statusLine = response.getStatusLine();
-            httpResponseCode.set(statusLine.getStatusCode());//储存响应code
-            logger.warn("执行 rpc 调用结束: 响应状态 -> [ " + statusLine+"] ");
-            resEntity = response.getEntity();
-            globalThrowsCode(httpResponseCode.get());//指定需要抛出的异常code
-        }
-        logger.warn("执行 rpc 调用请求耗时: " + (endTime - startTime) + "ms*");
-        return resEntity;
-    }
-
-    /**
-     * 发送请求,将 HttpResponse 返回
-     * @param httpClient
-     * @param httpMethod
-     * @return  返回响应数据
-     * @throws IOException
-     */
-    private static HttpResponse sendBackHttpResponse( HttpClient httpClient, HttpRequestBase httpMethod) throws Exception {
-        long startTime = System.currentTimeMillis();    //获取开始时间
-        logger.warn("执行 rpc 调用开始: url->[ "+httpMethod.getURI()+"]");
-        HttpResponse response = httpClient.execute(httpMethod);//开始执行
-        long endTime = System.currentTimeMillis();    //获取结束时间
-        if (response != null) {
-            StatusLine statusLine = response.getStatusLine();
-            httpResponseCode.set(statusLine.getStatusCode());//储存响应code
-            logger.warn("执行 rpc 调用结束: 响应状态 -> [ " + statusLine+"] ");
-            globalThrowsCode(httpResponseCode.get());//指定需要抛出的异常code
-        }
-        logger.warn("执行 rpc 调用请求耗时: " + (endTime - startTime) + "ms*");
-        return response;
-    }
-
-
-
-    /**
-     * 抛出全局设置的异常
-     * @param statusCode
-     */
-    private static void globalThrowsCode(int statusCode) throws Exception{
-        for(Integer code : globalThrowsCode){
-            if(statusCode == code){
-                throw new HttpRequestException(HttpClientUtils.watchResponseErrorMasg());
-            }
-        }
-    }
-
-
-
-    /**
-     * 构建参body
-     * @param bodyStr
-     * @param httpMethod
-     * @throws UnsupportedEncodingException
-     */
-    private static void buildBody(byte[] bodyStr, HttpRequestBase httpMethod) throws UnsupportedEncodingException {
-        if(bodyStr!=null&&bodyStr.length>0){
-            ByteArrayEntity entityParams = new ByteArrayEntity(bodyStr);
-            if(httpMethod instanceof HttpEntityEnclosingRequest){
-                HttpEntityEnclosingRequest bodyMethod = (HttpEntityEnclosingRequest) httpMethod;
-                bodyMethod.setEntity(entityParams);
-            }
-        }
-    }
-
-    /**
-     * 构建参原始body entry
-     * @param httpMethod
-     * @throws UnsupportedEncodingException
-     */
-    private static void buildBody(HttpEntity enetry, HttpRequestBase httpMethod) throws UnsupportedEncodingException {
-        if(enetry!=null){
-            if(httpMethod instanceof HttpEntityEnclosingRequest){
-                HttpEntityEnclosingRequest bodyMethod = (HttpEntityEnclosingRequest) httpMethod;
-                bodyMethod.setEntity(enetry);
-            }
-        }
-    }
-
-    /**
-     * 构建url 拼接参数
-     * @param urlParam
-     * @param requestMethod
-     */
-    private static void buildUrlParams(Map<String, Object> urlParam, HttpRequestBase requestMethod) throws URISyntaxException {
-        String uri = requestMethod.getURI().toString();
-        //拼接参数
-        if(urlParam!=null&&urlParam.size()>0){
-            uri = uri+"?"+getParamData(urlParam);
-        }
-        //重新设置uri
-        requestMethod.setURI(new URI(uri));
-
-    }
-
-    /**
-     * 拼接表单参数
-     * @param urlParam
-     * @return
-     */
-    private static String  getParamData(Map<String, Object> urlParam) {
-        StringBuffer parmBuffer = new StringBuffer("");
-        urlParam.forEach((k,v)->{
-            //v只分两种类型: String , List<String>
-            if(v!=null && v instanceof String ){
-                parmBuffer.append(k+"="+v+"&");
-            }else if(v!=null && v instanceof Collection){
-                Collection lv = (Collection)v;
-                lv.forEach(s->{
-                    String strPram  = s+"";
-                    parmBuffer.append(k+"="+strPram+"&");
-                });
-            }else if(v!=null && v.getClass().isArray()){ //只支持一维数组
-                int length = Array.getLength(v);
-                for(int i=0; i<length;i++){
-                    Object s = Array.get(v, i);
-                    String strPram  = s+"";
-                    parmBuffer.append(k+"="+strPram+"&");
-                }
-            }
-        });
-        return parmBuffer.toString();
-    }
-
-    /**
-     * 构建请求header
-     * @param headerParam
-     * @param httpMethod
-     */
-    private static void buildHeaders(Map<String, String> headerParam, HttpRequestBase httpMethod) {
-        if(headerParam!=null){
-            headerParam.forEach((k,v)->{
-                httpMethod.addHeader(k+"", v+"");
-            });
-        }
-    }
-    /**
      * 异常信息
      */
     static class HttpRequestException extends Exception{
@@ -677,6 +658,25 @@ public class HttpClientUtils {
             this.code = code;
         }
     }
+
+    public static String processUrlEncodeForStr(String str){
+        if(StringUtils.isNotBlank(str)){
+            for(String c : enChar){
+                String encode = URLEncoder.encode(c);
+                str = str.replaceAll("["+c+"]", encode);
+            }
+        }
+        return str;
+    }
+
+    public static Set<String> enChar = new HashSet<>();
+    static {
+        enChar.add("+");
+    }
+    public static void addEnChar(String c){
+        enChar.add(c);
+    }
+
 
 
 }

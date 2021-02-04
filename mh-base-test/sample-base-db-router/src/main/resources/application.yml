@@ -1,6 +1,6 @@
 
 server:
-  port: 7070
+  port: 8080
 
 #配置日志
 logging:

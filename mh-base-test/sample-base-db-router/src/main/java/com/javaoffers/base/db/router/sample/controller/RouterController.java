@@ -6,6 +6,7 @@ import com.javaoffers.mh.db.router.annotation.DataSourceRoute;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
@@ -90,5 +91,32 @@ public class RouterController {
 
 
 
+}
+class PersonTest{
+    private String name;
+    private String age;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    public PersonTest(String name, String age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public PersonTest() {
+    }
 }

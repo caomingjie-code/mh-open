@@ -174,7 +174,13 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
         //concurrentConnection.setAutoCommit(false);
         RouterConnection routerConnection = new RouterConnection(this);
         routerConnection.putConcurrentConnection(routerName, concurrentConnection);
+        //更改栈顶元素陆游状态，将陆游的虚假状态改为false
+        if(stackRouter!=null && stackRouter.peekFirst()!=null){
+            stackRouter.peekFirst().setSham(false);
+            logger.info("start router : "+stackRouter.peekFirst().getRouterName());//打印即将路由的信息名称
+        }
         logger.info("opened jdbc connection id[" + concurrentConnection.hashCode() + "] counts : " + ai.addAndGet(1));
+
         return routerConnection;
 
     }

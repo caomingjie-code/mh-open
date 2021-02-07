@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description: 连接里面套连接,  spring把多个链接看成一个链接
+ *               RouterConnection中的所有链接状态具有一致性。（有可能元数据不一样， 因为每个链接有可能代表不同的数据库）
  * @Auther: create by cmj on 2020/9/4 11:31
  */
 public class RouterConnection implements Connection {
@@ -51,18 +53,19 @@ public class RouterConnection implements Connection {
      */
     private Connection getRouterConnection()  {
         String routerSourceName = baseComboPooledDataSource.getRouterSourceName();
-        Connection connection = routerConnection.get(routerSourceName);
+        Connection connection = routerConnection.get(routerSourceName); //真实链接
         if(connection ==null){
             try {
-                connection = baseComboPooledDataSource.getConnection();
-                if(connection instanceof RouterConnection ){
-                    RouterConnection rc = (RouterConnection) connection;
-                    Collection<Connection> values = rc.routerConnection.values();
-                    for(Connection c : values){
-                        c.setAutoCommit(masterCon.getAutoCommit()); //保持当前事物状态
-                        routerConnection.put(routerSourceName,c);
-                    }
+                RouterConnection rc = (RouterConnection)baseComboPooledDataSource.getConnection();//包装后的链接
+                Collection<Connection> values = rc.routerConnection.values();
+                if(values==null||values.size()>1){
+                    new BaseDataSourceException("error get connection , connection is null or conntion size not is one").printStackTrace();
+                }else{
+                    ArrayList<Connection> connections = new ArrayList<>(values);
+                    connection = connections.get(0);//hou qu zhen shi lian jie
+                    routerConnection.put(routerSourceName,connection);
                 }
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -113,6 +116,13 @@ public class RouterConnection implements Connection {
      */
     @Override
     public boolean getAutoCommit() throws SQLException {
+        //优化，RouterConnection中的链接所有状态具有一致性
+        Collection<Connection> rcs = routerConnection.values();
+        if(rcs!=null&&rcs.size()>0){
+            for(Connection c : rcs){
+                return  c.getAutoCommit();
+            }
+        }
         return getRouterConnection().getAutoCommit();
     }
 
@@ -173,6 +183,15 @@ public class RouterConnection implements Connection {
 
     @Override
     public boolean isClosed() throws SQLException {
+
+        //优化，RouterConnection中的链接所有状态具有一致性
+        Collection<Connection> rcs = routerConnection.values();
+        if(rcs!=null&&rcs.size()>0){
+            for(Connection c : rcs){
+                return  c.isClosed();
+            }
+        }
+
         return getRouterConnection().isClosed();
     }
 
@@ -193,6 +212,13 @@ public class RouterConnection implements Connection {
 
     @Override
     public boolean isReadOnly() throws SQLException {
+        //优化，RouterConnection中的链接所有状态具有一致性
+        Collection<Connection> rcs = routerConnection.values();
+        if(rcs!=null&&rcs.size()>0){
+            for(Connection c : rcs){
+                return  c.isReadOnly();
+            }
+        }
         return getRouterConnection().isReadOnly();
     }
 
@@ -378,6 +404,13 @@ public class RouterConnection implements Connection {
 
     @Override
     public boolean isValid(int timeout) throws SQLException {
+        //优化，RouterConnection中的链接所有状态具有一致性
+        Collection<Connection> rcs = routerConnection.values();
+        if(rcs!=null&&rcs.size()>0){
+            for(Connection c : rcs){
+                return  c.isValid(timeout);
+            }
+        }
         return getRouterConnection().isValid( timeout);
     }
 
@@ -443,6 +476,13 @@ public class RouterConnection implements Connection {
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        //优化，RouterConnection中的链接所有状态具有一致性
+        Collection<Connection> rcs = routerConnection.values();
+        if(rcs!=null&&rcs.size()>0){
+            for(Connection c : rcs){
+                return  c.isWrapperFor(iface);
+            }
+        }
         return getRouterConnection().isWrapperFor(iface);
     }
 

@@ -27,6 +27,7 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         String value = null;
+        Router router = null;
         boolean isForce = false;//非强制
         try {
             //获取方法的注解
@@ -46,24 +47,27 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
                     value =  readDataSources[randIndex];
                 }
             }
-
-            BaseComboPooledDataSource.pushStackRouter(new Router(value,isForce));
-            logger.info("start router : "+value);//打印即将路由的信息名称
+            router = new Router(value, isForce);
+            BaseComboPooledDataSource.pushStackRouter(router);
             return  invocation.proceed();
         }catch ( Exception e){
             e.printStackTrace();
         } finally {
-            if(value!=null){
+            if(router!=null){
                 if("DataSourceTransactionManager".equalsIgnoreCase(className)){//该DataSourceTransactionManager数据源管理是关闭数据库链接，跳出invocation.proceed();
-                    logger.info("clean router："+BaseComboPooledDataSource.getRouterSourceName());
+                    if(!router.isSham()) {
+                        logger.info("clean router：" + BaseComboPooledDataSource.getRouterSourceName());
+                    }
                     BaseComboPooledDataSource.clean();
                 }
                 if("JpaTransactionManager".equalsIgnoreCase(className)){//该 JpaTransactionManager 数据源管理是跳出invocation.proceed()后， 再关闭数据库链接。
-                    logger.info("clean router："+BaseComboPooledDataSource.getRouterSourceName());
-                    //主要解决JpaTransactionManager关闭时，找不到真是链接：
-                    // 因为 DataSourceTransactionManager 关闭链接时栈顶为对应的路由（此时如果有其他操作依然可以找到对应的真实链接），而 JpaTransactionManager 关闭时，
-                    // 栈顶已清空，为了也让其有与之对应的路由所以使用meanClean来记录 ,解决在关闭时（有可能有其他操作，比如此链接是否是已经关闭 isClosed ）获取对应的真实链接缺失。
-                    BaseComboPooledDataSource.meanClean(BaseComboPooledDataSource.getRouterSourceName());//
+                    if(!router.isSham()) {
+                        logger.info("clean router：" + BaseComboPooledDataSource.getRouterSourceName());
+                        //主要解决JpaTransactionManager关闭时，找不到真是链接：
+                        // 因为 DataSourceTransactionManager 关闭链接时栈顶为对应的路由（此时如果有其他操作依然可以找到对应的真实链接），而 JpaTransactionManager 关闭时，
+                        // 栈顶已清空，为了也让其有与之对应的路由所以使用meanClean来记录 ,解决在关闭时（有可能有其他操作，比如此链接是否是已经关闭 isClosed ）获取对应的真实链接缺失。
+                        BaseComboPooledDataSource.meanClean(BaseComboPooledDataSource.getRouterSourceName());//
+                    }
                     BaseComboPooledDataSource.clean();
                 }
             }

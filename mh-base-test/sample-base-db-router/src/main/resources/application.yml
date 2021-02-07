@@ -13,34 +13,34 @@ spring:
     name: mhbase
   #配置master数据库http://localhost/BaseDB/testDataSourceRoute
   datasource_master:
-      url: jdbc:mysql://localhost:3306/base
+      url: jdbc:mysql://127.0.0.1:3005/base
       username: root
-      password: zqbxcmj
+      password: urcs@2018
       #readWriteSeparation: true #开启读写分离
       readDataSources: slaveBase, slaveBaseTow #指定读数据库
 
-  #从数据库    
+  #从数据库
   datasource_slaves:
     -
       slavename: fit
-      url: jdbc:mysql://localhost:3306/fit
+      url: jdbc:mysql://127.0.0.1:3005/fit
       username: root
-      password: zqbxcmj
+      password: urcs@2018
     -
       slavename: exam
-      url: jdbc:mysql://localhost:3306/exam
+      url: jdbc:mysql://127.0.0.1:3005/exam
       username: root
-      password: zqbxcmj
+      password: urcs@2018
     -
       slavename: slaveBase
-      url: jdbc:mysql://localhost:3306/base
+      url: jdbc:mysql://127.0.0.1:3005/base
       username: root
-      password: zqbxcmj
+      password: urcs@2018
     -
       slavename: slaveBaseTow
-      url: jdbc:mysql://localhost:3306/base
+      url: jdbc:mysql://127.0.0.1:3005/base
       username: root
-      password: zqbxcmj
+      password: urcs@2018
 
 #配置mybatis 
 mybatis:

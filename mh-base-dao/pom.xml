@@ -12,7 +12,7 @@
     <groupId>com.javaoffers</groupId>
     <artifactId>mh-base-dao</artifactId>
     <version>1.0.1</version>
-    <name>mh-base</name>
+    <name>mh-base-dao</name>
 
     <properties>
         <java.version>1.8</java.version>
@@ -242,7 +242,7 @@
         <dependency>
             <groupId>com.javaoffers</groupId>
             <artifactId>mh-base-db-router</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
 
 

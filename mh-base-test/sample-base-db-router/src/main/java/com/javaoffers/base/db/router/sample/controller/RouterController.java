@@ -69,11 +69,11 @@ public class RouterController {
     public Object nestingRouter(String ok){
 
         HashMap<String, Object> fitUser = new HashMap<>();
-        fitUser.put("name","小王");
+        fitUser.put("name","xiao wang");
          routerMapper.saveFitData(fitUser);//  向fit 数据库插入一条数据， 因为该方法没有路由注解所以使用此方法的默认路由
 
         HashMap<String, Object> examUser = new HashMap<>();
-        examUser.put("data","exam数据测试");
+        examUser.put("data","exam test data");
          routerMapper.saveExamData(examUser);// 向exam数据库插入一条数据，标有@DataSourceRoute("exam")
 
         List<Map<String, Object>> fit = routerMapper.queryFitData();// fit 查询 数据库， 因为该方法没有路由注解所以使用此方法的默认路由

@@ -46,7 +46,7 @@ public class RouterController {
     /**
      * 多重路由（非嵌套）
      */
-    @RequestMapping("mulRouter")
+    @RequestMapping("11")
     public Object mulRouter(){
         List<Map<String, Object>> base = routerMapper.defaultRouter();//base数据库，没有注解默认 datasource_master配置中的数据源
         List<Map<String, Object>> fit = routerMapper.uniqueFitRouter();//fit 数据库，标有注解 @DataSourceRoute("fit")

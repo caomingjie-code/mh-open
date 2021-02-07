@@ -1,4 +1,5 @@
 package com.javaoffers.base.db.router.sample;
+import com.javaoffers.base.db.router.sample.start.SampleStart;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,10 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan("com.javaoffers.base.db.router.sample.mapper.**")
 public class SampleDBRouter {
     public static void main(String[] args) {
-       SpringApplication.run(SampleDBRouter.class, args);
-        //run(SampleDBRouter.class, args);
-        System.out.println("启动完成");
+        SampleStart.start(args);
     }
+
 
 
 

@@ -5,6 +5,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+/**
+ * create by cmj on 2021-02-08 20:52
+ * 解决初始陆游为空 或在没有被 ‘陆游拦截器’ 所拦截，并且处于读写分离的场景下， 此时如果获取链接（并且没有在分析sql语句为读/写之前），会造成的浪费。
+ * 所以使用空链接代替。在分析sql语句并获取真实链接后，此空链接会在RouterConnection 移除。
+ */
 public class NoneConntion implements Connection {
 
     private boolean autoCommit = true;

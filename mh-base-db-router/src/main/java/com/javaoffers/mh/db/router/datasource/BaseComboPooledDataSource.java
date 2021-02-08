@@ -167,19 +167,19 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
                     throw BaseDataSourceException.getException("config is error of data source slave [" + e.getMessage() + "]");
                 }
             }
-        } else {
-            //获取MasterConnection，（开始事务时，不经过advisor,spring会直接获取一链接，因为在事务的场景下通常为写， 所以选取默认master.）
-            concurrentConnection = super.getConnection();
         }
-        //concurrentConnection.setAutoCommit(false);
         RouterConnection routerConnection = new RouterConnection(this);
-        routerConnection.putConcurrentConnection(routerName, concurrentConnection);
-        //更改栈顶元素陆游状态，将陆游的虚假状态改为false
-        if(stackRouter!=null && stackRouter.peekFirst()!=null){
-            stackRouter.peekFirst().setSham(false);
-            logger.info("start router : "+stackRouter.peekFirst().getRouterName());//打印即将路由的信息名称
+        if(concurrentConnection!=null) {
+            routerConnection.putConcurrentConnection(routerName, concurrentConnection);
+            //更改栈顶元素陆游状态，将陆游的虚假状态改为false
+            if(stackRouter!=null && stackRouter.peekFirst()!=null){
+                stackRouter.peekFirst().setSham(false);
+
+            }
+            logger.info("opened jdbc connection id[" + concurrentConnection.hashCode() + "] counts : " + ai.addAndGet(1));
+        }else{
+            routerConnection.putConcurrentConnection(routerName, null);
         }
-        logger.info("opened jdbc connection id[" + concurrentConnection.hashCode() + "] counts : " + ai.addAndGet(1));
 
         return routerConnection;
 

@@ -29,7 +29,8 @@ public class RouterConnection implements Connection {
     private BaseComboPooledDataSource baseComboPooledDataSource;
     public static AtomicInteger ai = new AtomicInteger(0);
     private Connection masterCon; //真实链接
-
+    private NoneConntion noneConntion;
+    private static  String nonoConnectionName = "None Conntion";
     public RouterConnection(BaseComboPooledDataSource baseComboPooledDataSource) {
         this.baseComboPooledDataSource = baseComboPooledDataSource;
     }
@@ -41,7 +42,13 @@ public class RouterConnection implements Connection {
      * @return
      */
     public RouterConnection putConcurrentConnection(String key ,Connection connection){
-        routerConnection.put(key,connection);
+
+        if(connection==null){
+            noneConntion = new NoneConntion();
+            routerConnection.put(nonoConnectionName,noneConntion);
+        }else{
+            routerConnection.put(key,connection);
+        }
         masterCon = connection;
         return this;
     }
@@ -53,25 +60,16 @@ public class RouterConnection implements Connection {
      */
     private Connection getRouterConnection()  {
         String routerSourceName = baseComboPooledDataSource.getRouterSourceName();
-        Connection connection = routerConnection.get(routerSourceName); //真实链接
-        if(connection ==null){
-            try {
-                RouterConnection rc = (RouterConnection)baseComboPooledDataSource.getConnection();//包装后的链接
-                Collection<Connection> values = rc.routerConnection.values();
-                if(values==null||values.size()>1){
-                    new BaseDataSourceException("error get connection , connection is null or conntion size not is one").printStackTrace();
-                }else{
-                    ArrayList<Connection> connections = new ArrayList<>(values);
-                    connection = connections.get(0);//hou qu zhen shi lian jie
-                    routerConnection.put(routerSourceName,connection);
-                }
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        Connection connection = getConnection(routerSourceName); //获取链接
+
+        //如果是临时陆游立刻clean
+        checkedIsTempRouter();
+
         return connection;
     }
+
+
 
 
     @Override
@@ -492,8 +490,14 @@ public class RouterConnection implements Connection {
 
     //读写分离
     private void readWriteSeparation(String sql) throws SQLException {
-        boolean b = SQLUtils.checkedSqlIsRead(sql);
         Router router = baseComboPooledDataSource.getRouter();
+        if(router==null){
+            //创建临时陆游
+            router  = new Router(true);
+            router.setRouterName(BaseComboPooledDataSource.DEFAULT_ROUTER);//临时陆游设置为master, 在下面逻辑有可能会切换为读
+            BaseComboPooledDataSource.pushStackRouter(router); //将临时陆游放入栈顶
+        }
+        boolean b = SQLUtils.checkedSqlIsRead(sql);
         String routerSourceName = router.getRouterName();
         if(b){ //如果是读sql
             if(!BaseComboPooledDataSource.checkedIsReadDataSource(routerSourceName)){ //如果不是读,则切换为读
@@ -560,6 +564,50 @@ public class RouterConnection implements Connection {
                     LOGGER.info(routerSourceName+ " Switch to write database : "+wd);
                 }
             }
+        }
+    }
+
+    //获取真实链接
+    private Connection getConnection(String routerSourceName) {
+        Connection connection = routerConnection.get(routerSourceName); //真实链接
+        if(connection ==null){
+            try {
+                RouterConnection rc = (RouterConnection)baseComboPooledDataSource.getConnection();//包装后的链接
+                Collection<Connection> values = rc.routerConnection.values();
+                if(values==null||values.size()!=1){
+                    new BaseDataSourceException("error get connection , connection is null or conntion size not is one").printStackTrace();
+                }else{
+                    ArrayList<Connection> connections = new ArrayList<>(values);
+                    connection = connections.get(0);//hou qu zhen shi lian jie
+                    routerConnection.put(routerSourceName,connection);
+                    if(masterCon==null){
+                        connection.setAutoCommit(noneConntion.getAutoCommit());
+                        //clean none connection
+                        routerConnection.remove(nonoConnectionName);
+                    }else {
+                        connection.setAutoCommit(masterCon.getAutoCommit());
+                    }
+
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }else{
+            //动态切换陆游时，有可能使用到缓存陆游链接，
+            Router router = baseComboPooledDataSource.getRouter();
+            if(router!=null&&router.isSham()){
+                router.setSham(false);
+            }
+
+        }
+        return connection;
+    }
+
+    //检查是否是临时陆游
+    private void checkedIsTempRouter() {
+        Router router = baseComboPooledDataSource.getRouter();
+        if(router!=null&&router.isTemporary()){
+            BaseComboPooledDataSource.clean();
         }
     }
 }

@@ -50,7 +50,7 @@ public class AdvisorDataSource implements Advisor, PointcutAdvisor {
         public ClassFilter getClassFilter() {
             return new AnnotationClassFilter(DataSourceRoute.class,true){
                 @Override
-                //类型匹配返回true,才会执行 方法匹配，逻辑在AopUtils.canApply
+                //类型匹配返回true,才会执行 方法匹配，逻辑在AopUtils.canApplyAdvisorDataSource
                 public boolean matches(Class<?> clazz) {
 
                     if (IsMatches(clazz)) return true;

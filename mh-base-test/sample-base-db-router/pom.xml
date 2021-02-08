@@ -36,11 +36,23 @@
             <scope>compile</scope>
         </dependency>
 
-        <!--        <dependency>-->
+<!--        <dependency>-->
 <!--            <groupId>com.javaoffers</groupId>-->
 <!--            <artifactId>mh-base-dao</artifactId>-->
 <!--            <version>1.0.1</version>-->
 <!--        </dependency>-->
+
+        <!-- mysql -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.javaoffers</groupId>
+            <artifactId>mh-base-common</artifactId>
+            <version>1.0.3</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

@@ -74,7 +74,6 @@ public class RouterConnection implements Connection {
     }
 
 
-
     @Override
     public Statement createStatement() throws SQLException {
         Connection connection = getRouterConnection();
@@ -519,6 +518,7 @@ public class RouterConnection implements Connection {
                         }
                     }
                     router.setRouterName(cacheDb);
+                    router.setSham(true);//还原初始状态，虚假陆游
                     BaseComboPooledDataSource.replaceFirstStackElement(router).getRouterName(); //返回旧的栈顶元素
                     LOGGER.info(routerSourceName+ " Switch to read database : "+cacheDb);
                 }
@@ -555,6 +555,7 @@ public class RouterConnection implements Connection {
                         throw BaseDataSourceException.getException("WriteDataSource Is Null");
                     }
                     router.setRouterName(wd);
+                    router.setSham(true);//还原初始状态，虚假陆游
                     BaseComboPooledDataSource.replaceFirstStackElement(router).getRouterName();
                     LOGGER.info(routerSourceName+ " Switch to write database : "+wd);
                 }

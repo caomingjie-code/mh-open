@@ -9,12 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * @Description: 路由拦截器
  * @Auther: create by cmj on 2020/8/28 13:09
  */
 public class AdviceDataSourceForAdvisor implements MethodInterceptor {
     Logger logger = LoggerFactory.getLogger(AdviceDataSourceForAdvisor.class);
+    AtomicInteger rand = new AtomicInteger(0);
 
     AbstractPlatformTransactionManager tm;
     private static String className;
@@ -36,15 +40,19 @@ public class AdviceDataSourceForAdvisor implements MethodInterceptor {
                  value = declaredAnnotation.value();
                  isForce = declaredAnnotation.isForce();
             }else if(declaredAnnotation==null&&BaseComboPooledDataSource.getRouter()!=null){
-                value = BaseComboPooledDataSource.getRouter().getRouterName();//继承栈顶路由,如果存在
-
+                if(!BaseComboPooledDataSource.getRouter().isSham()){ //非虚假陆游
+                    value = BaseComboPooledDataSource.getRouter().getRouterName();//继承栈顶路由
+                }
             }else{//执行默认路由master,此时栈中是不存在路由的(如果master中存在slave 读则优先取读数据库)
 
                 value = BaseComboPooledDataSource.DEFAULT_ROUTER;
                 String[] readDataSources = BaseComboPooledDataSource.getReadDataSource(value);
                 if(readDataSources!=null&&readDataSources.length>0){//优先取读数据库
-                    int randIndex = ((int)System.nanoTime() & 1)% readDataSources.length;
+                    int randIndex = rand.incrementAndGet()% readDataSources.length;
                     value =  readDataSources[randIndex];
+                    if(rand.get()>=100){
+                        rand.getAndSet(0);
+                    }
                 }
             }
             router = new Router(value, isForce);

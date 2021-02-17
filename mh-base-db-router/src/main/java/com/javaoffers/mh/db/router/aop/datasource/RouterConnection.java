@@ -496,6 +496,8 @@ public class RouterConnection implements Connection {
             router  = new Router(true);
             router.setRouterName(BaseComboPooledDataSource.DEFAULT_ROUTER);//临时陆游设置为master, 在下面逻辑有可能会切换为读
             BaseComboPooledDataSource.pushStackRouter(router); //将临时陆游放入栈顶
+        }else if(router.isForce()){
+            return;
         }
         boolean b = SQLUtils.checkedSqlIsRead(sql);
         String routerSourceName = router.getRouterName();

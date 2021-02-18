@@ -31,4 +31,6 @@ public interface RouterMapper {
 
     public void defaultWrite();
 
+    @DataSourceRoute(isForce = true)
+    List<Map<String, Object>> forceRouter();
 }

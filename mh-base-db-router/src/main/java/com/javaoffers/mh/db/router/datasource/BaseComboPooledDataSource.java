@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.naming.Referenceable;
 import javax.sql.DataSource;
 
+import com.javaoffers.mh.db.router.aop.datasource.NoneConntion;
 import com.javaoffers.mh.db.router.aop.datasource.RouterConnection;
 import com.javaoffers.mh.db.router.common.ConcurrentMapSet;
 import com.javaoffers.mh.db.router.common.Router;
@@ -178,7 +179,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
             }
             logger.info("opened jdbc connection id[" + concurrentConnection.hashCode() + "] counts : " + ai.addAndGet(1));
         }else{
-            routerConnection.putConcurrentConnection(routerName, null);
+            routerConnection.putConcurrentConnection(routerName, new NoneConntion(this));
         }
 
         return routerConnection;
@@ -292,7 +293,7 @@ final public class BaseComboPooledDataSource extends AbstractComboPooledDataSour
      * @return
      * @throws SQLException
      */
-    private Connection getSuperConnection() throws SQLException {
+    public Connection getSuperConnection() throws SQLException {
         Connection connection = super.getConnection();
         return connection;
     }

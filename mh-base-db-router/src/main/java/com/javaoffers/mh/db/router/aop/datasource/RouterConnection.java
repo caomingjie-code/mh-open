@@ -43,9 +43,10 @@ public class RouterConnection implements Connection {
      */
     public RouterConnection putConcurrentConnection(String key ,Connection connection){
 
-        if(connection==null){
-            noneConntion = new NoneConntion();
+        if(connection!=null&& connection instanceof NoneConntion){
+            noneConntion = (NoneConntion)connection;
             routerConnection.put(nonoConnectionName,noneConntion);
+            return this;
         }else{
             routerConnection.put(key,connection);
         }
@@ -173,8 +174,10 @@ public class RouterConnection implements Connection {
     public void close() throws SQLException {
         funcRouterConnection(c->{
             c.close();
-            int i = ai.incrementAndGet();
-            LOGGER.info("close  jdbc connection id["+c.hashCode()+"] counts : "+i);
+            if(!(c instanceof  NoneConntion)){
+                int i = ai.incrementAndGet();
+                LOGGER.info("close  jdbc connection id["+c.hashCode()+"] counts : "+i);
+            }
             },0);
     }
 
@@ -586,6 +589,8 @@ public class RouterConnection implements Connection {
                         connection.setAutoCommit(noneConntion.getAutoCommit());
                         //clean none connection
                         routerConnection.remove(nonoConnectionName);
+                        noneConntion.close();
+
                     }else {
                         connection.setAutoCommit(masterCon.getAutoCommit());
                     }

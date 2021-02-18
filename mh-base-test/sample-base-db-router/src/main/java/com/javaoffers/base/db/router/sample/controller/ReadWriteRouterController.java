@@ -56,4 +56,19 @@ public class ReadWriteRouterController {
     }
 
 
+    /**
+     * 读写分离测试: 不含事务,强制性路由，
+     * @return
+     */
+    @RequestMapping("readWriteSepForce")
+    public Object readWriteSepForce(){
+        List<Map<String, Object>> base = routerMapper.defaultRouter();//base数据库，没有注解默认 datasource_master配置中的数据源, 自动切为读数据库
+
+        routerMapper.defaultWrite();//base数据库，没有注解默认 datasource_master配置中的数据源, 自动切为读数据库,自动切换为写（master为写）
+
+        base = routerMapper.forceRouter();//base数据库，不会切为读，因为注解有强制路由
+
+        return base;
+    }
+
 }

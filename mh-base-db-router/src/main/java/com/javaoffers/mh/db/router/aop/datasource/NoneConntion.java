@@ -365,12 +365,14 @@ public class NoneConntion implements Connection {
                 synchronized (this) {
                     if (superConnection == null) {
                         superConnection = baseComboPooledDataSource.getSuperConnection();
+                        superConnection.setAutoCommit(autoCommit);
                     }
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+
         System.out.println("none connection be accessed !!! ");
     }
 }

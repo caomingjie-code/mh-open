@@ -38,12 +38,12 @@ public class SQLParse {
     }
 
 
-    public static SQL parseSqlParams(String sql, List<Map<String,String>> paramMap){
+    public static SQL parseSqlParams(String sql, List<Map<String,Object>> paramMap){
 
         ArrayList<Object[]> objects = new ArrayList<>();
         for(int i=0; paramMap!=null&&i<paramMap.size();i++){
-            Map<String, String> pm = paramMap.get(i);
-            ArrayList<String> params = new ArrayList<>();
+            Map<String, Object> pm = paramMap.get(i);
+            ArrayList<Object> params = new ArrayList<>();
             Matcher matcher = compile.matcher(sql);
             while(matcher.find()){
                 String result = matcher.group(1);
@@ -52,14 +52,14 @@ public class SQLParse {
             }
             objects.add(params.toArray());
         }
-         sql = parseSql(sql);
+        sql = parseSql(sql);
         SQL SQL = new SQL(sql, objects);
         return SQL;
 
     }
 
-    public static SQL getSQL(String sql, Map<String, String> map) {
-        ArrayList<Map<String, String>> maps = new ArrayList<>();
+    public static SQL getSQL(String sql, Map<String, Object> map) {
+        ArrayList<Map<String, Object>> maps = new ArrayList<>();
         maps.add(map);
         return SQLParse.parseSqlParams(sql, maps);
     }

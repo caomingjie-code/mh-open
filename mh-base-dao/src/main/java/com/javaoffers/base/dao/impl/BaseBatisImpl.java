@@ -29,7 +29,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	}
 
 	@Override
-	public int saveData(String sql, Map<String, String> map) {
+	public int saveData(String sql, Map<String, Object> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
 		return this.jdbcTemplate.update(sql_.getSql(),  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
@@ -39,7 +39,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	}
 
 	@Override
-	public int deleteData(String sql, Map<String, String> map) {
+	public int deleteData(String sql, Map<String, Object> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
 		return this.jdbcTemplate.update(sql_.getSql(),  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
@@ -49,7 +49,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	}
 
 	@Override
-	public int updateData(String sql, Map<String, String> map) {
+	public int updateData(String sql, Map<String, Object> map) {
 		SQL sql_ = SQLParse.getSQL(sql, map);
 		return this.jdbcTemplate.update(sql_.getSql(),  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
@@ -63,7 +63,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	}
 
 	@Override
-	public List<Map<String, Object>> queryData(String sql, Map<String, String> map) {
+	public List<Map<String, Object>> queryData(String sql, Map<String, Object> map) {
 		SQL batchSQL = SQLParse.getSQL(sql, map);
 		 //query(sql, args, getColumnMapRowMapper());
 		List<Map<String, Object>> result = this.jdbcTemplate.query(batchSQL.getSql(), batchSQL.getArgsParam().get(0),new ColumnMapRowMapper());
@@ -83,7 +83,7 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 
 
 
-	public Integer batchUpdate(String sql,List<Map<String,String>> paramMap ) {
+	public Integer batchUpdate(String sql,List<Map<String,Object>> paramMap ) {
 		SQL batchSQL = SQLParse.parseSqlParams(sql, paramMap);
 		int[] is = this.jdbcTemplate.batchUpdate( batchSQL.getSql(), batchSQL);
 		return Integer.valueOf(is.length);
@@ -110,7 +110,13 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 		ArrayList<E> list2 = ModelUtils.converterMap2T(clazz, list);
 		return list2;
 	}
-	
+
+	@Override
+	public <E> List<E> queryDataForT4(String sql, Map<String, Object> map, Class<E> clazz) {
+		List<Map<String, Object>> maps = queryData(sql, map);
+		return ModelUtils.converterMap2T(clazz, maps);
+	}
+
 	@Override
 	public List<Map<String, Object>> executorSQL(String sqlId) {
 		HashMap<String, Object> pm = ParamUtils.buildParamsMap(null);

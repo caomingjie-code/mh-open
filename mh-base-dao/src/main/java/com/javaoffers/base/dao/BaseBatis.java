@@ -16,19 +16,19 @@ public interface BaseBatis<T,ID>{
     /*****************************************************************************/ 
 	public int saveData(String sql);
 
-	public int saveData(String sql,Map<String,String> map);
+	public int saveData(String sql,Map<String,Object> map);
 	
 	public int deleteData(String sql);
 
-	public int deleteData(String sql,Map<String,String> map);
+	public int deleteData(String sql,Map<String,Object> map);
 	
 	public int updateData(String sql);
 
-	public int updateData(String sql,Map<String,String> map);
+	public int updateData(String sql,Map<String,Object> map);
 	
 	public List<Map<String,Object>> queryData(String sql);
 
-	public List<Map<String,Object>> queryData(String sql,Map<String,String> map);
+	public List<Map<String,Object>> queryData(String sql,Map<String,Object> map);
 	
 	/*****************************************************************************/ 
 	public <E> List<E> queryDataForT(String sql,Class<E> clazz);
@@ -36,17 +36,16 @@ public interface BaseBatis<T,ID>{
 	public <E> List<E> queryDataForT2(String sqlId,Class<E> clazz);
 	
 	public <E> List<E> queryDataForT3(String sqlId,Map<String,Object> map,Class<E> clazz);
-	
+
+	public <E> List<E> queryDataForT4(String sql,Map<String,Object> map,Class<E> clazz);
+
 	public <E> List<E> queryDataForTAndSort(String sqlId,Map<String,Object> map,Class<E> clazz,String mainModelFieldName);
 	
 	public <E> List<E> queryDataForTAndSort(String sql,Class<E> clazz,String mainModelFieldName);
-	
-	
-    
-	/*****************************************************************************/ 
-	public Integer batchUpdate(String sql,List<Map<String,String>> paramMap );
 
-	
+	/*****************************************************************************/ 
+	public Integer batchUpdate(String sql,List<Map<String,Object>> paramMap );
+
 	/*****************************************************************************/ 
 	public  List<Map<String,Object>> executorSQL(String sqlId);
 	
@@ -79,14 +78,11 @@ public interface BaseBatis<T,ID>{
 	
 	public List<Map<String,Object>> selectSqlByPojo(String sqlId,Object pojo);
 	
-	/*****************************************************************************/ 
-//    public  List<T> executorSQL2ListPOJO(String sqlId);
-//	
-//	public  List<T> executorSQL2ListPOJO(String sqlId,Map<String,Object> paramMap);
+	/*****************************************************************************/
 	
 	List<Map<String, Object>> executorSQLByPojo(String sqlId, Object pojo);
+
 	/**分页**/
-	
 	public FPage selectSqlForFPage(String sqlId,FPage fpage);
 
 

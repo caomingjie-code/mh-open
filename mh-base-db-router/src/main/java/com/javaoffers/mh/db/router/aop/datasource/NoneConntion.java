@@ -90,6 +90,9 @@ public class NoneConntion implements Connection {
 
     @Override
     public boolean isClosed() throws SQLException {
+        if(superConnection!=null){
+           return superConnection.isClosed();
+        }
         return isClosed;
     }
 
@@ -109,6 +112,9 @@ public class NoneConntion implements Connection {
 
     @Override
     public boolean isReadOnly() throws SQLException {
+        if(superConnection!=null){
+            return superConnection.isReadOnly();
+        }
         return readOnly;
     }
 

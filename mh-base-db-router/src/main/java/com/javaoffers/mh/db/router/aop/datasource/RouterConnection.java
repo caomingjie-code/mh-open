@@ -7,6 +7,7 @@ import com.javaoffers.mh.db.router.exception.BaseDataSourceException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,36 +20,38 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description: 连接里面套连接,  spring把多个链接看成一个链接
- *               RouterConnection中的所有链接状态具有一致性。（有可能元数据不一样， 因为每个链接有可能代表不同的数据库）
+ * RouterConnection中的所有链接状态具有一致性。（有可能元数据不一样， 因为每个链接有可能代表不同的数据库）
  * @Auther: create by cmj on 2020/9/4 11:31
  */
 public class RouterConnection implements Connection {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterConnection.class);
-    private Map<String,Connection> routerConnection = new ConcurrentHashMap<>();
-    private BaseComboPooledDataSource baseComboPooledDataSource;
     public static AtomicInteger ai = new AtomicInteger(0);
+    private static String nonoConnectionName = "None Conntion";
+    private Map<String, Connection> routerConnection = new ConcurrentHashMap<>();
+    private BaseComboPooledDataSource baseComboPooledDataSource;
     private Connection masterCon; //真实链接
     private NoneConntion noneConntion;
-    private static  String nonoConnectionName = "None Conntion";
+
     public RouterConnection(BaseComboPooledDataSource baseComboPooledDataSource) {
         this.baseComboPooledDataSource = baseComboPooledDataSource;
     }
 
     /**
      * 保存当前获取的数据库连接
-     * @param key 数据源名称
+     *
+     * @param key        数据源名称
      * @param connection 真实的链接
      * @return
      */
-    public RouterConnection putConcurrentConnection(String key ,Connection connection){
+    public RouterConnection putConcurrentConnection(String key, Connection connection) {
 
-        if(connection!=null&& connection instanceof NoneConntion){
-            noneConntion = (NoneConntion)connection;
-            routerConnection.put(nonoConnectionName,noneConntion);
+        if (connection != null && connection instanceof NoneConntion) {
+            noneConntion = (NoneConntion) connection;
+            routerConnection.put(nonoConnectionName, noneConntion);
             return this;
-        }else{
-            routerConnection.put(key,connection);
+        } else {
+            routerConnection.put(key, connection);
         }
         masterCon = connection;
         return this;
@@ -56,10 +59,11 @@ public class RouterConnection implements Connection {
 
     /**
      * 获取栈顶对应的链接并解决在事物下的双重路由不能切换数据链接
+     *
      * @return
      * @throws SQLException
      */
-    private Connection getRouterConnection()  {
+    private Connection getRouterConnection() {
         String routerSourceName = baseComboPooledDataSource.getRouterSourceName();
 
         Connection connection = getConnection(routerSourceName); //获取链接
@@ -70,9 +74,6 @@ public class RouterConnection implements Connection {
         return connection;
     }
 
-
-
-
     @Override
     public Statement createStatement() throws SQLException {
         Connection connection = getRouterConnection();
@@ -82,7 +83,7 @@ public class RouterConnection implements Connection {
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection().prepareStatement( sql);
+        return getRouterConnection().prepareStatement(sql);
     }
 
     @Override
@@ -98,17 +99,8 @@ public class RouterConnection implements Connection {
     }
 
     /**
-     * 内嵌的所有连接状态保持同步
-     * @param autoCommit
-     * @throws SQLException
-     */
-    @Override
-    public void setAutoCommit(boolean autoCommit) throws SQLException {
-        funcRouterConnection(c->{c.setAutoCommit(autoCommit);},0);
-    }
-
-    /**
      * 因为 初始化和setAutoCommit保持同步状态,所以该方法也属于默认同步状态.(每个连接的状态一样)
+     *
      * @return
      * @throws SQLException
      */
@@ -116,39 +108,56 @@ public class RouterConnection implements Connection {
     public boolean getAutoCommit() throws SQLException {
         //优化，RouterConnection中的链接所有状态具有一致性
         Collection<Connection> rcs = routerConnection.values();
-        if(rcs!=null&&rcs.size()>0){
-            for(Connection c : rcs){
-                return  c.getAutoCommit();
+        if (rcs != null && rcs.size() > 0) {
+            for (Connection c : rcs) {
+                return c.getAutoCommit();
             }
         }
         return getRouterConnection().getAutoCommit();
     }
 
     /**
+     * 内嵌的所有连接状态保持同步
+     *
+     * @param autoCommit
+     * @throws SQLException
+     */
+    @Override
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
+        funcRouterConnection(c -> {
+            c.setAutoCommit(autoCommit);
+        }, 0);
+    }
+
+    /**
      * 如果连接 未 '关闭'和'自动提交',则开始提交
+     *
      * @throws SQLException
      */
     @Override
     public void commit() throws SQLException {
-        funcRouterConnection(c->{c.commit();},1);
+        funcRouterConnection(c -> {
+            c.commit();
+        }, 1);
     }
 
     /**
      * 对每个链接的函数处理
-     * @param func 对Connecton的函数处理
+     *
+     * @param func      对Connecton的函数处理
      * @param choseFunc 0:默认(只判断没有关闭),1:判断未开启自动提交
      * @throws SQLException
      */
     private void funcRouterConnection(VoidFunction<Connection> func, int choseFunc) throws SQLException {
         Collection<Connection> values = this.routerConnection.values();
-        if(values!=null && values.size()>0){
-            for(Connection c : values){
-                if(!c.isClosed()){ //如果没有关闭
-                    if(choseFunc == 0){ //默认逻辑
+        if (values != null && values.size() > 0) {
+            for (Connection c : values) {
+                if (!c.isClosed()) { //如果没有关闭
+                    if (choseFunc == 0) { //默认逻辑
                         func.accept(c);
                     }
-                    if(choseFunc == 1){ //没有自动提交
-                        if(!c.getAutoCommit()){
+                    if (choseFunc == 1) { //没有自动提交
+                        if (!c.getAutoCommit()) {
                             func.accept(c);
                         }
                     }
@@ -159,26 +168,30 @@ public class RouterConnection implements Connection {
 
     /**
      * 如果连接 未 '关闭'和'自动提交',则开始回滚
+     *
      * @throws SQLException
      */
     @Override
     public void rollback() throws SQLException {
-        funcRouterConnection(c->{c.rollback();},1);
+        funcRouterConnection(c -> {
+            c.rollback();
+        }, 1);
     }
 
     /**
      * 如果连接 未 '关闭',则开始关闭
+     *
      * @throws SQLException
      */
     @Override
     public void close() throws SQLException {
-        funcRouterConnection(c->{
+        funcRouterConnection(c -> {
             c.close();
-            if(!(c instanceof  NoneConntion)){
+            if (!(c instanceof NoneConntion)) {
                 int i = ai.incrementAndGet();
-                LOGGER.info("close  jdbc connection id["+c.hashCode()+"] counts : "+i);
+                LOGGER.info("close  jdbc connection id[" + c.hashCode() + "] counts : " + i);
             }
-            },0);
+        }, 0);
     }
 
     @Override
@@ -186,9 +199,9 @@ public class RouterConnection implements Connection {
 
         //优化，RouterConnection中的链接所有状态具有一致性
         Collection<Connection> rcs = routerConnection.values();
-        if(rcs!=null&&rcs.size()>0){
-            for(Connection c : rcs){
-                return  c.isClosed();
+        if (rcs != null && rcs.size() > 0) {
+            for (Connection c : rcs) {
+                return c.isClosed();
             }
         }
 
@@ -200,43 +213,34 @@ public class RouterConnection implements Connection {
         return getRouterConnection().getMetaData();
     }
 
-    /**
-     * 所有连接保持同步: 如果连接未关闭则设置readOnly
-     * @param readOnly
-     * @throws SQLException
-     */
-    @Override
-    public void setReadOnly(boolean readOnly) throws SQLException {
-        funcRouterConnection(c->{c.setReadOnly(readOnly);},0);
-    }
-
     @Override
     public boolean isReadOnly() throws SQLException {
         //优化，RouterConnection中的链接所有状态具有一致性
         Collection<Connection> rcs = routerConnection.values();
-        if(rcs!=null&&rcs.size()>0){
-            for(Connection c : rcs){
-                return  c.isReadOnly();
+        if (rcs != null && rcs.size() > 0) {
+            for (Connection c : rcs) {
+                return c.isReadOnly();
             }
         }
         return getRouterConnection().isReadOnly();
     }
 
     /**
-     * 保持默认
-     * catalog指代数据库名称。
-     * 1如果该参数不存在，则必须使用setCatalog设置数据库名称，否则会抛出 java.sql.SQLException: No database selected 异常。
-     * 2如果在url中已经存在该参数，则可以使用setCatalog更换数据库名称。
-     * @param catalog
+     * 所有连接保持同步: 如果连接未关闭则设置readOnly
+     *
+     * @param readOnly
      * @throws SQLException
      */
     @Override
-    public void setCatalog(String catalog) throws SQLException {
-        getRouterConnection().setCatalog( catalog);
+    public void setReadOnly(boolean readOnly) throws SQLException {
+        funcRouterConnection(c -> {
+            c.setReadOnly(readOnly);
+        }, 0);
     }
 
     /**
      * 保持默认
+     *
      * @return
      * @throws SQLException
      */
@@ -244,17 +248,24 @@ public class RouterConnection implements Connection {
     public String getCatalog() throws SQLException {
         return getRouterConnection().getCatalog();
     }
+
     /**
      * 保持默认
-     * @return
+     * catalog指代数据库名称。
+     * 1如果该参数不存在，则必须使用setCatalog设置数据库名称，否则会抛出 java.sql.SQLException: No database selected 异常。
+     * 2如果在url中已经存在该参数，则可以使用setCatalog更换数据库名称。
+     *
+     * @param catalog
      * @throws SQLException
      */
     @Override
-    public void setTransactionIsolation(int level) throws SQLException {
-        getRouterConnection().setTransactionIsolation( level);
+    public void setCatalog(String catalog) throws SQLException {
+        getRouterConnection().setCatalog(catalog);
     }
+
     /**
      * 保持默认
+     *
      * @return
      * @throws SQLException
      */
@@ -265,6 +276,18 @@ public class RouterConnection implements Connection {
 
     /**
      * 保持默认
+     *
+     * @return
+     * @throws SQLException
+     */
+    @Override
+    public void setTransactionIsolation(int level) throws SQLException {
+        getRouterConnection().setTransactionIsolation(level);
+    }
+
+    /**
+     * 保持默认
+     *
      * @return
      * @throws SQLException
      */
@@ -272,8 +295,10 @@ public class RouterConnection implements Connection {
     public SQLWarning getWarnings() throws SQLException {
         return getRouterConnection().getWarnings();
     }
+
     /**
      * 保持默认
+     *
      * @return
      * @throws SQLException
      */
@@ -284,22 +309,24 @@ public class RouterConnection implements Connection {
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-        return getRouterConnection().createStatement( resultSetType,  resultSetConcurrency);
+        return getRouterConnection().createStatement(resultSetType, resultSetConcurrency);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection().prepareStatement( sql,  resultSetType,  resultSetConcurrency);
+        return getRouterConnection().prepareStatement(sql, resultSetType, resultSetConcurrency);
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection(). prepareCall( sql,  resultSetType,  resultSetConcurrency);
+        return getRouterConnection().prepareCall(sql, resultSetType, resultSetConcurrency);
     }
+
     /**
      * 保持默认
+     *
      * @return
      * @throws SQLException
      */
@@ -307,24 +334,26 @@ public class RouterConnection implements Connection {
     public Map<String, Class<?>> getTypeMap() throws SQLException {
         return getRouterConnection().getTypeMap();
     }
+
     /**
      * 保持默认
+     *
      * @return
      * @throws SQLException
      */
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-        getRouterConnection().setTypeMap( map);
-    }
-
-    @Override
-    public void setHoldability(int holdability) throws SQLException {
-        getRouterConnection().setHoldability( holdability);
+        getRouterConnection().setTypeMap(map);
     }
 
     @Override
     public int getHoldability() throws SQLException {
         return getRouterConnection().getHoldability();
+    }
+
+    @Override
+    public void setHoldability(int holdability) throws SQLException {
+        getRouterConnection().setHoldability(holdability);
     }
 
     @Override
@@ -334,52 +363,52 @@ public class RouterConnection implements Connection {
 
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
-        return getRouterConnection().setSavepoint( name);
+        return getRouterConnection().setSavepoint(name);
     }
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
-        getRouterConnection().rollback( savepoint);
+        getRouterConnection().rollback(savepoint);
     }
 
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        getRouterConnection().releaseSavepoint( savepoint);
+        getRouterConnection().releaseSavepoint(savepoint);
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return getRouterConnection().createStatement( resultSetType,  resultSetConcurrency,  resultSetHoldability);
+        return getRouterConnection().createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection().prepareStatement( sql,  resultSetType,  resultSetConcurrency,  resultSetHoldability);
+        return getRouterConnection().prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection().prepareCall( sql,  resultSetType,  resultSetConcurrency,  resultSetHoldability);
+        return getRouterConnection().prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection().prepareStatement( sql,  autoGeneratedKeys);
+        return getRouterConnection().prepareStatement(sql, autoGeneratedKeys);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection().prepareStatement( sql,  columnIndexes);
+        return getRouterConnection().prepareStatement(sql, columnIndexes);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         readWriteSeparation(sql);
-        return getRouterConnection().prepareStatement( sql, columnNames);
+        return getRouterConnection().prepareStatement(sql, columnNames);
     }
 
     @Override
@@ -406,27 +435,22 @@ public class RouterConnection implements Connection {
     public boolean isValid(int timeout) throws SQLException {
         //优化，RouterConnection中的链接所有状态具有一致性
         Collection<Connection> rcs = routerConnection.values();
-        if(rcs!=null&&rcs.size()>0){
-            for(Connection c : rcs){
-                return  c.isValid(timeout);
+        if (rcs != null && rcs.size() > 0) {
+            for (Connection c : rcs) {
+                return c.isValid(timeout);
             }
         }
-        return getRouterConnection().isValid( timeout);
+        return getRouterConnection().isValid(timeout);
     }
 
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        getRouterConnection().setClientInfo( name,  value);
-    }
-
-    @Override
-    public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        getRouterConnection().setClientInfo( properties);
+        getRouterConnection().setClientInfo(name, value);
     }
 
     @Override
     public String getClientInfo(String name) throws SQLException {
-        return getRouterConnection().getClientInfo( name);
+        return getRouterConnection().getClientInfo(name);
     }
 
     @Override
@@ -435,23 +459,28 @@ public class RouterConnection implements Connection {
     }
 
     @Override
+    public void setClientInfo(Properties properties) throws SQLClientInfoException {
+        getRouterConnection().setClientInfo(properties);
+    }
+
+    @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-        return getRouterConnection().createArrayOf( typeName, elements);
+        return getRouterConnection().createArrayOf(typeName, elements);
     }
 
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-        return getRouterConnection().createStruct( typeName, attributes);
-    }
-
-    @Override
-    public void setSchema(String schema) throws SQLException {
-        getRouterConnection().setSchema(schema);
+        return getRouterConnection().createStruct(typeName, attributes);
     }
 
     @Override
     public String getSchema() throws SQLException {
         return getRouterConnection().getSchema();
+    }
+
+    @Override
+    public void setSchema(String schema) throws SQLException {
+        getRouterConnection().setSchema(schema);
     }
 
     @Override
@@ -461,7 +490,7 @@ public class RouterConnection implements Connection {
 
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-        getRouterConnection().setNetworkTimeout(executor,milliseconds);
+        getRouterConnection().setNetworkTimeout(executor, milliseconds);
     }
 
     @Override
@@ -478,63 +507,58 @@ public class RouterConnection implements Connection {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         //优化，RouterConnection中的链接所有状态具有一致性
         Collection<Connection> rcs = routerConnection.values();
-        if(rcs!=null&&rcs.size()>0){
-            for(Connection c : rcs){
-                return  c.isWrapperFor(iface);
+        if (rcs != null && rcs.size() > 0) {
+            for (Connection c : rcs) {
+                return c.isWrapperFor(iface);
             }
         }
         return getRouterConnection().isWrapperFor(iface);
     }
 
-    @FunctionalInterface
-    interface VoidFunction<T>{
-        void accept(T t) throws SQLException ;
-    }
-
     //读写分离
     private void readWriteSeparation(String sql) throws SQLException {
         Router router = baseComboPooledDataSource.getRouter();
-        if(router==null){
+        if (router == null) {
             //创建临时陆游
-            router  = new Router(true);
+            router = new Router(true);
             router.setRouterName(BaseComboPooledDataSource.DEFAULT_ROUTER);//临时陆游设置为master, 在下面逻辑有可能会切换为读
             BaseComboPooledDataSource.pushStackRouter(router); //将临时陆游放入栈顶
-        }else if(router.isForce()){
+        } else if (router.isForce()) {
             return;
         }
         boolean b = SQLUtils.checkedSqlIsRead(sql);
         String routerSourceName = router.getRouterName();
-        if(b){ //如果是读sql
-            if(!BaseComboPooledDataSource.checkedIsReadDataSource(routerSourceName)){ //如果不是读,则切换为读
+        if (b) { //如果是读sql
+            if (!BaseComboPooledDataSource.checkedIsReadDataSource(routerSourceName)) { //如果不是读,则切换为读
                 String[] readDataSources = baseComboPooledDataSource.getReadDataSource(routerSourceName);
-                if(readDataSources!=null&&readDataSources.length>0){
+                if (readDataSources != null && readDataSources.length > 0) {
                     //判断是否已经缓存了读，如果有直接使用，避免再此占用一个读链接
                     boolean isCached = false;//是否被缓存了
                     String cacheDb = null;
-                    for(String readDB : readDataSources ){
-                        if(routerConnection.containsKey(readDB)){
+                    for (String readDB : readDataSources) {
+                        if (routerConnection.containsKey(readDB)) {
                             cacheDb = readDB;
                             isCached = true;
-                            LOGGER.info(" The cache "+cacheDb+" and "+routerSourceName+" functions the same "+", so it switches to a " + cacheDb);
+                            LOGGER.info(" The cache " + cacheDb + " and " + routerSourceName + " functions the same " + ", so it switches to a " + cacheDb);
                             break;
                         }
                     }
-                    if(!isCached){ //如果缓存没有命中
+                    if (!isCached) { //如果缓存没有命中
                         long l = (System.nanoTime() & 1) % readDataSources.length; //随机策略
-                        cacheDb = readDataSources[(int)l];
-                        if(StringUtils.isBlank(cacheDb)){
+                        cacheDb = readDataSources[(int) l];
+                        if (StringUtils.isBlank(cacheDb)) {
                             throw BaseDataSourceException.getException("ReadDataSource Is Null");
                         }
                     }
                     router.setRouterName(cacheDb);
                     router.setSham(true);//还原初始状态，虚假陆游
                     BaseComboPooledDataSource.replaceFirstStackElement(router).getRouterName(); //返回旧的栈顶元素
-                    LOGGER.info(routerSourceName+ " Switch to read database : "+cacheDb);
+                    LOGGER.info(routerSourceName + " Switch to read database : " + cacheDb);
                 }
-            }else{ //优先使用已经存在的读链接
+            } else { //优先使用已经存在的读链接
                 String cacheDb = null;
                 String[] writeDataSource = baseComboPooledDataSource.getWriteDataSource(routerSourceName);
-                if(writeDataSource!=null&&writeDataSource.length>0) {
+                if (writeDataSource != null && writeDataSource.length > 0) {
                     for (int i = 0; i < writeDataSource.length; i++) {
                         String[] readDataSources = baseComboPooledDataSource.getReadDataSource(writeDataSource[i]);
                         if (readDataSources != null && readDataSources.length > 0) {
@@ -542,9 +566,9 @@ public class RouterConnection implements Connection {
                             for (String readDB : readDataSources) {
                                 if (routerConnection.containsKey(readDB)) {
                                     cacheDb = readDB;
-                                    if(!cacheDb.equalsIgnoreCase(routerSourceName)){ //不相同则使用缓存， 相同就忽略此不步骤，因为当前路由的和缓存的名称一样。
+                                    if (!cacheDb.equalsIgnoreCase(routerSourceName)) { //不相同则使用缓存， 相同就忽略此不步骤，因为当前路由的和缓存的名称一样。
                                         router.setRouterName(cacheDb);
-                                        LOGGER.info(" The cache "+cacheDb+" and "+routerSourceName+" functions the same "+", so it switches to a " + cacheDb);
+                                        LOGGER.info(" The cache " + cacheDb + " and " + routerSourceName + " functions the same " + ", so it switches to a " + cacheDb);
                                         return;
                                     }
                                 }
@@ -554,19 +578,19 @@ public class RouterConnection implements Connection {
                 }
 
             }
-        }else{ //写sql
-            if(!BaseComboPooledDataSource.checkedIsWriteDataSource(routerSourceName)){//如果不是写，则切换为写
+        } else { //写sql
+            if (!BaseComboPooledDataSource.checkedIsWriteDataSource(routerSourceName)) {//如果不是写，则切换为写
                 String[] writeDataSources = baseComboPooledDataSource.getWriteDataSource(routerSourceName);
-                if(writeDataSources!=null&&writeDataSources.length>0){
+                if (writeDataSources != null && writeDataSources.length > 0) {
                     long l = (System.nanoTime() & 1) % writeDataSources.length; //随机策略
-                    String wd = writeDataSources[(int)l];
-                    if(StringUtils.isBlank(wd)){
+                    String wd = writeDataSources[(int) l];
+                    if (StringUtils.isBlank(wd)) {
                         throw BaseDataSourceException.getException("WriteDataSource Is Null");
                     }
                     router.setRouterName(wd);
                     router.setSham(true);//还原初始状态，虚假陆游
                     BaseComboPooledDataSource.replaceFirstStackElement(router).getRouterName();
-                    LOGGER.info(routerSourceName+ " Switch to write database : "+wd);
+                    LOGGER.info(routerSourceName + " Switch to write database : " + wd);
                 }
             }
         }
@@ -575,23 +599,23 @@ public class RouterConnection implements Connection {
     //获取真实链接
     private Connection getConnection(String routerSourceName) {
         Connection connection = routerConnection.get(routerSourceName); //真实链接
-        if(connection ==null){
+        if (connection == null) {
             try {
-                RouterConnection rc = (RouterConnection)baseComboPooledDataSource.getConnection();//包装后的链接
+                RouterConnection rc = (RouterConnection) baseComboPooledDataSource.getConnection();//包装后的链接
                 Collection<Connection> values = rc.routerConnection.values();
-                if(values==null||values.size()!=1){
+                if (values == null || values.size() != 1) {
                     new BaseDataSourceException("error get connection , connection is null or conntion size not is one").printStackTrace();
-                }else{
+                } else {
                     ArrayList<Connection> connections = new ArrayList<>(values);
                     connection = connections.get(0);//hou qu zhen shi lian jie
-                    routerConnection.put(routerSourceName,connection);
-                    if(masterCon==null){
+                    routerConnection.put(routerSourceName, connection);
+                    if (masterCon == null) {
                         connection.setAutoCommit(noneConntion.getAutoCommit());
                         //clean none connection
                         routerConnection.remove(nonoConnectionName);
                         noneConntion.close();
 
-                    }else {
+                    } else {
                         connection.setAutoCommit(masterCon.getAutoCommit());
                     }
 
@@ -599,10 +623,10 @@ public class RouterConnection implements Connection {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }else{
+        } else {
             //动态切换陆游时，有可能使用到缓存陆游链接，
             Router router = baseComboPooledDataSource.getRouter();
-            if(router!=null&&router.isSham()){
+            if (router != null && router.isSham()) {
                 router.setSham(false);
             }
 
@@ -613,8 +637,13 @@ public class RouterConnection implements Connection {
     //检查是否是临时陆游
     private void checkedIsTempRouter() {
         Router router = baseComboPooledDataSource.getRouter();
-        if(router!=null&&router.isTemporary()){
+        if (router != null && router.isTemporary()) {
             BaseComboPooledDataSource.clean();
         }
+    }
+
+    @FunctionalInterface
+    interface VoidFunction<T> {
+        void accept(T t) throws SQLException;
     }
 }

@@ -289,6 +289,9 @@ public class NoneConntion implements Connection {
 
     @Override
     public boolean isValid(int timeout) throws SQLException {
+        if(superConnection!=null){
+            return superConnection.isValid(timeout);
+        }
         return false;
     }
 
@@ -354,6 +357,9 @@ public class NoneConntion implements Connection {
 
     @Override
     public int getNetworkTimeout() throws SQLException {
+        if(superConnection!=null){
+            return superConnection.getNetworkTimeout();
+        }
         return 1000*60;
     }
 
@@ -365,6 +371,9 @@ public class NoneConntion implements Connection {
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        if(superConnection!=null){
+            return superConnection.isWrapperFor(iface);
+        }
         return false;
     }
 

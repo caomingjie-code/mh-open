@@ -39,7 +39,7 @@ public class NoneConntion implements Connection {
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
         throwsExcetion();
-        return null;
+        return superConnection.prepareCall(sql);
     }
 
     @Override
@@ -51,6 +51,9 @@ public class NoneConntion implements Connection {
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         this.autoCommit = autoCommit;
+        if(superConnection!=null){
+            superConnection.setAutoCommit(autoCommit);
+        }
     }
 
     @Override
@@ -96,6 +99,9 @@ public class NoneConntion implements Connection {
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
         this.readOnly = readOnly;
+        if(superConnection!=null){
+            superConnection.setReadOnly(readOnly);
+        }
     }
 
     @Override
@@ -105,7 +111,10 @@ public class NoneConntion implements Connection {
 
     @Override
     public void setCatalog(String catalog) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        if(superConnection!=null){
+            superConnection.setCatalog(catalog);
+        }
     }
 
     @Override
@@ -116,22 +125,31 @@ public class NoneConntion implements Connection {
 
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        if(superConnection!=null){
+            superConnection.setTransactionIsolation(level);
+        }
     }
 
     @Override
     public int getTransactionIsolation() throws SQLException {
-        return 0;
+        if(superConnection!=null){
+            return superConnection.getTransactionIsolation();
+        }
+        return Connection.TRANSACTION_REPEATABLE_READ;
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
+        throwsExcetion();
         return superConnection.getWarnings();
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-        //throwsExcetion();
+        if(superConnection!=null){
+            superConnection.clearWarnings();
+        }
     }
 
     @Override
@@ -160,18 +178,20 @@ public class NoneConntion implements Connection {
 
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.setTypeMap(map);
     }
 
     @Override
     public void setHoldability(int holdability) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.setHoldability(holdability);
     }
 
     @Override
     public int getHoldability() throws SQLException {
-        //throwsExcetion();
-        return 0;
+        throwsExcetion();
+        return superConnection.getHoldability();
     }
 
     @Override
@@ -188,12 +208,14 @@ public class NoneConntion implements Connection {
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.rollback(savepoint);
     }
 
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.releaseSavepoint(savepoint);
     }
 
     @Override
@@ -263,12 +285,14 @@ public class NoneConntion implements Connection {
 
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.setClientInfo(name,value);
     }
 
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.setClientInfo(properties);
     }
 
     @Override
@@ -297,7 +321,8 @@ public class NoneConntion implements Connection {
 
     @Override
     public void setSchema(String schema) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.setSchema(schema);
     }
 
     @Override
@@ -308,21 +333,24 @@ public class NoneConntion implements Connection {
 
     @Override
     public void abort(Executor executor) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.abort(executor);
     }
 
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-        //throwsExcetion();
+        throwsExcetion();
+        superConnection.setNetworkTimeout(executor,1000*60);
     }
 
     @Override
     public int getNetworkTimeout() throws SQLException {
-        return 10000;
+        return 1000*60;
     }
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
+        throwsExcetion();
         return superConnection.unwrap(iface);
     }
 
@@ -337,12 +365,14 @@ public class NoneConntion implements Connection {
                 synchronized (this) {
                     if (superConnection == null) {
                         superConnection = baseComboPooledDataSource.getSuperConnection();
+                        superConnection.setAutoCommit(autoCommit);
                     }
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+
         System.out.println("none connection be accessed !!! ");
     }
 }

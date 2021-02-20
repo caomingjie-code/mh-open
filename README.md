@@ -7,8 +7,14 @@
 
 
 ## MH-BASE-DAO  为核心架构
+```text
+1.0.1.2: 添加新的方法queryDataForT4(String sql, Map<String, Object> map, Class<E> clazz)
+
+```
+
 
 ## MH-BASE-MQ 消息队列给予raabbitMQ
+
 
 ## MH-BASE-DB-ROUTER 数据路由
 

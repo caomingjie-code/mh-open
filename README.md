@@ -8,6 +8,7 @@
 
 ## MH-BASE-DAO  为核心架构
 ```text
+添加sql 占位符号 和类型转换功：
 1.0.1.2: 添加新的方法queryDataForT4(String sql, Map<String, Object> map, Class<E> clazz)
 
 ```

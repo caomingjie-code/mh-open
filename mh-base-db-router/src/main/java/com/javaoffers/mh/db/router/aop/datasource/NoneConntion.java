@@ -85,6 +85,7 @@ public class NoneConntion implements Connection {
     public void close() throws SQLException {
         if(superConnection!=null){
             superConnection.close();
+            logger.info("close : none connection converted to real connection  ");
         }
     }
 
@@ -384,12 +385,13 @@ public class NoneConntion implements Connection {
                     if (superConnection == null) {
                         superConnection = baseComboPooledDataSource.getSuperConnection();
                         superConnection.setAutoCommit(autoCommit);
+                        logger.info("opend : none connection converted to real connection  ");
                     }
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        logger.info(" none connection access ");
+
     }
 }

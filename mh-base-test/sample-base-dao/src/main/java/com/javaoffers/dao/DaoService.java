@@ -1,4 +1,4 @@
-package com.javaoffers.datasource;
+package com.javaoffers.dao;
 
 import com.javaoffers.base.dao.BaseBatis;
 import com.javaoffers.base.dao.BaseJPA;

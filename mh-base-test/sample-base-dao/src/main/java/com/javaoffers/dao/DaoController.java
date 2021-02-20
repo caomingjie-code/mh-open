@@ -1,12 +1,11 @@
-package com.javaoffers.datasource;
-
-import com.javaoffers.base.annotation.datasource.DataSourceRoute;
+package com.javaoffers.dao;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,11 +30,11 @@ public class DaoController {
         return maps;
     }
 
-    @RequestMapping("/testRuteDataBases2")
+    @RequestMapping("/testqueryDataForT4")
     @ResponseBody
-    @DataSourceRoute("slaveDS")
-    public List testRuteDataBases2(){
-        List<Map<String, Object>> maps = daoService.queryData("select * from oper_cargo limit 2");
+    public List testqueryDataForT4(){
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        List<EntryTest> maps = daoService.queryDataForT4("select * from test limit 10", params, EntryTest.class);
         return maps;
     }
 

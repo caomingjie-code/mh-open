@@ -54,7 +54,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 		return this.jdbcTemplate.update(sql_.getSql(),  new ArgumentPreparedStatementSetter(sql_.getArgsParam().get(0)));
 	}
 
-
 	/********************************** JPA ************************************/
 
 	public List<Map<String, Object>> queryData(String sql) {
@@ -70,7 +69,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 		return result;
 	}
 
-
 	/**
 	 * 支持Pojo和Model
 	 */
@@ -79,9 +77,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 		ArrayList<E> list = ModelUtils.converterMap2T(clazz, list_map);
 		return list;
 	}
-
-
-
 
 	public Integer batchUpdate(String sql,List<Map<String,Object>> paramMap ) {
 		SQL batchSQL = SQLParse.parseSqlParams(sql, paramMap);

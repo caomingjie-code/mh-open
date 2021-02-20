@@ -1,9 +1,9 @@
 server:
   port: 7777
 #spring.jpa.hibernate.ddl-auto=create
-#spring.datasource.url=jdbc:mysql://localhost:3306/db_example
-#spring.datasource.username=springuser
-#spring.datasource.password=ThePassword  
+#spring.dao.url=jdbc:mysql://localhost:3306/db_example
+#spring.dao.username=springuser
+#spring.dao.password=ThePassword
 spring:
   #配置应用名称
   application:

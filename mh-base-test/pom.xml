@@ -18,9 +18,9 @@
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
     <modules>
-<!--        <module>sample-base-dao</module>-->
-<!--        <module>sample-base-eslog</module>-->
-<!--        <module>sample-base-mq</module>-->
+        <module>sample-base-dao</module>
+        <module>sample-base-eslog</module>
+        <module>sample-base-mq</module>
         <module>sample-base-db-router</module>
     </modules>
 

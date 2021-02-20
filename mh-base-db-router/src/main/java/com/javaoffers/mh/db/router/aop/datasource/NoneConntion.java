@@ -1,6 +1,8 @@
 package com.javaoffers.mh.db.router.aop.datasource;
 
 import com.javaoffers.mh.db.router.datasource.BaseComboPooledDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Map;
@@ -19,6 +21,7 @@ public class NoneConntion implements Connection {
     private boolean readOnly = false;
     private BaseComboPooledDataSource baseComboPooledDataSource ;
     Connection superConnection = null;//真实链接，该链接有可能会被创建出来
+    Logger logger = LoggerFactory.getLogger(NoneConntion.class);
 
     public NoneConntion(BaseComboPooledDataSource baseComboPooledDataSource) {
         this.baseComboPooledDataSource = baseComboPooledDataSource;
@@ -372,7 +375,6 @@ public class NoneConntion implements Connection {
         }catch (Exception e){
             e.printStackTrace();
         }
-
-        System.out.println("none connection be accessed !!! ");
+        logger.info(" none connection access ");
     }
 }

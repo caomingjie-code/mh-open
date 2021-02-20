@@ -1,6 +1,8 @@
 package com.javaoffers.dao;
 
+import com.javaoffers.base.common.log.LogUtils;
 import com.javaoffers.base.common.rpc.HttpClientUtils;
+import org.junit.Test;
 
 /**
  * @Description: 测试
@@ -8,9 +10,10 @@ import com.javaoffers.base.common.rpc.HttpClientUtils;
  */
 public class DaoClient {
 
+    public static String host = "http://localhost:7070";
+    @Test
     public void test() throws Exception {
-        String data = HttpClientUtils.getData("localhost:7070/testqueryDataForT4");
-
-
+        String data = HttpClientUtils.getData(host+"/testqueryDataForT4");
+        LogUtils.printLog(data);
     }
 }

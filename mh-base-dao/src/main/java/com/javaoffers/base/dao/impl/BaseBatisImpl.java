@@ -19,8 +19,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	private T t = null;
 	@Resource
 	private SqlSessionTemplate sqlSessionTemplate;
-    
-	
 	private Class clazzT;
 	private Class clazzId;
 	
@@ -85,7 +83,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 	}
 
 	/****************************** BATIS ***********************************/
-	
 
 	/**
 	 * 支持Pojo和Model
@@ -129,7 +126,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 		HashMap<String, Object> pm = ParamUtils.buildParamsMap(pojo);
 		return sqlSessionTemplate.selectList("BASE." + sqlId, pm);
 	}
-
 
 	@Override
 	public int insertSql(String sqlId) {
@@ -219,8 +215,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 		return list2;
 	}
 
-	
-
 	@Override
 	public <E> List<E> queryDataForTAndSort(String sql, Class<E> clazz, String mainModelFieldName) {
 		List<Map<String, Object>> list_map = this.jdbcTemplate.queryForList(sql);
@@ -230,7 +224,6 @@ public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
 
 	
 	/*************************************************Utils*******************************************************/
-
 
 
 }

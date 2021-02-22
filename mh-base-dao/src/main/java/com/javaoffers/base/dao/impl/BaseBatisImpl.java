@@ -11,17 +11,18 @@ import com.javaoffers.base.dao.BaseBatis;
 import com.javaoffers.base.common.model.ModelUtils;
 import com.javaoffers.base.utils.param.ParamUtils;
 
+/**
+ * create by cmj
+ * @param <T>
+ * @param <ID>
+ */
 public class BaseBatisImpl<T, ID> implements BaseBatis<T, ID> {
-	
 
 	@Resource(name = "jdbcTemplate")
 	private JdbcTemplate jdbcTemplate;
-	private T t = null;
 	@Resource
 	private SqlSessionTemplate sqlSessionTemplate;
-	private Class clazzT;
-	private Class clazzId;
-	
+
 	public int saveData(String sql) {
 		return saveData(sql,Collections.EMPTY_MAP);
 	}

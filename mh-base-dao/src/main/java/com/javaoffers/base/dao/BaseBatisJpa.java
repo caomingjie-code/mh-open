@@ -11,4 +11,5 @@ import java.io.Serializable;
  */
 @NoRepositoryBean
 public interface BaseBatisJpa  extends  BaseJPA<NoneEntry, Serializable>,BaseBatis<NoneEntry, Serializable>{
+
 }

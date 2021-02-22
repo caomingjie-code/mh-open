@@ -11,7 +11,7 @@
 
     <groupId>com.javaoffers</groupId>
     <artifactId>mh-base-dao</artifactId>
-    <version>1.0.1.2</version>
+    <version>1.0.1.3</version>
     <name>mh-base-dao</name>
 
     <properties>

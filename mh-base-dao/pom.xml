@@ -242,7 +242,7 @@
         <dependency>
             <groupId>com.javaoffers</groupId>
             <artifactId>mh-base-db-router</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3.1</version>
         </dependency>
 
 

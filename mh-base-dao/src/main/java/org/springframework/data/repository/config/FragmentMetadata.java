@@ -15,6 +15,7 @@
  */
 package org.springframework.data.repository.config;
 
+import com.javaoffers.base.common.log.LogUtils;
 import com.javaoffers.base.dao.BaseBatis;
 import com.javaoffers.base.dao.BaseBatisJpa;
 import com.javaoffers.base.dao.BaseJPA;
@@ -48,6 +49,11 @@ import org.springframework.util.CollectionUtils;
 public class FragmentMetadata {
 
     private final MetadataReaderFactory factory;
+
+    public FragmentMetadata() {
+        this.factory = null;
+        LogUtils.printLog("update FragmentMetadata for base dao");
+    }
 
     /**
      * 曹明杰修改

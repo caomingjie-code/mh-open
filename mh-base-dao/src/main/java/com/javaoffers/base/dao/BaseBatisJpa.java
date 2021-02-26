@@ -2,6 +2,7 @@ package com.javaoffers.base.dao;
 
 import com.javaoffers.base.pojo.NoneEntry;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.config.JpaRepositoryCombination;
 
 import java.io.Serializable;
 
@@ -10,6 +11,7 @@ import java.io.Serializable;
  * @Auther: create by cmj on 2021/2/22 09:50
  */
 @NoRepositoryBean
+@JpaRepositoryCombination
 public interface BaseBatisJpa  extends  BaseJPA<NoneEntry, Serializable>,BaseBatis<NoneEntry, Serializable>{
 
 }

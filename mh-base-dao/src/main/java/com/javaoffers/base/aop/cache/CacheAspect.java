@@ -57,7 +57,6 @@ import jdk.internal.org.objectweb.asm.tree.AnnotationNode;
  * @author mingjie      
  * @return
  */
-@Component
 @ConditionalOnProperty(prefix = "mh.cache",value = "cache",havingValue = "true")
 @Aspect
 public class CacheAspect implements InitializingBean{

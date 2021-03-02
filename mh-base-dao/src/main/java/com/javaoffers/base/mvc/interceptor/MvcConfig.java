@@ -10,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * mvc 拦截构造
  * @author cmj
  */
-@Configuration
 public class MvcConfig implements WebMvcConfigurer{
 
 	@Resource

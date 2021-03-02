@@ -44,7 +44,6 @@ import redis.clients.jedis.JedisPoolConfig;
  *        ---------------------------------------------------------* 2019-1-30
  *        cmj v1.0.0 修改原因
  */
-@Component
 @ConditionalOnProperty(prefix = "spring.redis",name = "host")
 public class JedisUtils implements InitializingBean, EnvironmentAware {
 

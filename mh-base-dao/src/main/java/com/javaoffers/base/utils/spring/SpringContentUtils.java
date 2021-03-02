@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.javaoffers.base.dao.impl.BaseBatisImpl;
 
-@Component
 @ConditionalOnSingleCandidate(BaseBatisImpl.class)
 public class SpringContentUtils implements ApplicationContextAware{
 	

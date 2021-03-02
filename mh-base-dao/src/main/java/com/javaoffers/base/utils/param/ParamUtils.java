@@ -1,5 +1,7 @@
 package com.javaoffers.base.utils.param;
 
+import com.javaoffers.base.common.json.JsonUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ public class ParamUtils {
 	public static HashMap<String, Object> buildParamsMap(Object obj) {
 		HashMap<String, Object> pm = new HashMap<String, Object>();
 		pm.put("PM", obj);
+		pm.putAll(JsonUtils.parseObject(JsonUtils.toJSONString(obj),Map.class));//支持原生传递参数
 		if (obj == null) {
 			pm.put("begeinIndex", 0);
 			pm.put("pageSize", 20);

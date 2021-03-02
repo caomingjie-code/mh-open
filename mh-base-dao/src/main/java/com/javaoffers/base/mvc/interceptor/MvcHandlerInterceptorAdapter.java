@@ -13,8 +13,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  * @author mj
  *
  */
-@SuppressWarnings("restriction")
-@Component
 public class MvcHandlerInterceptorAdapter extends HandlerInterceptorAdapter{
 	
 	

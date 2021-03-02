@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * 分页对象  * @author CMJ(曹明杰)  * @date 2017-3-19 上午9:22:11  
  */
-public class FPage {
+public class FPage<T> {
 
 	private int pageNum=1;// 前台传来的页码  别名currentPage，最小为1 ，最大为allPageSize
 
@@ -16,35 +16,36 @@ public class FPage {
 
 	private int begeinIndex=0;// 查询分页开始索引(limit a , b 指这里的的a)
 
-	private int allCount = 0;// 数据总条数 
+	private int allCount = 0;// 数据总条数
 
-	private int allPageNum;// 总页数     
+	private int allPageNum;// 总页数
 
 	private int firstPage;// 首页
 
 	private int endPage;// 尾页
 	/** 利用窗户函数的思想：把前台传来的当前页当作窗户的中心（窗户的中心索引位置：长度（基数最好--）加+1再除于2，偶数则加+2后再除于2） **/
-	private int viewFirstPageNnm;// 逻辑上的起始页---窗户最左端   （为任意正负数）
+	private int viewFirstPageNnm;// 逻辑上的起始页---窗户最左端   （为任意正负数）,在页面渲染时不作为有效属性,仅用于计算窗口使用
 
-	private int viewEndPageNum;// 逻辑上结束页---窗户最右端  （为任意正负数）
+	private int viewEndPageNum;// 逻辑上结束页---窗户最右端  （为任意正负数）,在页面渲染时不作为有效属性,仅用于计算窗口使用
 
 	private int[] first_endPageNum;// 存放显示的页码---窗户的范围内容
 
 	private int viewPageSize=10; // jsp页面要显示的页码数数量（针对first_endPageNum 中的个数） 默认为10
 
-	private List<Object> list = new ArrayList<Object>();// 存放查询对象的集合
+	private List<T> list = new ArrayList<T>();// 存放查询对象的集合
 
 	private boolean hasNextPage = false;// 判断是否有下一页(默认没有)
-	
+
 	private Map<String,Object> params = new HashMap<String,Object>();//请求参数
 
 	/**
 	 * 分页开始初始化数据
-	 * 
+	 *
 	 * @param allCount 从数据库查询的总条数
 	 * @param list 从数据库中查询的数据
+	 * 注意: allCount 和 list的长度不一定相等, 以为在一对多或多对多的情况下, allCount有可能代表list数据转models后的数量.
 	 */
-	public void initFPage(int allCount,List<Object> list) {
+	public void initFPage(int allCount,List<T> list) {
 		//初始化分页的前提条件 allCount > 0, list.size>0
 		if(allCount<=0||list==null||list.size()<=0) {
 			return;
@@ -66,7 +67,7 @@ public class FPage {
 		this.firstPage = 1;
 		/** 计算尾页码(总页数就是为尾页码) **/
 		this.endPage = this.allPageNum;
-        //算出窗口 最前端和最后端的位置
+		//算出窗口 最前端和最后端的位置
 		if (this.allPageNum > this.viewPageSize) {// 总页数一定大于页数长度
 			if (this.viewPageSize / 2 == 0) {// 如果是偶数
 				this.viewFirstPageNnm = this.pageNum - ((this.viewPageSize + 2) / 2 - 1);
@@ -79,14 +80,14 @@ public class FPage {
 		/** 两种情况:1：显示页数大于等于总页数 viewPageSize>allPageSize, 2：显示页数小于总页数 **/
 		if (this.viewPageSize >= this.allPageNum) {
 			first_endPageNum = new int[this.allPageNum];// 指定长度
-            //存放页码
+			//存放页码
 			for (int i = 0; i < this.allPageNum; i++) {
 				first_endPageNum[i] = i + 1;
 			}
 		} else {
-            //-------------------
+			//-------------------
 			first_endPageNum = new int[this.viewPageSize];
-            //判断当前 左窗口端是否小于1  默认 1 2 3 4  ...viewPageSize 包含1
+			//判断当前 左窗口端是否小于1  默认 1 2 3 4  ...viewPageSize 包含1
 			if (this.viewFirstPageNnm < 1) {
 				for (int i = 0; i < this.viewPageSize; i++) {
 					first_endPageNum[i] = i + 1;
@@ -102,7 +103,7 @@ public class FPage {
 					first_endPageNum[i] = this.viewFirstPageNnm + i;
 				}
 			}
-            //------------------
+			//------------------
 		}
 	}
 
@@ -116,7 +117,7 @@ public class FPage {
 		this.hasNextPage = hasNextPage;
 	}
 
-	public List<Object> getList() {
+	public List<T> getList() {
 		return list;
 	}
 
@@ -125,14 +126,14 @@ public class FPage {
 	}
 
 
-	public void setList(List<Object> list) {
+	public void setList(List<T> list) {
 		this.list = list;
 	}
 
 	public int getPageNum() {
 		return pageNum;
 	}
-    
+
 	public void setPageNum(int pageNum) {
 		if(pageNum<=0) {
 			pageNum = 1;
@@ -191,7 +192,7 @@ public class FPage {
 		this.params = params;
 	}
 
-	
+
 
 	/**
 	 * 初始化方法
@@ -205,5 +206,56 @@ public class FPage {
 		this.params = params;
 	}
 
-	
+	/**
+	 * 初始化方法
+	 * @param pageNum 前台传来的页码
+	 * @param pageSize 每页显示数据的行数
+	 * @param params  前台传入的查询参数
+	 */
+	public FPage(Integer pageNum, Integer pageSize, Map<String, Object> params) {
+		if(pageNum==null) {pageNum = 1;}
+		this.pageNum = pageNum;
+		this.pageSize = pageSize;
+		this.begeinIndex = (this.pageNum - 1) * this.pageSize;
+		this.params = params;
+	}
+
+	public FPage() {
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+
+	public void setAllPageNum(int allPageNum) {
+		this.allPageNum = allPageNum;
+	}
+
+	public int getViewFirstPageNnm() {
+		return viewFirstPageNnm;
+	}
+
+	public void setViewFirstPageNnm(int viewFirstPageNnm) {
+		this.viewFirstPageNnm = viewFirstPageNnm;
+	}
+
+	public int getViewEndPageNum() {
+		return viewEndPageNum;
+	}
+
+	public void setViewEndPageNum(int viewEndPageNum) {
+		this.viewEndPageNum = viewEndPageNum;
+	}
+
+	public void setFirst_endPageNum(int[] first_endPageNum) {
+		this.first_endPageNum = first_endPageNum;
+	}
+
+	public int getViewPageSize() {
+		return viewPageSize;
+	}
+
+	public void setViewPageSize(int viewPageSize) {
+		this.viewPageSize = viewPageSize;
+	}
 }

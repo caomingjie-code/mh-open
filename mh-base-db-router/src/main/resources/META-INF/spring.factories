@@ -3,4 +3,4 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.javaoffers.mh.db.router.config.DBRouterConfig,\
 com.javaoffers.mh.db.router.datasource.DataSourceSlaveConfig
 
-org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
+#org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\

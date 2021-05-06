@@ -1,8 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.javaoffers.base.utils.page.PageInterceptor,\
-  com.javaoffers.base.aop.cache.CacheAspect,\
-  com.javaoffers.base.mvc.interceptor.MvcConfig,\
-  com.javaoffers.base.mvc.interceptor.MvcHandlerInterceptorAdapter,\
-  com.javaoffers.base.utils.redis.JedisUtils,\
-  com.javaoffers.base.utils.spring.SpringContentUtils,\
-  
+com.javaoffers.base.utils.page.PageInterceptor,\
+com.javaoffers.base.aop.cache.CacheAspect,\
+com.javaoffers.base.mvc.interceptor.MvcConfig,\
+com.javaoffers.base.mvc.interceptor.MvcHandlerInterceptorAdapter,\
+com.javaoffers.base.utils.redis.JedisUtils,\
+com.javaoffers.base.utils.spring.SpringContentUtils

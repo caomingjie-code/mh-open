@@ -38,4 +38,13 @@ public class DaoController {
         return maps;
     }
 
+    @RequestMapping("/update")
+    @ResponseBody
+    public String update(){
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("id","2");
+        daoService.updateData("update  test set `value` = '2' where id= #{id}", params);
+        return "ok";
+    }
+
 }

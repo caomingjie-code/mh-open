@@ -11,7 +11,7 @@
 
     <groupId>com.javaoffers</groupId>
     <artifactId>mh-base-db-router</artifactId>
-    <version>1.0.3.1</version>
+    <version>1.0.3.2</version>
     <name>mh-base-db-router</name>
 
     <dependencies>

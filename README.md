@@ -12,7 +12,10 @@
 ```
 1.0.1.2：
   添加sql 占位符号 和类型转换功，添加新的方法queryDataForT4(String sql, Map<String, Object> map, Class<E> clazz)
+1.0.1.3:
+  添加了BatisJpa 和 JpaBatis
 ```
+
 
 
 
@@ -34,5 +37,7 @@
 ```
 1.0.3.1：
   修改none connection
+1.0.3.2:
+    解决了数据库连接池问题。
 ```    
    

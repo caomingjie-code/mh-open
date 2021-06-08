@@ -378,7 +378,7 @@ public class NoneConntion implements Connection {
         return false;
     }
 
-    public  void throwsExcetion(){
+    public  void throwsExcetion() throws SQLClientInfoException{
         try {
             if(superConnection==null) {
                 synchronized (this) {
@@ -391,6 +391,7 @@ public class NoneConntion implements Connection {
             }
         }catch (Exception e){
             e.printStackTrace();
+            throw   new SQLClientInfoException();
         }
 
     }

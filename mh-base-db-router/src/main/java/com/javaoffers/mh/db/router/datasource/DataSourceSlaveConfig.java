@@ -99,6 +99,7 @@ public class DataSourceSlaveConfig {
         cpds.setInitialPoolSize(initialPoolSize);
         cpds.setIdleConnectionTestPeriod(1800);//每1800 秒检查所有连接池中的空闲连接
         cpds.setMaxIdleTime(1800);//最大空闲时间,1800 秒内未使用则连接被丢弃
+        cpds.setMaxStatements(0);//防止 (in deadlocked PoolThread) failed to complete in maximum time 60000ms. Trying interrupt()
         cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
         cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
         return cpds;

@@ -34,5 +34,7 @@
 ```
 1.0.3.1：
   修改none connection
+1.0.3.2:
+  防止 (in deadlocked PoolThread) failed to complete in maximum time 60000ms. Trying interrupt()  
 ```    
    

@@ -38,6 +38,8 @@
 1.0.3.1：
   修改none connection
 1.0.3.2:
-    解决了数据库连接池问题。
+  解决了数据库连接池问题。
+  防止 (in deadlocked PoolThread) failed to complete in maximum time 60000ms. Trying interrupt()  
+  补全所有数据库参数
 ```    
    

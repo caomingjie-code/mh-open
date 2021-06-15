@@ -3,6 +3,8 @@ import com.javaoffers.base.common.annotation.conditional.ConditionalOnPropertyMu
 import com.javaoffers.mh.db.router.exception.BaseDataSourceException;
 import com.javaoffers.mh.db.router.properties.DataSourceMasterAndSlave;
 import com.javaoffers.mh.db.router.properties.DataSourceProperteis;
+import com.mchange.v2.c3p0.cfg.C3P0Config;
+import com.mchange.v2.c3p0.impl.C3P0Defaults;
 import com.sun.imageio.plugins.common.I18N;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
@@ -44,11 +46,11 @@ public class DataSourceSlaveConfig {
      * @param dataSourceMasterAndSlave 用于解析slave数据源
      * @param dataSourceOfC3p0Master master数据源
      * @throws PropertyVetoException
-     * @throws SQLException 
+     * @throws SQLException
      */
 	private void initSlave(DataSourceMasterAndSlave dataSourceMasterAndSlave, BaseComboPooledDataSource dataSourceOfC3p0Master)
 			throws PropertyVetoException, SQLException {
-		
+
 		List<BaseComboPooledDataSource> dataSourceSlavesOfC3p02 = getDataSourceSlaveOfC3p0(dataSourceMasterAndSlave);//Slave
     	for(BaseComboPooledDataSource slave : dataSourceSlavesOfC3p02){
             dataSourceOfC3p0Master.addDataSourceSlaves(slave.getRouterName(), slave);
@@ -97,10 +99,76 @@ public class DataSourceSlaveConfig {
         cpds.setMaxPoolSize(maxPoolSize);
         cpds.setMinPoolSize(minPoolSize);
         cpds.setInitialPoolSize(initialPoolSize);
-        cpds.setIdleConnectionTestPeriod(1800);//每1800 秒检查所有连接池中的空闲连接
-        cpds.setMaxIdleTime(1800);//最大空闲时间,1800 秒内未使用则连接被丢弃
-        cpds.setAcquireRetryAttempts(100);//获取链接失败后重连次数
-        cpds.setPreferredTestQuery("select sysdate from dual");//测死语句在执行sql时
+
+
+        cpds.setAcquireIncrement(dataSourceProperteis.getAcquireIncrement());
+
+        cpds.setAcquireRetryAttempts(dataSourceProperteis.getAcquireRetryAttempts());  //获取链接失败后重连次数
+
+        cpds.setAcquireRetryDelay(dataSourceProperteis.getAcquireRetryDelay());
+
+        cpds.setAutoCommitOnClose(dataSourceProperteis.isAutoCommitOnClose());
+
+        cpds.setAutomaticTestTable(dataSourceProperteis.getAutomaticTestTable());
+
+        cpds.setBreakAfterAcquireFailure(dataSourceProperteis.isBreakAfterAcquireFailure());
+
+        cpds.setCheckoutTimeout(dataSourceProperteis.getCheckoutTimeout());      //三十秒
+
+        cpds.setConnectionCustomizerClassName(dataSourceProperteis.getConnectionCustomizerClassName());
+
+        cpds.setConnectionTesterClassName(dataSourceProperteis.getConnectionTesterClassName());
+
+        cpds.setContextClassLoaderSource(dataSourceProperteis.getContextClassLoaderSource());
+
+        cpds.setDebugUnreturnedConnectionStackTraces(dataSourceProperteis.isDebugUnreturnedConnectionStackTraces());
+
+        cpds.setFactoryClassLocation(dataSourceProperteis.getFactoryClassLocation());
+
+        cpds.setForceIgnoreUnresolvedTransactions(dataSourceProperteis.isForceIgnoreUnresolvedTransactions());
+
+        cpds.setForceSynchronousCheckins(dataSourceProperteis.isForceSynchronousCheckins());
+
+        cpds.setIdentityToken(dataSourceProperteis.getIdentityToken());
+
+        cpds.setIdleConnectionTestPeriod(dataSourceProperteis.getIdleConnectionTestPeriod());    //每1800 秒检查所有连接池中的空闲连接
+
+        cpds.setMaxAdministrativeTaskTime(dataSourceProperteis.getMaxAdministrativeTaskTime());
+
+        cpds.setMaxConnectionAge(dataSourceProperteis.getMaxConnectionAge());
+
+        cpds.setMaxIdleTime(dataSourceProperteis.getMaxIdleTime());       //最大空闲时间,1800 秒内未使用则连接被丢弃
+
+        cpds.setMaxIdleTimeExcessConnections(dataSourceProperteis.getMaxIdleTimeExcessConnections());
+
+        cpds.setMaxStatements(dataSourceProperteis.getMaxStatements());  //防止 (in deadlocked PoolThread) failed to complete in maximum time 60000ms. Trying interrupt()
+
+        cpds.setMaxStatementsPerConnection(dataSourceProperteis.getMaxStatementsPerConnection());
+
+        cpds.setOverrideDefaultPassword(dataSourceProperteis.getOverrideDefaultPassword());
+
+        cpds.setOverrideDefaultUser(dataSourceProperteis.getOverrideDefaultUser());
+
+        cpds.setPreferredTestQuery(dataSourceProperteis.getPreferredTestQuery()); //测死语句在执行sql时
+
+        cpds.setPrivilegeSpawnedThreads(dataSourceProperteis.isPrivilegeSpawnedThreads());
+
+        cpds.setPropertyCycle(dataSourceProperteis.getPropertyCycle());
+
+        cpds.setStatementCacheNumDeferredCloseThreads(dataSourceProperteis.getStatementCacheNumDeferredCloseThreads());
+
+        cpds.setTestConnectionOnCheckin(dataSourceProperteis.isTestConnectionOnCheckin());    //获取connnection时测试是否有效
+
+        cpds.setTestConnectionOnCheckout(dataSourceProperteis.isTestConnectionOnCheckout());
+
+        cpds.setUnreturnedConnectionTimeout(dataSourceProperteis.getUnreturnedConnectionTimeout());
+
+        cpds.setUserOverridesAsString(dataSourceProperteis.getUserOverridesAsString());
+
+        cpds.setUsesTraditionalReflectiveProxies(dataSourceProperteis.isUsesTraditionalReflectiveProxies());
+
+
+
         return cpds;
     }
 

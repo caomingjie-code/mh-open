@@ -32,7 +32,6 @@ public class DataSourceProperteis {
     private String factoryClassLocation = C3P0Config.initializeStringPropertyVar("factoryClassLocation", C3P0Defaults.factoryClassLocation());
     private boolean forceIgnoreUnresolvedTransactions = C3P0Config.initializeBooleanPropertyVar("forceIgnoreUnresolvedTransactions", C3P0Defaults.forceIgnoreUnresolvedTransactions());
     private boolean forceSynchronousCheckins = C3P0Config.initializeBooleanPropertyVar("forceSynchronousCheckins", C3P0Defaults.forceSynchronousCheckins());
-    private volatile String identityToken;
     private int idleConnectionTestPeriod = 1800;//每1800 秒检查所有连接池中的空闲连接
     private int initialPoolSize = C3P0Config.initializeIntPropertyVar("initialPoolSize", C3P0Defaults.initialPoolSize());
     private int maxAdministrativeTaskTime = C3P0Config.initializeIntPropertyVar("maxAdministrativeTaskTime", C3P0Defaults.maxAdministrativeTaskTime());
@@ -43,7 +42,6 @@ public class DataSourceProperteis {
     private int maxStatements = C3P0Config.initializeIntPropertyVar("maxStatements", C3P0Defaults.maxStatements());
     private int maxStatementsPerConnection = C3P0Config.initializeIntPropertyVar("maxStatementsPerConnection", C3P0Defaults.maxStatementsPerConnection());
     private int minPoolSize = C3P0Config.initializeIntPropertyVar("minPoolSize", C3P0Defaults.minPoolSize());
-    private DataSource nestedDataSource;
     private String overrideDefaultPassword = C3P0Config.initializeStringPropertyVar("overrideDefaultPassword", C3P0Defaults.overrideDefaultPassword());
     private String overrideDefaultUser = C3P0Config.initializeStringPropertyVar("overrideDefaultUser", C3P0Defaults.overrideDefaultUser());
     private String preferredTestQuery = "select sysdate from dual";
@@ -168,13 +166,6 @@ public class DataSourceProperteis {
         this.forceSynchronousCheckins = forceSynchronousCheckins;
     }
 
-    public String getIdentityToken() {
-        return identityToken;
-    }
-
-    public void setIdentityToken(String identityToken) {
-        this.identityToken = identityToken;
-    }
 
     public int getIdleConnectionTestPeriod() {
         return idleConnectionTestPeriod;
@@ -246,14 +237,6 @@ public class DataSourceProperteis {
 
     public void setMinPoolSize(int minPoolSize) {
         this.minPoolSize = minPoolSize;
-    }
-
-    public DataSource getNestedDataSource() {
-        return nestedDataSource;
-    }
-
-    public void setNestedDataSource(DataSource nestedDataSource) {
-        this.nestedDataSource = nestedDataSource;
     }
 
     public String getOverrideDefaultPassword() {

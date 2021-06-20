@@ -8,6 +8,18 @@ package com.javaoffers.base.kafka.config;
 public class KafkaProducerProperties {
 
     /**
+     * 链接broker的地址，可以指定多个
+     */
+    private String bootstrapServers;
+
+    /**
+     * 默认序列化
+     */
+    private String keySerializer = "org.apache.kafka.common.serialization.StringSerializer";
+
+    private String valueSerializer = "org.apache.kafka.common.serialization.StringSerializer";
+
+    /**
      * kafka生产者对消息写入成功的认证机制，分别有三种：
      * 1： acks=0 生产者在消息写入成功之前不会等待任何响应，也就是说发送之后就不管是否成功被写入，这样优点是可以更大的提高并发度，缺点是数据有可能会丢失。
      * 2： acks=1 只要集群的首领节点收到消息，就会给对应的消息生产者发送一个成功消息。优点是相对于acks=0丢失率减少，缺点是仍然存在丢失的问题，但吞吐量取

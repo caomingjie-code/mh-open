@@ -129,8 +129,6 @@ public class DataSourceSlaveConfig {
 
         cpds.setForceSynchronousCheckins(dataSourceProperteis.isForceSynchronousCheckins());
 
-        cpds.setIdentityToken(dataSourceProperteis.getIdentityToken());
-
         cpds.setIdleConnectionTestPeriod(dataSourceProperteis.getIdleConnectionTestPeriod());    //每1800 秒检查所有连接池中的空闲连接
 
         cpds.setMaxAdministrativeTaskTime(dataSourceProperteis.getMaxAdministrativeTaskTime());

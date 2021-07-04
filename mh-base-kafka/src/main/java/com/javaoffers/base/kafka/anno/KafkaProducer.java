@@ -7,6 +7,8 @@ package com.javaoffers.base.kafka.anno;
  */
 public @interface KafkaProducer {
 
+    String topic(); //指定主题
+
     /**
      * 默认序列化
      */

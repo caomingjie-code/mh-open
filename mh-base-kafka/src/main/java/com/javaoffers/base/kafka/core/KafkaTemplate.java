@@ -8,9 +8,9 @@ package com.javaoffers.base.kafka.core;
 public interface KafkaTemplate {
 
     //发送信息
-    void send(Object msg,String topic);
+    void send(String topic,Object key,Object msg);
 
-    boolean sendWithAck(Object msg,String topic);
+    boolean sendWithAck(String topic , String key, Object msg);
 
 
 

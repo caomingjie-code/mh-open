@@ -1,4 +1,4 @@
-package com.javaoffers.base.kafka;
+package com.javaoffers.kafka.sample;
 
 
 import org.slf4j.Logger;
@@ -11,13 +11,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
-public class KafkaApp
+public class KafkaSample
 {
-    private static Logger logger = LoggerFactory.getLogger(KafkaApp.class);// log4j记录日志
+    private static Logger logger = LoggerFactory.getLogger(KafkaSample.class);// log4j记录日志
 
     public static void main( String[] args )
     {
-        SpringApplication.run(KafkaApp.class,args);
+        SpringApplication.run(KafkaSample.class,args);
         logger.info( "Hello World!" );
     }
 }

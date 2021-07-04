@@ -1,14 +1,8 @@
 package com.javaoffers.base.kafka.config;
 
-import com.javaoffers.base.kafka.anno.KafkaProducer;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Import;
 
 /**
  * @Description:
@@ -16,14 +10,10 @@ import org.springframework.stereotype.Component;
  */
 @Configuration
 @EnableConfigurationProperties({KafkaProperties.class})
+@Import(KafkaConfigurationClassPostProcessor.class)
 public class KafkaAutoConfiguration {
 
-    @Bean
-    public KafkaScaner kafkaScaner(BeanDefinitionRegistry registry){
-        KafkaScaner kafkaScaner = new KafkaScaner(registry);
-        kafkaScaner.resetFilters(false);
-        kafkaScaner.addIncludeFilter(new AnnotationTypeFilter(KafkaProducer.class));
-        return kafkaScaner;
-    }
+
+
 
 }

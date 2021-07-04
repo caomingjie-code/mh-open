@@ -22,6 +22,7 @@
         <module>sample-base-eslog</module>
         <module>sample-base-mq</module>
         <module>sample-base-db-router</module>
+        <module>sample-base-kafka</module>
     </modules>
 
     <properties>

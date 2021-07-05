@@ -3,6 +3,7 @@ package com.javaoffers.base.kafka.core;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.core.type.AnnotationMetadata;
 
 /**
  * @author cmj
@@ -15,15 +16,25 @@ public class KafkaProducerAndConsumerFactoryBean implements FactoryBean {
 
     public Class<MethodInterceptor> methodInterceptorClass;
 
+    public AnnotationMetadata metadata;
+
     @Override
     public Object getObject() throws Exception {
 
         ProxyFactory proxyFactory = new ProxyFactory();
         proxyFactory.setInterfaces(Class.forName(className));
-        proxyFactory.addAdvice(methodInterceptorClass.newInstance());
+        MethodInterceptor methodInterceptor = methodInterceptorClass.newInstance();
+        isKafkaProducerInterceptor(methodInterceptor);
+        proxyFactory.addAdvice(methodInterceptor);
         Object proxy = proxyFactory.getProxy();
-
         return proxy;
+    }
+
+    private void isKafkaProducerInterceptor(MethodInterceptor methodInterceptor) {
+        if(methodInterceptor instanceof KafkaProducerInterceptor){
+            KafkaProducerInterceptor kafkaProducerInterceptor = (KafkaProducerInterceptor) methodInterceptor;
+            kafkaProducerInterceptor.setMetadata(metadata);
+        }
     }
 
     @Override
@@ -37,10 +48,18 @@ public class KafkaProducerAndConsumerFactoryBean implements FactoryBean {
         return null;
     }
 
+    public AnnotationMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(AnnotationMetadata metadata) {
+        this.metadata = metadata;
+    }
 
     public boolean isSingleton() {
         return true;
     }
+
 
     public String getClassName() {
         return className;

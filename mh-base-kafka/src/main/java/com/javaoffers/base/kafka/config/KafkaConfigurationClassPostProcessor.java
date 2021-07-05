@@ -10,11 +10,15 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,17 +44,17 @@ public class KafkaConfigurationClassPostProcessor implements BeanDefinitionRegis
         kafkaScaner.addIncludeFilter(new AnnotationTypeFilter(EnableKafkaProducer.class));
         doScanKafkaProducer(registry, candidateComponents, kafkaScaner);
         for(BeanDefinition beanDefinitionOfKafkaProducer : candidateComponents){
-            String beanClassName = beanDefinitionOfKafkaProducer.getBeanClassName();
-            beanDefinitionOfKafkaProducer.setBeanClassName(KAFKA_PRODUCER_CLASS);
+            ScannedGenericBeanDefinition scannedGenericBeanDefinition = (ScannedGenericBeanDefinition) beanDefinitionOfKafkaProducer;
+            String beanClassName = scannedGenericBeanDefinition.getBeanClassName();
+            scannedGenericBeanDefinition.setBeanClassName(KAFKA_PRODUCER_CLASS);
 
-//            beanDefinitionOfKafkaProducer.getPropertyValues().add("className",beanClassName);
-//            beanDefinitionOfKafkaProducer.getPropertyValues().add("methodInterceptorClass",KAFKA_PRODUCER_METHOD_INTERCEPTOR_CLASS);
+            scannedGenericBeanDefinition.getPropertyValues().add("className",beanClassName);
+            scannedGenericBeanDefinition.getPropertyValues().add("methodInterceptorClass",KAFKA_PRODUCER_METHOD_INTERCEPTOR_CLASS);
+            scannedGenericBeanDefinition.getPropertyValues().add("metadata",scannedGenericBeanDefinition.getMetadata());
+            scannedGenericBeanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
 
-            beanDefinitionOfKafkaProducer.getConstructorArgumentValues().addIndexedArgumentValue(0,beanClassName);
-            beanDefinitionOfKafkaProducer.getConstructorArgumentValues().addIndexedArgumentValue(1,KAFKA_PRODUCER_METHOD_INTERCEPTOR_CLASS);
-
-            //beanDefinitionOfKafkaProducer.setScope(BeanDefinition.SCOPE_SINGLETON);
             registry.registerBeanDefinition(beanClassName,beanDefinitionOfKafkaProducer);
+
 
         }
 

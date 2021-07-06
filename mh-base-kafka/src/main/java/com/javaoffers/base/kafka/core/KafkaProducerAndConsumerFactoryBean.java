@@ -46,7 +46,8 @@ public class KafkaProducerAndConsumerFactoryBean implements FactoryBean, Environ
             KafkaProducerInterceptor kafkaProducerInterceptor = (KafkaProducerInterceptor) methodInterceptor;
             kafkaProducerInterceptor.setMetadata(metadata);
             kafkaProducerInterceptor.setEnvironment(environment);
-            kafkaProducerInterceptor.setProducer(applicationContext.getBean(KafkaProperties.class).getProducer());
+            kafkaProducerInterceptor.setProducerProperties(applicationContext.getBean(KafkaProperties.class).getProducer());
+            kafkaProducerInterceptor.setLogClassName(className);
         }
     }
 

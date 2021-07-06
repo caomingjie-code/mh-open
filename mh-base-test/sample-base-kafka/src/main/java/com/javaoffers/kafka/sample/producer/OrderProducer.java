@@ -8,6 +8,6 @@ import com.javaoffers.base.kafka.core.KafkaProducer;
  * @Description TODO
  * @createTime 2021年07月04日 23:03:00
  */
-@EnableKafkaProducer("order-topic")
+@EnableKafkaProducer
 public interface OrderProducer extends KafkaProducer {
 }

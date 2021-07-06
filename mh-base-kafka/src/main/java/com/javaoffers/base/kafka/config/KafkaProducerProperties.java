@@ -10,7 +10,7 @@ public class KafkaProducerProperties {
     /**
      * 链接broker的地址，可以指定多个
      */
-    private String bootstrapServers;
+    private String bootstrapServers = "127.0.0.1:9092"; //默认
 
     /**
      * 默认序列化
@@ -26,7 +26,7 @@ public class KafkaProducerProperties {
      *     决于使用的是同步还是异步，如果是异步则延迟问题得到缓解，因为吞吐量还是会受到发送消息的数量限制（比如，生产者在受到服务器响应之前可以发送多少个消息）
      * 3： acks=all 集群中的所有节点全部接收到消息时，生产者才会收到来自服务器的成功消息， 这种模式是最安全的，但是生产者接收到服务的成功消息所产生的时间延迟也是最高的。
      */
-    private String acks;
+    private String acks = "0";
 
     /**
      * 该参数是用来设置生产者内存缓存区的大小，生产者用它来缓存要发送服务器的消息。注意：如果生产者生产消息（包含发送动作）的数度大于消息从网络到服务器的数度，则会导致
@@ -34,6 +34,8 @@ public class KafkaProducerProperties {
      * 如果超过则会报错）
      */
     private String bufferMemory;
+    private String blockOnBuffeFull;
+
 
     /**
      * 指消息在发送到服务器之前使用那一种压缩算法，将消息进行压缩，默认不压缩。kafka提供了三种压缩算法分别是：snappy, gzip, lz4 。 snappy 是由google发明，优点: 占用cpu较少和可观的
@@ -117,6 +119,163 @@ public class KafkaProducerProperties {
      */
     private String partitionerClass;
 
+    public String getBootstrapServers() {
+        return bootstrapServers;
+    }
 
+    public void setBootstrapServers(String bootstrapServers) {
+        this.bootstrapServers = bootstrapServers;
+    }
 
+    public String getKeySerializer() {
+        return keySerializer;
+    }
+
+    public void setKeySerializer(String keySerializer) {
+        this.keySerializer = keySerializer;
+    }
+
+    public String getValueSerializer() {
+        return valueSerializer;
+    }
+
+    public void setValueSerializer(String valueSerializer) {
+        this.valueSerializer = valueSerializer;
+    }
+
+    public String getAcks() {
+        return acks;
+    }
+
+    public void setAcks(String acks) {
+        this.acks = acks;
+    }
+
+    public String getBufferMemory() {
+        return bufferMemory;
+    }
+
+    public void setBufferMemory(String bufferMemory) {
+        this.bufferMemory = bufferMemory;
+    }
+
+    public String getCompressionType() {
+        return compressionType;
+    }
+
+    public void setCompressionType(String compressionType) {
+        this.compressionType = compressionType;
+    }
+
+    public String getRetries() {
+        return retries;
+    }
+
+    public void setRetries(String retries) {
+        this.retries = retries;
+    }
+
+    public String getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(String batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public String getLingerMs() {
+        return lingerMs;
+    }
+
+    public void setLingerMs(String lingerMs) {
+        this.lingerMs = lingerMs;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getMaxInFlightRequestsPerConnection() {
+        return maxInFlightRequestsPerConnection;
+    }
+
+    public void setMaxInFlightRequestsPerConnection(String maxInFlightRequestsPerConnection) {
+        this.maxInFlightRequestsPerConnection = maxInFlightRequestsPerConnection;
+    }
+
+    public String getTimeoutMs() {
+        return timeoutMs;
+    }
+
+    public void setTimeoutMs(String timeoutMs) {
+        this.timeoutMs = timeoutMs;
+    }
+
+    public String getRequestTimeoutMs() {
+        return requestTimeoutMs;
+    }
+
+    public void setRequestTimeoutMs(String requestTimeoutMs) {
+        this.requestTimeoutMs = requestTimeoutMs;
+    }
+
+    public String getMetadataFatchTimeoutMs() {
+        return metadataFatchTimeoutMs;
+    }
+
+    public void setMetadataFatchTimeoutMs(String metadataFatchTimeoutMs) {
+        this.metadataFatchTimeoutMs = metadataFatchTimeoutMs;
+    }
+
+    public String getMaxBlockMs() {
+        return maxBlockMs;
+    }
+
+    public void setMaxBlockMs(String maxBlockMs) {
+        this.maxBlockMs = maxBlockMs;
+    }
+
+    public String getMaxRequestSize() {
+        return maxRequestSize;
+    }
+
+    public void setMaxRequestSize(String maxRequestSize) {
+        this.maxRequestSize = maxRequestSize;
+    }
+
+    public String getReceiveBufferBytes() {
+        return receiveBufferBytes;
+    }
+
+    public void setReceiveBufferBytes(String receiveBufferBytes) {
+        this.receiveBufferBytes = receiveBufferBytes;
+    }
+
+    public String getSendBufferBytes() {
+        return sendBufferBytes;
+    }
+
+    public void setSendBufferBytes(String sendBufferBytes) {
+        this.sendBufferBytes = sendBufferBytes;
+    }
+
+    public String getPartitionerClass() {
+        return partitionerClass;
+    }
+
+    public void setPartitionerClass(String partitionerClass) {
+        this.partitionerClass = partitionerClass;
+    }
+
+    public String getBlockOnBuffeFull() {
+        return blockOnBuffeFull;
+    }
+
+    public void setBlockOnBuffeFull(String blockOnBuffeFull) {
+        this.blockOnBuffeFull = blockOnBuffeFull;
+    }
 }

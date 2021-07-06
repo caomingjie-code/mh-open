@@ -1,8 +1,14 @@
 package com.javaoffers.base.kafka.core;
 
+import com.javaoffers.base.kafka.config.KafkaProperties;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 /**
@@ -10,13 +16,17 @@ import org.springframework.core.type.AnnotationMetadata;
  * @Description TODO
  * @createTime 2021年07月04日 22:55:00
  */
-public class KafkaProducerAndConsumerFactoryBean implements FactoryBean {
+public class KafkaProducerAndConsumerFactoryBean implements FactoryBean, EnvironmentAware, ApplicationContextAware {
 
     public String className;
 
     public Class<MethodInterceptor> methodInterceptorClass;
 
     public AnnotationMetadata metadata;
+
+    public  Environment environment;
+
+    private ApplicationContext applicationContext;
 
     @Override
     public Object getObject() throws Exception {
@@ -27,6 +37,7 @@ public class KafkaProducerAndConsumerFactoryBean implements FactoryBean {
         isKafkaProducerInterceptor(methodInterceptor);
         proxyFactory.addAdvice(methodInterceptor);
         Object proxy = proxyFactory.getProxy();
+
         return proxy;
     }
 
@@ -34,6 +45,8 @@ public class KafkaProducerAndConsumerFactoryBean implements FactoryBean {
         if(methodInterceptor instanceof KafkaProducerInterceptor){
             KafkaProducerInterceptor kafkaProducerInterceptor = (KafkaProducerInterceptor) methodInterceptor;
             kafkaProducerInterceptor.setMetadata(metadata);
+            kafkaProducerInterceptor.setEnvironment(environment);
+            kafkaProducerInterceptor.setProducer(applicationContext.getBean(KafkaProperties.class).getProducer());
         }
     }
 
@@ -83,5 +96,15 @@ public class KafkaProducerAndConsumerFactoryBean implements FactoryBean {
     public KafkaProducerAndConsumerFactoryBean(String className, Class<MethodInterceptor> methodInterceptorClass) {
         this.className = className;
         this.methodInterceptorClass = methodInterceptorClass;
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

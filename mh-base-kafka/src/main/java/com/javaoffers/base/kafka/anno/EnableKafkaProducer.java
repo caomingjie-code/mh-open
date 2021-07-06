@@ -15,11 +15,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface EnableKafkaProducer {
 
-    @AliasFor("topic")
-    String value() default "";
-
-    String topic() default ""; //指定主题
-
     /**
      * 默认序列化
      */
@@ -42,6 +37,7 @@ public @interface EnableKafkaProducer {
      * 如果超过则会报错）
      */
      String bufferMemory()default "";
+     String blockOnBuffeFull() default "";
 
     /**
      * 指消息在发送到服务器之前使用那一种压缩算法，将消息进行压缩，默认不压缩。kafka提供了三种压缩算法分别是：snappy, gzip, lz4 。 snappy 是由google发明，优点: 占用cpu较少和可观的

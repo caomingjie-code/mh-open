@@ -1,10 +1,13 @@
 package com.javaoffers.base.kafka.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 /**
  * @author cmj
  * @Description kafka 消费者全局参数
  * @createTime 2021年06月20日 17:28:00
  */
+
 public class KafkaConsumerProperties {
 
 

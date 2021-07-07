@@ -34,7 +34,7 @@ public class KafkaProducerInterceptor implements MethodInterceptor {
 
     private KafkaProducerProperties producerProperties;
 
-    private KafkaProducerImpl producer; //原生 生产者
+    private KafkaProducerImpl producer; //原生扩展 生产者
 
     private String logClassName; //被代理的class类的名称
 
@@ -78,7 +78,7 @@ public class KafkaProducerInterceptor implements MethodInterceptor {
                         try {
                             //关闭生产
                             if(producer!=null){
-                                producer.close();
+                                producer.closeProducer();
                             }
                             producer = null;
                         }catch (Exception e){

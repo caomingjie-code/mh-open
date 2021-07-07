@@ -23,6 +23,7 @@ public class OrderService {
     @RequestMapping("orderproducer")
     public String orderproducer(){
         orderProducer.send("order-topic","orderId:12",""+System.nanoTime());
+        orderProducer.closeProducer();
         return "ok";
     }
 }

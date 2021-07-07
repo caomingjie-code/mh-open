@@ -15,6 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author cmj
@@ -31,19 +36,65 @@ public class KafkaProducerInterceptor implements MethodInterceptor {
 
     private KafkaProducerImpl producer; //原生 生产者
 
-    private String logClassName;
+    private String logClassName; //被代理的class类的名称
+
+    private int sendCount = 250000; //发送并发量
+
+    private Semaphore sendCounter = new Semaphore(sendCount);//当前时间并发统计量
+
+    private AtomicLong closeCounter = new AtomicLong(0);
+
+
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         System.out.println("开始生产消息！！！");
 
-        initKafkaProducer();
-
         Method method = invocation.getMethod();
 
         Object[] arguments = invocation.getArguments();
 
-        Object invoke = method.invoke(producer, arguments);
+        Object invoke = null;
+
+        if(!method.getName().equals("closeProducer")){ //非关闭方法
+            try {
+                sendCounter.acquire();
+
+                initKafkaProducer();
+
+                invoke = method.invoke(producer, arguments);
+
+            }catch (Exception e){
+                throw e;
+            }finally {
+                sendCounter.release();
+            }
+        }else {
+            synchronized (sendCounter){
+                while (true){
+                    sendCounter.acquire();
+                    long closeCount = closeCounter.incrementAndGet();
+                    if(closeCount==sendCount){
+                        try {
+                            //关闭生产
+                            if(producer!=null){
+                                producer.close();
+                            }
+                            producer = null;
+                        }catch (Exception e){
+                            throw  e;
+                        }finally {
+                            //开始释放令牌
+                            for(long c = closeCounter.get(); c >0 ;c--){
+                                sendCounter.release();
+                            }
+                            closeCounter.set(0);//恢复原值
+                            return null; //跳出循环
+                        }
+                    }
+                }
+            }
+        }
 
         return invoke;
 
@@ -71,7 +122,7 @@ public class KafkaProducerInterceptor implements MethodInterceptor {
 
                     KafkaProducerImpl producer = new KafkaProducerImpl(kafkaProducer);
 
-                    producer.setLogger(LoggerFactory.getLogger(""));
+                    producer.setLogger(LoggerFactory.getLogger(logClassName));
 
                     this.producer = producer;
                 }

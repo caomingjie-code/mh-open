@@ -14,5 +14,7 @@ public interface KafkaProducer extends Producer<Object, Object> {
 
     public boolean sendWithAck(String topic, String key, Object msg) ;
 
+    public void closeProducer();
+
 
 }

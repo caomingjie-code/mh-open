@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author cmj
@@ -18,6 +19,7 @@ import java.util.concurrent.Future;
 public class KafkaProducerImpl extends org.apache.kafka.clients.producer.KafkaProducer<Object,Object> implements KafkaProducer{
 
     Logger logger;
+
 
     public KafkaProducerImpl(Map configs) {
         super(configs);
@@ -38,6 +40,31 @@ public class KafkaProducerImpl extends org.apache.kafka.clients.producer.KafkaPr
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
+
+    /**
+     * 此方法不会进行关闭生产者，请使用closeProducer
+     */
+    @Deprecated
+    public void close() {
+        super.flush();
+    }
+
+    /**
+     * 此方法不会进行关闭生产者，请使用closeProducer
+     */
+    @Deprecated
+    public void close(long timeout, TimeUnit timeUnit) {
+        super.flush();
+    }
+
+    /**
+     * 关闭生产者
+     * @return
+     */
+    public void closeProducer(){
+        super.close();
+    }
+
 
     public void send(String topic, Object key, Object msg){
         send(new ProducerRecord<Object,Object>(topic,key,msg));

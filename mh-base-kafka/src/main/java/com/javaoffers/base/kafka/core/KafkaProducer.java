@@ -16,6 +16,11 @@ public interface KafkaProducer extends Producer<Object, Object> {
 
     public boolean sendWithAck(String topic, String key, Object msg) ;
 
+    /**
+     * 此方法不要用于并发环境下，因为会导致大量的链接创建与销毁，性能及其底下，有可能会出现链接被耗尽（生产者和broker都有可能出现这种情况）,
+     * 导致正常的链接不可用。 例如：[Producer clientId=producer-1110] Connection to node 0 could not be established. Broker may not be available.
+     * 严重情况下：可能会把kafka broker 搞崩溃，因为打开的文件描述符太多。
+     */
     public void closeProducer();
 
     /**

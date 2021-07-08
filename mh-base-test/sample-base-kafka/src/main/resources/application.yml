@@ -4,4 +4,4 @@ server:
 #配置kafka
 kafka:
   producer:
-    bootstrapServers: '127.0.0.1:9092'
+    bootstrapServers: '192.168.26.79:9092'

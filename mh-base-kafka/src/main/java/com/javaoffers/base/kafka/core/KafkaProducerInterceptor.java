@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
@@ -44,10 +46,13 @@ public class KafkaProducerInterceptor implements MethodInterceptor {
 
     private AtomicLong closeCounter = new AtomicLong(0);
 
+    private static final ExecutorService closeExecutorService = Executors.newFixedThreadPool(10);
+
 
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
+
         System.out.println("开始生产消息！！！");
 
         Method method = invocation.getMethod();
@@ -78,7 +83,10 @@ public class KafkaProducerInterceptor implements MethodInterceptor {
                         try {
                             //关闭生产
                             if(producer!=null){
-                                producer.closeProducer();
+                                KafkaProducer closingKafkaProducer = producer;
+                                closeExecutorService.execute(()->{
+                                    closingKafkaProducer.closeProducer();
+                                });
                             }
                             producer = null;
                         }catch (Exception e){
